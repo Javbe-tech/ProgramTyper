@@ -39,8 +39,20 @@ function getUserInitials() {
 }
 
 function handleLogout() {
-  authService.logout();
-  updateAuthState();
+  if (confirm('Are you sure you want to sign out? Your progress will be saved to your Google account.')) {
+    authService.logout();
+    updateAuthState();
+  }
+}
+
+async function handleLogin() {
+  try {
+    await authService.login();
+    updateAuthState();
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('Login failed. Please try again.');
+  }
 }
 </script>
 
@@ -88,6 +100,14 @@ function handleLogout() {
         </div>
         <button @click="handleLogout" class="logout-btn-small" title="Sign out">
           <span class="logout-icon-small">🚪</span>
+        </button>
+      </div>
+      
+      <!-- Login Option when not authenticated -->
+      <div v-else class="login-section-topbar">
+        <button @click="handleLogin" class="login-btn-topbar">
+          <span class="login-icon-topbar">👤</span>
+          Sign in
         </button>
       </div>
       
@@ -238,20 +258,50 @@ function handleLogout() {
   background: none;
   border: 1px solid var(--border-color);
   color: var(--gray);
-  padding: 2px 4px;
+  padding: 1px 3px;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .logout-btn-small:hover {
   background: var(--active-line-bg);
   color: var(--font-color);
   border-color: var(--font-color);
+  opacity: 1;
 }
 
 .logout-icon-small {
+  font-size: 0.7rem;
+}
+
+/* Login Section in Top Bar */
+.login-section-topbar {
+  display: flex;
+  align-items: center;
+}
+
+.login-btn-topbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+
+.login-btn-topbar:hover {
+  background: #6d28d9;
+}
+
+.login-icon-topbar {
   font-size: 0.7rem;
 }
 
