@@ -2,10 +2,10 @@
 class SettingsService {
   constructor() {
     this.defaultSettings = {
-      enableCapitals: true,
-      enablePeriods: true,
+      enableCapitals: false,
+      enablePeriods: false,
       enableWordCapitals: false,
-      enableSpecialChars: true,
+      enableSpecialChars: false,
       fadedWordsBrightness: 0.5
     };
     this.settings = { ...this.defaultSettings };

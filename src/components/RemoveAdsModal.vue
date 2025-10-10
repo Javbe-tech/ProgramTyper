@@ -1,9 +1,25 @@
 <script setup>
+import { authService } from '../services/authService.js';
+
 const emit = defineEmits(['close', 'purchased']);
 
 function pretendPurchase() {
+  // Check if user is authenticated
+  if (!authService.isUserAuthenticated()) {
+    alert('Please sign in with Google to purchase Pro features.');
+    return;
+  }
+  
   // Stub: simulate successful one-time purchase
   localStorage.setItem('pt_ads_removed', '1');
+  localStorage.setItem('pt_pro_user', '1');
+  
+  // Store pro status with user account
+  const user = authService.getUser();
+  if (user && user.email) {
+    localStorage.setItem(`pt_pro_user_${user.email}`, '1');
+  }
+  
   emit('purchased');
 }
 </script>
@@ -11,14 +27,17 @@ function pretendPurchase() {
 <template>
   <div class="modal-overlay" @click.self="emit('close')">
     <div class="modal">
-      <h3>Remove Ads</h3>
-      <p>One-time fee of <strong>$5</strong> removes all ads across ProgramTyper forever for your browser/account.</p>
+      <h3>Upgrade to Pro</h3>
+      <p>One-time fee of <strong>$5</strong> unlocks all Pro features forever for your account.</p>
       <ul>
-        <li>No banners, no bottom ads</li>
-        <li>Faster loading and fewer distractions</li>
+        <li>Remove all ads permanently</li>
+        <li>Unlock advanced typing settings</li>
+        <li>Customize themes and appearance</li>
+        <li>Save settings across devices</li>
+        <li>Enhanced typing experience</li>
       </ul>
       <div class="actions">
-        <button class="primary" @click="pretendPurchase">Pay $5</button>
+        <button class="primary" @click="pretendPurchase">Upgrade to Pro - $5</button>
         <button class="ghost" @click="emit('close')">Cancel</button>
       </div>
     </div>

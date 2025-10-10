@@ -37,7 +37,19 @@ const showHelpModal = ref(false);
 const showSettingsModal = ref(false);
 
 function openRemoveAds() { showRemoveAdsModal.value = true; }
-function onPurchased() { showAds.value = false; showRemoveAdsModal.value = false; }
+function onPurchased() { 
+  showAds.value = false; 
+  showRemoveAdsModal.value = false; 
+  
+  // Set pro status
+  localStorage.setItem('pt_pro_user', '1');
+  
+  // Store pro status with user account
+  const user = authService.getUser();
+  if (user && user.email) {
+    localStorage.setItem(`pt_pro_user_${user.email}`, '1');
+  }
+}
 
 function toggleTerminal() {
   terminalVisible.value = !terminalVisible.value;
@@ -49,6 +61,27 @@ function openHelp() {
 
 function openSettings() {
   showSettingsModal.value = true;
+}
+
+function openProUpgrade() {
+  showRemoveAdsModal.value = true;
+}
+
+function handleLogout() {
+  // Clear pro status and ads when logging out
+  localStorage.removeItem('pt_pro_user');
+  localStorage.removeItem('pt_ads_removed');
+  showAds.value = true;
+  
+  // Clear user-specific data
+  localStorage.removeItem('pt_typing_settings');
+  localStorage.removeItem('pt_theme');
+  
+  // Reset to default theme
+  document.documentElement.removeAttribute('data-theme');
+  
+  // Reset settings to defaults
+  document.documentElement.style.setProperty('--faded-words-opacity', '0.5');
 }
 
 // Authentication state
@@ -224,11 +257,23 @@ function setupAuthListeners() {
       currentUser.value = newUser;
       
       if (newAuthState) {
+        // User logged in - restore pro status
         userStatsService.onUserLogin();
         console.log('User logged in successfully');
+        
+        // Check if this user has pro status
+        if (newUser && newUser.email) {
+          const userProStatus = localStorage.getItem(`pt_pro_user_${newUser.email}`);
+          if (userProStatus === '1') {
+            localStorage.setItem('pt_pro_user', '1');
+            localStorage.setItem('pt_ads_removed', '1');
+            showAds.value = false;
+          }
+        }
       } else {
         userStatsService.onUserLogout();
         console.log('User logged out');
+        handleLogout();
       }
     }
   }, 1000); // Check every second
@@ -492,6 +537,7 @@ onUnmounted(() => {
       @toggle-terminal="toggleTerminal"
       @open-help="openHelp"
       @open-settings="openSettings"
+      @open-pro-upgrade="openProUpgrade"
     />
     <div id="app-container">
       <Sidebar 
@@ -538,7 +584,8 @@ onUnmounted(() => {
     />
     <SettingsModal 
       v-if="showSettingsModal" 
-      @close="showSettingsModal = false" 
+      @close="showSettingsModal = false"
+      @open-pro-upgrade="openProUpgrade"
     />
   </div>
 </template>

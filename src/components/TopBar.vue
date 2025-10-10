@@ -7,13 +7,23 @@ const props = defineProps({
   terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 const user = ref(null);
 const isAuthenticated = ref(false);
 
+function checkProAccess() {
+  const isProUser = localStorage.getItem('pt_pro_user') === '1';
+  return isAuthenticated.value && isProUser;
+}
+
 function applyTheme(value) {
+  if (!checkProAccess()) {
+    emit('open-pro-upgrade');
+    return;
+  }
+  
   theme.value = value;
   localStorage.setItem('pt_theme', value);
   const root = document.documentElement;

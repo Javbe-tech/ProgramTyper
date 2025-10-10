@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { settingsService } from '../services/settingsService.js';
+import { authService } from '../services/authService.js';
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'open-pro-upgrade']);
 
 // Settings state
 const settings = ref({ ...settingsService.getSettings() });
@@ -11,24 +12,54 @@ function closeModal() {
   emit('close');
 }
 
+function checkProAccess() {
+  const isAuthenticated = authService.isUserAuthenticated();
+  const isProUser = localStorage.getItem('pt_pro_user') === '1';
+  return isAuthenticated && isProUser;
+}
+
+function handleSettingChange() {
+  if (!checkProAccess()) {
+    emit('open-pro-upgrade');
+    return false;
+  }
+  return true;
+}
+
 function saveSettings() {
+  if (!checkProAccess()) {
+    emit('open-pro-upgrade');
+    return;
+  }
+  
   settingsService.updateSettings(settings.value);
   applySettings();
   closeModal();
 }
 
 function applySettings() {
+  if (!checkProAccess()) {
+    return;
+  }
+  
   // Apply faded words brightness
   const root = document.documentElement;
   root.style.setProperty('--faded-words-opacity', settings.value.fadedWordsBrightness);
 }
 
 function resetToDefaults() {
+  if (!checkProAccess()) {
+    emit('open-pro-upgrade');
+    return;
+  }
+  
   settings.value = { ...settingsService.defaultSettings };
 }
 
 onMounted(() => {
-  applySettings();
+  if (checkProAccess()) {
+    applySettings();
+  }
 });
 </script>
 
@@ -41,6 +72,24 @@ onMounted(() => {
       </div>
       
       <div class="settings-body">
+        <!-- Pro Upgrade Prompt -->
+        <div v-if="!checkProAccess()" class="pro-upgrade-prompt">
+          <div class="pro-icon">👑</div>
+          <h3>Upgrade to Pro</h3>
+          <p>Unlock advanced typing settings and customization options!</p>
+          <div class="pro-features">
+            <div class="pro-feature">✓ Customize typing options</div>
+            <div class="pro-feature">✓ Adjust brightness settings</div>
+            <div class="pro-feature">✓ Save settings across devices</div>
+            <div class="pro-feature">✓ Remove ads forever</div>
+          </div>
+          <button @click="emit('open-pro-upgrade')" class="upgrade-btn">
+            Upgrade to Pro - $5 One-time
+          </button>
+        </div>
+        
+        <!-- Settings Content (only for pro users) -->
+        <div v-else>
         <!-- Typing Options Section -->
         <div class="settings-section">
           <h3>📝 Typing Options</h3>
@@ -107,7 +156,7 @@ onMounted(() => {
                 type="range" 
                 v-model="settings.fadedWordsBrightness"
                 min="0.1" 
-                max="0.9" 
+                max="0.95" 
                 step="0.05"
                 class="brightness-slider"
                 @input="applySettings"
@@ -115,7 +164,7 @@ onMounted(() => {
               <div class="brightness-labels">
                 <span>Much Darker</span>
                 <span>Default</span>
-                <span>Much Brighter</span>
+                <span>Very Bright</span>
               </div>
             </div>
             <div class="setting-description">
@@ -134,11 +183,13 @@ onMounted(() => {
             </div>
           </div>
         </div>
+        </div>
       </div>
       
       <div class="settings-footer">
-        <button @click="resetToDefaults" class="reset-btn">Reset to Defaults</button>
-        <button @click="saveSettings" class="save-btn">Save Settings</button>
+        <button v-if="checkProAccess()" @click="resetToDefaults" class="reset-btn">Reset to Defaults</button>
+        <button v-if="checkProAccess()" @click="saveSettings" class="save-btn">Save Settings</button>
+        <button v-else @click="closeModal" class="close-modal-btn">Close</button>
       </div>
     </div>
   </div>
@@ -203,6 +254,80 @@ onMounted(() => {
 
 .settings-body {
   padding: 20px;
+}
+
+/* Pro Upgrade Prompt Styles */
+.pro-upgrade-prompt {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.pro-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.pro-upgrade-prompt h3 {
+  margin: 0 0 15px 0;
+  color: var(--font-color);
+  font-size: 1.8rem;
+}
+
+.pro-upgrade-prompt p {
+  margin: 0 0 25px 0;
+  color: var(--gray);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.pro-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+  text-align: left;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pro-feature {
+  color: var(--font-color);
+  font-size: 1rem;
+  padding: 8px 0;
+}
+
+.upgrade-btn {
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.upgrade-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+}
+
+.close-modal-btn {
+  background: var(--border-color);
+  color: var(--font-color);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  background: var(--active-line-bg);
 }
 
 .settings-section {
