@@ -1,0 +1,193 @@
+:root {
+  /* Darker, cooler color palette with blue-gray tones */
+  --bg-color: #0d1117;
+  --font-color: #e6edf3;
+  --border-color: #21262d;
+  --sidebar-bg: #161b22;
+  --terminal-bg: #161b22;
+  --menu-bar-bg: #21262d;
+  --active-line-bg: #1c2128;
+  
+  /* Cooler syntax colors with better contrast */
+  --keyword: #7c3aed;
+  --function: #a5d6ff;
+  --string: #a5d6ff;
+  --comment: #7d8590;
+  --parameter: #79c0ff;
+  --number: #79c0ff;
+  --operator: #e6edf3;
+  --variable: #ffa657;
+  --gray: #7d8590;
+  --red: #f85149;
+  --completed-green: #3fb950;
+  --constant-color: #d2a8ff;
+  --indent-unit: 15px;
+}
+
+/* THEME: Matrix (black background, neon green text) */
+[data-theme="matrix"] {
+  --bg-color: #000000;
+  --font-color: #00ff95;
+  --border-color: #08310f;
+  --sidebar-bg: #010a04;
+  --terminal-bg: #010a04;
+  --menu-bar-bg: #021506;
+  --active-line-bg: #021a08;
+  --keyword: #00e676;
+  --function: #7affb2;
+  --string: #56ffa1;
+  --parameter: #35ff8b;
+  --number: #56ffa1;
+  --operator: #baffd9;
+  --variable: #9cffc7;
+  --gray: #4ade80;
+  --red: #ef4444;
+  --completed-green: #22c55e;
+}
+
+/* THEME: Black & Green (darker, less neon) */
+[data-theme="black-white"] {
+  --bg-color: #0a0f0a;
+  --font-color: #ffffff;
+  --border-color: #1f2937;
+  --sidebar-bg: #0b130b;
+  --terminal-bg: #0b130b;
+  --menu-bar-bg: #111827;
+  --active-line-bg: #111b12;
+  --keyword: #ffffff;
+  --function: #e5e7eb;
+  --string: #d1d5db;
+  --parameter: #ffffff;
+  --number: #f3f4f6;
+  --operator: #ffffff;
+  --variable: #f5f5f5;
+  --gray: #cbd5e1;
+  --red: #ef4444;
+  --completed-green: #ffffff;
+}
+
+/* THEME: Black & Red */
+[data-theme="black-red"] {
+  --bg-color: #0b0b0b;
+  --font-color: #ffd1d1;
+  --border-color: #3f1d1d;
+  --sidebar-bg: #0f0a0a;
+  --terminal-bg: #0f0a0a;
+  --menu-bar-bg: #170c0c;
+  --active-line-bg: #1a0e0e;
+  --keyword: #ff2d2d;     /* brighter red accents */
+  --function: #ff5a5a;
+  --string: #ffc7c7;
+  --parameter: #ff9b9b;
+  --number: #ff6b6b;
+  --operator: #ffd6d6;
+  --variable: #ff8a8a;
+  --gray: #c9a5a5;
+  --red: #ff2222;         /* stronger error red */
+  --completed-green: #2dd4bf; /* keep success distinguishable */
+}
+
+/* THEME: White (light mode) */
+[data-theme="white"] {
+  --bg-color: #ffffff;
+  --font-color: #111827;
+  --border-color: #e5e7eb;
+  --sidebar-bg: #f9fafb;
+  --terminal-bg: #f9fafb;
+  --menu-bar-bg: #f3f4f6;
+  --active-line-bg: #f3f4f6;
+  --keyword: #7c3aed;
+  --function: #2563eb;
+  --string: #047857;
+  --parameter: #111827;
+  --number: #374151;
+  --operator: #111827;
+  --variable: #dc2626;
+  --gray: #6b7280;
+  --red: #dc2626;
+  --completed-green: #16a34a;
+}
+
+/* THEME: Psychedelic Rainbow */
+[data-theme="psychedelic"] {
+  --bg-color: rgba(0,0,0,0.25); /* translucent to let gradient glow through */
+  --font-color: #ffffff;
+  --border-color: #30363d;
+  --sidebar-bg: rgba(0,0,0,0.35);
+  --terminal-bg: rgba(0,0,0,0.35);
+  --menu-bar-bg: rgba(0,0,0,0.45);
+  --active-line-bg: rgba(255,255,255,0.06);
+  --keyword: #f472b6;
+  --function: #60a5fa;
+  --string: #34d399;
+  --parameter: #fbbf24;
+  --number: #a78bfa;
+  --operator: #e5e7eb;
+  --variable: #f87171;
+  --gray: #d1d5db;
+  --red: #ef4444;
+  --completed-green: #22c55e;
+}
+
+/* Full-screen animated gradient backdrop for psychedelic theme */
+body[data-theme="psychedelic"], [data-theme="psychedelic"] body { background: transparent; }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, #ff0080, #7928ca, #2af598, #fcb045, #fd1d1d);
+  background-size: 300% 300%;
+  animation: rainbowFlow 20s ease infinite;
+  filter: blur(60px) saturate(1.15);
+  opacity: 0; /* default off */
+}
+[data-theme="psychedelic"] body::before, body[data-theme="psychedelic"]::before { opacity: 0.6; }
+
+@keyframes rainbowFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body { 
+  background-color: var(--bg-color); 
+  color: var(--font-color); 
+  font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; 
+  height: 100vh; 
+  width: 100vw; 
+  overflow: hidden; 
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sidebar-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+  border: 1px solid var(--sidebar-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--sidebar-bg);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--sidebar-bg);
+}

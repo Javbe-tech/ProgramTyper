@@ -1,0 +1,1167 @@
+// Import adaptive word selector
+import { AdaptiveWordSelector } from './adaptiveWordSelector.js';
+
+// A simple tokenizer for syntax highlighting
+function tokenize(line) {
+    const tokens = [];
+    const rules = [
+      { type: 'comment', regex: /(\/\/.*)/ },
+      { type: 'string', regex: /('.*?'|".*?"|`.*?`)/ },
+      { type: 'keyword', regex: /\b(const|let|var|function|return|if|else|for|while|async|await|new|throw|try|catch|class|extends|import|from|export|default)\b/ },
+      { type: 'boolean', regex: /\b(true|false|null|this)\b/ },
+      { type: 'function', regex: /([a-zA-Z_]\w*)\s*(?=\()/ },
+      { type: 'parameter', regex: /\((.*?)\)/ },
+      { type: 'number', regex: /\b\d+(\.\d+)?\b/ },
+      { type: 'operator', regex: /[=+\-*/%&|!<>?:]/ },
+    ];
+    
+    if (line.type === 'typable') {
+      const prefix = line.isCommented ? ' '.repeat(line.indent * 2) + '// ' : 'const userBio = "';
+      const suffix = line.isCommented ? '' : '";';
+      tokens.push({ text: prefix, type: line.isCommented ? 'token-comment' : 'token-default' });
+      tokens.push({ text: line.text, type: 'typable-challenge' });
+      tokens.push({ text: suffix, type: 'token-default' });
+      return tokens;
+    }
+    
+    let remainingCode = line.text;
+    while (remainingCode.length > 0) {
+      let matchFound = false;
+      for (const rule of rules) {
+        const match = remainingCode.match(rule.regex);
+        if (match && match.index === 0) {
+          tokens.push({ text: match[0], type: `token-${rule.type}` });
+          remainingCode = remainingCode.substring(match[0].length);
+          matchFound = true;
+          break;
+        }
+      }
+      if (!matchFound) {
+        tokens.push({ text: remainingCode[0], type: 'token-default' });
+        remainingCode = remainingCode.substring(1);
+      }
+    }
+    return tokens;
+  }
+  
+  // Base word pool; can be augmented by external lists
+  const wordPool = [
+    // Most common words
+    "the", "be", "to", "of", "and", "a", "in", "that", "have", "i", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so", "up", "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time", "no", "just", "him", "know", "take", "people", "into", "year", "your", "good", "some", "could", "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think", "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even", "new", "want", "because", "any", "these", "give", "day", "most", "us",
+    
+    // Additional common words
+    "very", "much", "many", "more", "most", "long", "little", "great", "small", "large", "big", "high", "low", "right", "left", "old", "young", "different", "same", "last", "next", "early", "late", "fast", "slow", "easy", "hard", "simple", "complex", "important", "necessary", "possible", "impossible", "real", "true", "false", "correct", "wrong", "better", "best", "worse", "worst", "better", "best", "worse", "worst", "better", "best", "worse", "worst",
+    
+    // Action words
+    "run", "walk", "talk", "speak", "listen", "hear", "see", "watch", "read", "write", "draw", "paint", "sing", "dance", "play", "work", "study", "learn", "teach", "help", "give", "take", "buy", "sell", "build", "create", "make", "break", "fix", "clean", "wash", "cook", "eat", "drink", "sleep", "wake", "sit", "stand", "jump", "fly", "drive", "ride", "travel", "visit", "meet", "find", "lose", "win", "lose", "start", "stop", "begin", "end", "finish", "continue", "change", "move", "stay", "leave", "arrive", "return", "open", "close", "turn", "push", "pull", "carry", "hold", "drop", "catch", "throw", "hit", "kick", "touch", "feel", "smell", "taste", "think", "remember", "forget", "know", "understand", "believe", "hope", "wish", "want", "need", "like", "love", "hate", "enjoy", "prefer", "choose", "decide", "plan", "try", "succeed", "fail", "achieve", "accomplish", "complete", "finish", "solve", "answer", "ask", "tell", "explain", "describe", "show", "demonstrate", "prove", "test", "check", "examine", "investigate", "research", "discover", "invent", "design", "develop", "improve", "increase", "decrease", "reduce", "expand", "grow", "shrink", "increase", "decrease", "raise", "lower", "rise", "fall", "climb", "descend", "ascend", "enter", "exit", "approach", "avoid", "prevent", "protect", "defend", "attack", "fight", "battle", "compete", "win", "lose", "succeed", "fail", "achieve", "accomplish", "complete", "finish", "solve", "answer", "ask", "tell", "explain", "describe", "show", "demonstrate", "prove", "test", "check", "examine", "investigate", "research", "discover", "invent", "design", "develop", "improve", "increase", "decrease", "reduce", "expand", "grow", "shrink", "increase", "decrease", "raise", "lower", "rise", "fall", "climb", "descend", "ascend", "enter", "exit", "approach", "avoid", "prevent", "protect", "defend", "attack", "fight", "battle", "compete",
+    
+    // Technology words
+    "computer", "software", "hardware", "program", "code", "algorithm", "data", "information", "system", "network", "internet", "website", "application", "database", "server", "client", "user", "interface", "design", "development", "programming", "coding", "testing", "debugging", "deployment", "maintenance", "security", "performance", "optimization", "functionality", "feature", "component", "module", "library", "framework", "platform", "technology", "innovation", "digital", "electronic", "automated", "artificial", "intelligence", "machine", "learning", "automation", "robotics", "virtual", "reality", "augmented", "cloud", "mobile", "responsive", "scalable", "reliable", "efficient", "effective", "powerful", "advanced", "modern", "contemporary", "cutting", "edge", "state", "art", "revolutionary", "breakthrough", "disruptive", "transformative", "innovative", "creative", "original", "unique", "distinctive", "special", "exceptional", "outstanding", "remarkable", "extraordinary", "amazing", "incredible", "fantastic", "wonderful", "excellent", "perfect", "ideal", "optimal", "superior", "premium", "quality", "standard", "professional", "expert", "skilled", "talented", "gifted", "brilliant", "genius", "master", "champion", "winner", "success", "achievement", "accomplishment", "victory", "triumph", "conquest", "domination", "leadership", "excellence", "perfection", "mastery", "expertise", "knowledge", "wisdom", "intelligence", "smart", "clever", "wise", "brilliant", "genius", "master", "champion", "winner", "success", "achievement", "accomplishment", "victory", "triumph", "conquest", "domination", "leadership", "excellence", "perfection", "mastery", "expertise", "knowledge", "wisdom", "intelligence", "smart", "clever", "wise"
+  ];
+  
+  // Multiple code templates for different file types and randomization
+  const codeTemplates = {
+    vue: [
+      [
+        "<template>",
+        "  <div class=\"advanced-data-visualization\">",
+        "    <div class=\"controls\">",
+        "      <select v-model=\"selectedMetric\" @change=\"updateVisualization\">",
+        "        <option value=\"performance\">Performance Metrics</option>",
+        "        <option value=\"analytics\">Analytics Data</option>",
+        "        <option value=\"realtime\">Real-time Monitoring</option>",
+        "      </select>",
+        "      <button @click=\"toggleAnimation\" :class=\"{ active: isAnimating }\">",
+        "        {{ isAnimating ? 'Pause' : 'Animate' }}",
+        "      </button>",
+        "    </div>",
+        "    <div class=\"chart-container\" ref=\"chartRef\">",
+        "      <canvas :width=\"chartWidth\" :height=\"chartHeight\"></canvas>",
+        "    </div>",
+        "    <div class=\"metrics-panel\">",
+        "      <div v-for=\"metric in currentMetrics\" :key=\"metric.id\" class=\"metric-card\">",
+        "        <h4>{{ metric.name }}</h4>",
+        "        <div class=\"metric-value\" :class=\"metric.trend\">",
+        "          {{ formatValue(metric.value, metric.type) }}",
+        "        </div>",
+        "        <div class=\"metric-change\">",
+        "          {{ metric.change > 0 ? '+' : '' }}{{ metric.change }}%",
+        "        </div>",
+        "      </div>",
+        "    </div>",
+        "  </div>",
+        "</template>",
+        "",
+        "<script setup>",
+        "import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';",
+        "import { Chart, registerables } from 'chart.js';",
+        "",
+        "Chart.register(...registerables);",
+        "",
+        "const props = defineProps({",
+        "  apiEndpoint: { type: String, default: '/api/metrics' },",
+        "  refreshInterval: { type: Number, default: 5000 },",
+        "  enableAnimations: { type: Boolean, default: true }",
+        "});",
+        "",
+        "const selectedMetric = ref('performance');",
+        "const isAnimating = ref(false);",
+        "const chartRef = ref(null);",
+        "const chartWidth = ref(800);",
+        "const chartHeight = ref(400);",
+        "let chartInstance = null;",
+        "let refreshTimer = null;",
+        "",
+        "const currentMetrics = computed(() => {",
+        "  const metrics = {",
+        "    performance: [",
+        "      { id: 1, name: 'Response Time', value: 245, type: 'ms', change: -12, trend: 'positive' },",
+        "      { id: 2, name: 'Throughput', value: 1250, type: 'req/s', change: 8, trend: 'positive' },",
+        "      { id: 3, name: 'Error Rate', value: 0.02, type: '%', change: -25, trend: 'positive' },",
+        "      { id: 4, name: 'CPU Usage', value: 68, type: '%', change: 5, trend: 'neutral' }",
+        "    ],",
+        "    analytics: [",
+        "      { id: 5, name: 'Page Views', value: 15420, type: 'count', change: 15, trend: 'positive' },",
+        "      { id: 6, name: 'Unique Visitors', value: 8920, type: 'count', change: 12, trend: 'positive' },",
+        "      { id: 7, name: 'Bounce Rate', value: 32, type: '%', change: -8, trend: 'positive' },",
+        "      { id: 8, name: 'Session Duration', value: 4.2, type: 'min', change: 18, trend: 'positive' }",
+        "    ],",
+        "    realtime: [",
+        "      { id: 9, name: 'Active Users', value: 1247, type: 'count', change: 23, trend: 'positive' },",
+        "      { id: 10, name: 'Memory Usage', value: 2.4, type: 'GB', change: 3, trend: 'neutral' },",
+        "      { id: 11, name: 'Network I/O', value: 145, type: 'MB/s', change: -7, trend: 'positive' },",
+        "      { id: 12, name: 'Queue Length', value: 8, type: 'items', change: -15, trend: 'positive' }",
+        "    ]",
+        "  };",
+        "  return metrics[selectedMetric.value] || [];",
+        "});",
+        "",
+        "function formatValue(value, type) {",
+        "  if (type === 'ms') return `${value}ms`;",
+        "  if (type === 'req/s') return `${value}/s`;",
+        "  if (type === '%') return `${value}%`;",
+        "  if (type === 'min') return `${value}m`;",
+        "  if (type === 'GB') return `${value}GB`;",
+        "  if (type === 'MB/s') return `${value}MB/s`;",
+        "  return value.toLocaleString();",
+        "}",
+        "",
+        "async function fetchMetrics() {",
+        "  try {",
+        "    const response = await fetch(props.apiEndpoint);",
+        "    const data = await response.json();",
+        "    console.log('Metrics updated:', data);",
+        "  } catch (error) {",
+        "    console.error('Failed to fetch metrics:', error);",
+        "  }",
+        "}",
+        "",
+        "function updateVisualization() {",
+        "  if (chartInstance) {",
+        "    chartInstance.destroy();",
+        "  }",
+        "  nextTick(() => {",
+        "    initializeChart();",
+        "  });",
+        "}",
+        "",
+        "function initializeChart() {",
+        "  const ctx = chartRef.value?.querySelector('canvas')?.getContext('2d');",
+        "  if (!ctx) return;",
+        "",
+        "  const data = generateChartData();",
+        "  chartInstance = new Chart(ctx, {",
+        "    type: 'line',",
+        "    data: data,",
+        "    options: {",
+        "      responsive: true,",
+        "      maintainAspectRatio: false,",
+        "      plugins: {",
+        "        legend: { position: 'top' },",
+        "        title: {",
+        "          display: true,",
+        "          text: `${selectedMetric.value.charAt(0).toUpperCase() + selectedMetric.value.slice(1)} Trends`",
+        "        }",
+        "      },",
+        "      scales: {",
+        "        y: { beginAtZero: true }",
+        "      }",
+        "    }",
+        "  });",
+        "}",
+        "",
+        "function generateChartData() {",
+        "  const labels = Array.from({ length: 20 }, (_, i) => `T${i + 1}`);",
+        "  const datasets = currentMetrics.value.map((metric, index) => ({",
+        "    label: metric.name,",
+        "    data: Array.from({ length: 20 }, () => Math.random() * 100 + metric.value * 0.5),",
+        "    borderColor: `hsl(${index * 60}, 70%, 50%)`,",
+        "    backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.1)`,",
+        "    tension: 0.4",
+        "  }));",
+        "  return { labels, datasets };",
+        "}",
+        "",
+        "function toggleAnimation() {",
+        "  isAnimating.value = !isAnimating.value;",
+        "  if (isAnimating.value) {",
+        "    refreshTimer = setInterval(fetchMetrics, props.refreshInterval);",
+        "  } else {",
+        "    clearInterval(refreshTimer);",
+        "  }",
+        "}",
+        "",
+        "onMounted(() => {",
+        "  initializeChart();",
+        "  if (props.enableAnimations) {",
+        "    toggleAnimation();",
+        "  }",
+        "});",
+        "",
+        "onUnmounted(() => {",
+        "  if (chartInstance) chartInstance.destroy();",
+        "  if (refreshTimer) clearInterval(refreshTimer);",
+        "});",
+        "</script>",
+        "",
+        "<style scoped>",
+        ".advanced-data-visualization {",
+        "  max-width: 1200px;",
+        "  margin: 0 auto;",
+        "  padding: 24px;",
+        "  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);",
+        "  border-radius: 12px;",
+        "  box-shadow: 0 10px 30px rgba(0,0,0,0.2);",
+        "}",
+        ".controls {",
+        "  display: flex;",
+        "  gap: 16px;",
+        "  margin-bottom: 24px;",
+        "  align-items: center;",
+        "}",
+        ".controls select {",
+        "  padding: 8px 16px;",
+        "  border: none;",
+        "  border-radius: 6px;",
+        "  background: rgba(255,255,255,0.9);",
+        "  font-size: 14px;",
+        "}",
+        ".controls button {",
+        "  padding: 8px 16px;",
+        "  border: none;",
+        "  border-radius: 6px;",
+        "  background: rgba(255,255,255,0.2);",
+        "  color: white;",
+        "  cursor: pointer;",
+        "  transition: all 0.3s ease;",
+        "}",
+        ".controls button.active {",
+        "  background: rgba(255,255,255,0.9);",
+        "  color: #333;",
+        "}",
+        ".chart-container {",
+        "  background: rgba(255,255,255,0.95);",
+        "  border-radius: 8px;",
+        "  padding: 16px;",
+        "  margin-bottom: 24px;",
+        "}",
+        ".metrics-panel {",
+        "  display: grid;",
+        "  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));",
+        "  gap: 16px;",
+        "}",
+        ".metric-card {",
+        "  background: rgba(255,255,255,0.9);",
+        "  padding: 16px;",
+        "  border-radius: 8px;",
+        "  text-align: center;",
+        "}",
+        ".metric-card h4 {",
+        "  margin: 0 0 8px 0;",
+        "  font-size: 14px;",
+        "  color: #666;",
+        "}",
+        ".metric-value {",
+        "  font-size: 24px;",
+        "  font-weight: bold;",
+        "  margin-bottom: 4px;",
+        "}",
+        ".metric-value.positive { color: #10b981; }",
+        ".metric-value.neutral { color: #6b7280; }",
+        ".metric-change {",
+        "  font-size: 12px;",
+        "  font-weight: 500;",
+        "}",
+        "</style>"
+      ],
+      [
+        "<template>",
+        "  <div class=\"machine-learning-pipeline\">",
+        "    <div class=\"pipeline-header\">",
+        "      <h2>ML Model Training Pipeline</h2>",
+        "      <div class=\"status-indicator\" :class=\"pipelineStatus\">",
+        "        {{ pipelineStatus.toUpperCase() }}",
+        "      </div>",
+        "    </div>",
+        "    <div class=\"pipeline-steps\">",
+        "      <div v-for=\"(step, index) in pipelineSteps\" :key=\"step.id\"",
+        "           class=\"step\" :class=\"{ active: step.status === 'running', completed: step.status === 'completed' }\">",
+        "        <div class=\"step-icon\">",
+        "          <span v-if=\"step.status === 'completed'\">✓</span>",
+        "          <span v-else-if=\"step.status === 'running'\">⟳</span>",
+        "          <span v-else>{{ index + 1 }}</span>",
+        "        </div>",
+        "        <div class=\"step-content\">",
+        "          <h4>{{ step.name }}</h4>",
+        "          <p>{{ step.description }}</p>",
+        "          <div v-if=\"step.progress !== undefined\" class=\"progress-bar\">",
+        "            <div class=\"progress-fill\" :style=\"{ width: step.progress + '%' }\"></div>",
+        "          </div>",
+        "        </div>",
+        "      </div>",
+        "    </div>",
+        "    <div class=\"model-metrics\">",
+        "      <div class=\"metrics-grid\">",
+        "        <div class=\"metric-item\">",
+        "          <span class=\"metric-label\">Accuracy</span>",
+        "          <span class=\"metric-value\">{{ modelMetrics.accuracy }}%</span>",
+        "        </div>",
+        "        <div class=\"metric-item\">",
+        "          <span class=\"metric-label\">Precision</span>",
+        "          <span class=\"metric-value\">{{ modelMetrics.precision }}%</span>",
+        "        </div>",
+        "        <div class=\"metric-item\">",
+        "          <span class=\"metric-label\">Recall</span>",
+        "          <span class=\"metric-value\">{{ modelMetrics.recall }}%</span>",
+        "        </div>",
+        "        <div class=\"metric-item\">",
+        "          <span class=\"metric-label\">F1 Score</span>",
+        "          <span class=\"metric-value\">{{ modelMetrics.f1Score }}%</span>",
+        "        </div>",
+        "      </div>",
+        "    </div>",
+        "  </div>",
+        "</template>",
+        "",
+        "<script setup>",
+        "import { ref, reactive, onMounted, onUnmounted } from 'vue';",
+        "",
+        "const pipelineStatus = ref('idle');",
+        "const modelMetrics = reactive({",
+        "  accuracy: 0,",
+        "  precision: 0,",
+        "  recall: 0,",
+        "  f1Score: 0",
+        "});",
+        "",
+        "const pipelineSteps = ref([",
+        "  {",
+        "    id: 1,",
+        "    name: 'Data Preprocessing',",
+        "    description: 'Cleaning and transforming raw data',",
+        "    status: 'pending',",
+        "    progress: 0",
+        "  },",
+        "  {",
+        "    id: 2,",
+        "    name: 'Feature Engineering',",
+        "    description: 'Creating meaningful features from data',",
+        "    status: 'pending',",
+        "    progress: 0",
+        "  },",
+        "  {",
+        "    id: 3,",
+        "    name: 'Model Training',",
+        "    description: 'Training the machine learning model',",
+        "    status: 'pending',",
+        "    progress: 0",
+        "  },",
+        "  {",
+        "    id: 4,",
+        "    name: 'Model Validation',",
+        "    description: 'Evaluating model performance',",
+        "    status: 'pending',",
+        "    progress: 0",
+        "  },",
+        "  {",
+        "    id: 5,",
+        "    name: 'Model Deployment',",
+        "    description: 'Deploying model to production',",
+        "    status: 'pending',",
+        "    progress: 0",
+        "  }",
+        "]);",
+        "",
+        "let simulationTimer = null;",
+        "",
+        "function startPipelineSimulation() {",
+        "  pipelineStatus.value = 'running';",
+        "  let currentStepIndex = 0;",
+        "",
+        "  simulationTimer = setInterval(() => {",
+        "    if (currentStepIndex < pipelineSteps.value.length) {",
+        "      const currentStep = pipelineSteps.value[currentStepIndex];",
+        "      currentStep.status = 'running';",
+        "",
+        "      if (currentStep.progress < 100) {",
+        "        currentStep.progress += Math.random() * 15;",
+        "        if (currentStep.progress >= 100) {",
+        "          currentStep.progress = 100;",
+        "          currentStep.status = 'completed';",
+        "          currentStepIndex++;",
+        "        }",
+        "      }",
+        "    } else {",
+        "      pipelineStatus.value = 'completed';",
+        "      clearInterval(simulationTimer);",
+        "      updateModelMetrics();",
+        "    }",
+        "  }, 200);",
+        "}",
+        "",
+        "function updateModelMetrics() {",
+        "  const metrics = {",
+        "    accuracy: Math.floor(Math.random() * 20) + 80,",
+        "    precision: Math.floor(Math.random() * 15) + 85,",
+        "    recall: Math.floor(Math.random() * 18) + 82,",
+        "    f1Score: Math.floor(Math.random() * 16) + 84",
+        "  };",
+        "  Object.assign(modelMetrics, metrics);",
+        "}",
+        "",
+        "onMounted(() => {",
+        "  setTimeout(startPipelineSimulation, 1000);",
+        "});",
+        "",
+        "onUnmounted(() => {",
+        "  if (simulationTimer) clearInterval(simulationTimer);",
+        "});",
+        "</script>",
+        "",
+        "<style scoped>",
+        ".machine-learning-pipeline {",
+        "  max-width: 800px;",
+        "  margin: 0 auto;",
+        "  padding: 24px;",
+        "  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);",
+        "  border-radius: 12px;",
+        "  color: white;",
+        "}",
+        ".pipeline-header {",
+        "  display: flex;",
+        "  justify-content: space-between;",
+        "  align-items: center;",
+        "  margin-bottom: 24px;",
+        "}",
+        ".pipeline-header h2 {",
+        "  margin: 0;",
+        "  font-size: 24px;",
+        "}",
+        ".status-indicator {",
+        "  padding: 6px 12px;",
+        "  border-radius: 20px;",
+        "  font-size: 12px;",
+        "  font-weight: bold;",
+        "}",
+        ".status-indicator.idle { background: #6b7280; }",
+        ".status-indicator.running { background: #f59e0b; }",
+        ".status-indicator.completed { background: #10b981; }",
+        ".pipeline-steps {",
+        "  margin-bottom: 24px;",
+        "}",
+        ".step {",
+        "  display: flex;",
+        "  align-items: center;",
+        "  padding: 16px;",
+        "  margin-bottom: 12px;",
+        "  background: rgba(255,255,255,0.1);",
+        "  border-radius: 8px;",
+        "  transition: all 0.3s ease;",
+        "}",
+        ".step.active {",
+        "  background: rgba(245, 158, 11, 0.2);",
+        "  border-left: 4px solid #f59e0b;",
+        "}",
+        ".step.completed {",
+        "  background: rgba(16, 185, 129, 0.2);",
+        "  border-left: 4px solid #10b981;",
+        "}",
+        ".step-icon {",
+        "  width: 32px;",
+        "  height: 32px;",
+        "  border-radius: 50%;",
+        "  background: rgba(255,255,255,0.2);",
+        "  display: flex;",
+        "  align-items: center;",
+        "  justify-content: center;",
+        "  margin-right: 16px;",
+        "  font-weight: bold;",
+        "}",
+        ".step-content {",
+        "  flex: 1;",
+        "}",
+        ".step-content h4 {",
+        "  margin: 0 0 4px 0;",
+        "  font-size: 16px;",
+        "}",
+        ".step-content p {",
+        "  margin: 0 0 8px 0;",
+        "  font-size: 14px;",
+        "  opacity: 0.8;",
+        "}",
+        ".progress-bar {",
+        "  width: 100%;",
+        "  height: 4px;",
+        "  background: rgba(255,255,255,0.2);",
+        "  border-radius: 2px;",
+        "  overflow: hidden;",
+        "}",
+        ".progress-fill {",
+        "  height: 100%;",
+        "  background: #10b981;",
+        "  transition: width 0.3s ease;",
+        "}",
+        ".model-metrics {",
+        "  background: rgba(255,255,255,0.1);",
+        "  padding: 16px;",
+        "  border-radius: 8px;",
+        "}",
+        ".metrics-grid {",
+        "  display: grid;",
+        "  grid-template-columns: repeat(2, 1fr);",
+        "  gap: 16px;",
+        "}",
+        ".metric-item {",
+        "  text-align: center;",
+        "}",
+        ".metric-label {",
+        "  display: block;",
+        "  font-size: 12px;",
+        "  opacity: 0.8;",
+        "  margin-bottom: 4px;",
+        "}",
+        ".metric-value {",
+        "  display: block;",
+        "  font-size: 20px;",
+        "  font-weight: bold;",
+        "}",
+        "</style>"
+      ]
+    ],
+    js: [
+      [
+        "import { createApp } from 'vue';",
+        "import App from './App.vue';",
+        "import { createPinia } from 'pinia';",
+        "import { createRouter, createWebHistory } from 'vue-router';",
+        "import { useAuthStore } from './stores/auth';",
+        "import { useNotificationStore } from './stores/notifications';",
+        "",
+        "// Router configuration",
+        "const routes = [",
+        "  { path: '/', component: () => import('./views/Home.vue') },",
+        "  { path: '/dashboard', component: () => import('./views/Dashboard.vue'), meta: { requiresAuth: true } },",
+        "  { path: '/profile', component: () => import('./views/Profile.vue'), meta: { requiresAuth: true } },",
+        "  { path: '/settings', component: () => import('./views/Settings.vue'), meta: { requiresAuth: true } },",
+        "  { path: '/login', component: () => import('./views/Login.vue') },",
+        "  { path: '/register', component: () => import('./views/Register.vue') },",
+        "  { path: '/:pathMatch(.*)*', component: () => import('./views/NotFound.vue') }",
+        "];",
+        "",
+        "const router = createRouter({",
+        "  history: createWebHistory(),",
+        "  routes,",
+        "  scrollBehavior(to, from, savedPosition) {",
+        "    if (savedPosition) return savedPosition;",
+        "    if (to.hash) return { el: to.hash };",
+        "    return { top: 0 };",
+        "  }",
+        "});",
+        "",
+        "// Router guards",
+        "router.beforeEach(async (to, from, next) => {",
+        "  const authStore = useAuthStore();",
+        "  const notificationStore = useNotificationStore();",
+        "",
+        "  if (to.meta.requiresAuth && !authStore.isAuthenticated) {",
+        "    notificationStore.addNotification({",
+        "      type: 'warning',",
+        "      message: 'Please log in to access this page'",
+        "    });",
+        "    next('/login');",
+        "    return;",
+        "  }",
+        "",
+        "  if ((to.path === '/login' || to.path === '/register') && authStore.isAuthenticated) {",
+        "    next('/dashboard');",
+        "    return;",
+        "  }",
+        "",
+        "  next();",
+        "});",
+        "",
+        "// Pinia store configuration",
+        "const pinia = createPinia();",
+        "",
+        "// App configuration",
+        "const app = createApp(App);",
+        "",
+        "app.use(pinia);",
+        "app.use(router);",
+        "",
+        "// Global error handler",
+        "app.config.errorHandler = (err, instance, info) => {",
+        "  console.error('Global error:', err);",
+        "  console.error('Component:', instance);",
+        "  console.error('Error info:', info);",
+        "  ",
+        "  const notificationStore = useNotificationStore();",
+        "  notificationStore.addNotification({",
+        "    type: 'error',",
+        "    message: 'An unexpected error occurred'",
+        "  });",
+        "};",
+        "",
+        "// Global properties",
+        "app.config.globalProperties.$filters = {",
+        "  formatCurrency(value) {",
+        "    return new Intl.NumberFormat('en-US', {",
+        "      style: 'currency',",
+        "      currency: 'USD'",
+        "    }).format(value);",
+        "  },",
+        "  formatDate(date) {",
+        "    return new Intl.DateTimeFormat('en-US', {",
+        "      year: 'numeric',",
+        "      month: 'long',",
+        "      day: 'numeric'",
+        "    }).format(new Date(date));",
+        "  }",
+        "};",
+        "",
+        "app.mount('#app');"
+      ],
+      [
+        "class AdvancedApiClient {",
+        "  constructor(baseURL, options = {}) {",
+        "    this.baseURL = baseURL;",
+        "    this.timeout = options.timeout || 10000;",
+        "    this.retries = options.retries || 3;",
+        "    this.retryDelay = options.retryDelay || 1000;",
+        "    this.headers = {",
+        "      'Content-Type': 'application/json',",
+        "      'Accept': 'application/json',",
+        "      ...options.headers",
+        "    };",
+        "    this.interceptors = {",
+        "      request: [],",
+        "      response: []",
+        "    };",
+        "  }",
+        "",
+        "  // Request interceptor",
+        "  addRequestInterceptor(interceptor) {",
+        "    this.interceptors.request.push(interceptor);",
+        "  }",
+        "",
+        "  // Response interceptor",
+        "  addResponseInterceptor(interceptor) {",
+        "    this.interceptors.response.push(interceptor);",
+        "  }",
+        "",
+        "  // Apply request interceptors",
+        "  async applyRequestInterceptors(config) {",
+        "    for (const interceptor of this.interceptors.request) {",
+        "      config = await interceptor(config);",
+        "    }",
+        "    return config;",
+        "  }",
+        "",
+        "  // Apply response interceptors",
+        "  async applyResponseInterceptors(response) {",
+        "    for (const interceptor of this.interceptors.response) {",
+        "      response = await interceptor(response);",
+        "    }",
+        "    return response;",
+        "  }",
+        "",
+        "  // Retry mechanism",
+        "  async retryRequest(requestFn, attempt = 1) {",
+        "    try {",
+        "      return await requestFn();",
+        "    } catch (error) {",
+        "      if (attempt < this.retries && this.shouldRetry(error)) {",
+        "        await this.delay(this.retryDelay * attempt);",
+        "        return this.retryRequest(requestFn, attempt + 1);",
+        "      }",
+        "      throw error;",
+        "    }",
+        "  }",
+        "",
+        "  shouldRetry(error) {",
+        "    return error.status >= 500 || error.code === 'NETWORK_ERROR';",
+        "  }",
+        "",
+        "  delay(ms) {",
+        "    return new Promise(resolve => setTimeout(resolve, ms));",
+        "  }",
+        "",
+        "  // HTTP methods",
+        "  async request(endpoint, options = {}) {",
+        "    const config = await this.applyRequestInterceptors({",
+        "      url: `${this.baseURL}${endpoint}`,",
+        "      method: options.method || 'GET',",
+        "      headers: { ...this.headers, ...options.headers },",
+        "      body: options.body ? JSON.stringify(options.body) : undefined,",
+        "      timeout: this.timeout",
+        "    });",
+        "",
+        "    const requestFn = async () => {",
+        "      const controller = new AbortController();",
+        "      const timeoutId = setTimeout(() => controller.abort(), config.timeout);",
+        "",
+        "      try {",
+        "        const response = await fetch(config.url, {",
+        "          method: config.method,",
+        "          headers: config.headers,",
+        "          body: config.body,",
+        "          signal: controller.signal",
+        "        });",
+        "",
+        "        clearTimeout(timeoutId);",
+        "",
+        "        if (!response.ok) {",
+        "          const error = new Error(`HTTP ${response.status}: ${response.statusText}`);",
+        "          error.status = response.status;",
+        "          error.response = response;",
+        "          throw error;",
+        "        }",
+        "",
+        "        const data = await response.json();",
+        "        return await this.applyResponseInterceptors({ data, response });",
+        "      } catch (error) {",
+        "        clearTimeout(timeoutId);",
+        "        if (error.name === 'AbortError') {",
+        "          error.code = 'TIMEOUT';",
+        "        }",
+        "        throw error;",
+        "      }",
+        "    };",
+        "",
+        "    return this.retryRequest(requestFn);",
+        "  }",
+        "",
+        "  async get(endpoint, params = {}) {",
+        "    const queryString = new URLSearchParams(params).toString();",
+        "    const url = queryString ? `${endpoint}?${queryString}` : endpoint;",
+        "    return this.request(url, { method: 'GET' });",
+        "  }",
+        "",
+        "  async post(endpoint, data) {",
+        "    return this.request(endpoint, { method: 'POST', body: data });",
+        "  }",
+        "",
+        "  async put(endpoint, data) {",
+        "    return this.request(endpoint, { method: 'PUT', body: data });",
+        "  }",
+        "",
+        "  async patch(endpoint, data) {",
+        "    return this.request(endpoint, { method: 'PATCH', body: data });",
+        "  }",
+        "",
+        "  async delete(endpoint) {",
+        "    return this.request(endpoint, { method: 'DELETE' });",
+        "  }",
+        "}",
+        "",
+        "// Create singleton instance",
+        "const apiClient = new AdvancedApiClient(process.env.VUE_APP_API_URL || 'http://localhost:3000/api');",
+        "",
+        "// Add authentication interceptor",
+        "apiClient.addRequestInterceptor(async (config) => {",
+        "  const token = localStorage.getItem('auth_token');",
+        "  if (token) {",
+        "    config.headers.Authorization = `Bearer ${token}`;",
+        "  }",
+        "  return config;",
+        "});",
+        "",
+        "// Add response interceptor for token refresh",
+        "apiClient.addResponseInterceptor(async (response) => {",
+        "  if (response.response.status === 401) {",
+        "    localStorage.removeItem('auth_token');",
+        "    window.location.href = '/login';",
+        "  }",
+        "  return response;",
+        "});",
+        "",
+        "export default apiClient;"
+      ]
+    ],
+    css: [
+      [
+        ":root {",
+        "  --primary-color: #007bff;",
+        "  --secondary-color: #6c757d;",
+        "  --success-color: #28a745;",
+        "  --danger-color: #dc3545;",
+        "}",
+        "",
+        ".container {",
+        "  max-width: 1200px;",
+        "  margin: 0 auto;",
+        "  padding: 0 20px;",
+        "}",
+        "",
+        ".btn {",
+        "  display: inline-block;",
+        "  padding: 10px 20px;",
+        "  border: none;",
+        "  border-radius: 4px;",
+        "  cursor: pointer;",
+        "  transition: all 0.3s ease;",
+        "}",
+        "",
+        ".btn-primary {",
+        "  background-color: var(--primary-color);",
+        "  color: white;",
+        "}",
+        "",
+        ".btn-primary:hover {",
+        "  background-color: #0056b3;",
+        "  transform: translateY(-2px);",
+        "}"
+      ],
+      [
+        "@media (max-width: 768px) {",
+        "  .container {",
+        "    padding: 0 10px;",
+        "  }",
+        "  ",
+        "  .grid {",
+        "    grid-template-columns: 1fr;",
+        "  }",
+        "}",
+        "",
+        ".card {",
+        "  background: white;",
+        "  border-radius: 8px;",
+        "  box-shadow: 0 2px 10px rgba(0,0,0,0.1);",
+        "  padding: 20px;",
+        "  margin-bottom: 20px;",
+        "}",
+        "",
+        ".fade-in {",
+        "  animation: fadeIn 0.5s ease-in;",
+        "}",
+        "",
+        "@keyframes fadeIn {",
+        "  from { opacity: 0; }",
+        "  to { opacity: 1; }",
+        "}"
+      ]
+    ],
+    html: [
+      [
+        "<!DOCTYPE html>",
+        "<html lang=\"en\">",
+        "<head>",
+        "  <meta charset=\"UTF-8\">",
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+        "  <title>Document</title>",
+        "  <link rel=\"stylesheet\" href=\"styles.css\">",
+        "</head>",
+        "<body>",
+        "  <header>",
+        "    <nav>",
+        "      <ul>",
+        "        <li><a href=\"#home\">Home</a></li>",
+        "        <li><a href=\"#about\">About</a></li>",
+        "        <li><a href=\"#contact\">Contact</a></li>",
+        "      </ul>",
+        "    </nav>",
+        "  </header>",
+        "  <main>",
+        "    <h1>Welcome to our website</h1>",
+        "    <p>This is a sample paragraph.</p>",
+        "  </main>",
+        "  <script src=\"script.js\"></script>",
+        "</body>",
+        "</html>"
+      ]
+    ],
+    json: [
+      [
+        "{",
+        "  \"name\": \"my-project\",",
+        "  \"version\": \"1.0.0\",",
+        "  \"description\": \"A sample project\",",
+        "  \"main\": \"index.js\",",
+        "  \"scripts\": {",
+        "    \"start\": \"node index.js\",",
+        "    \"dev\": \"nodemon index.js\",",
+        "    \"test\": \"jest\"",
+        "  },",
+        "  \"dependencies\": {",
+        "    \"express\": \"^4.18.0\",",
+        "    \"cors\": \"^2.8.5\"",
+        "  },",
+        "  \"devDependencies\": {",
+        "    \"nodemon\": \"^2.0.0\",",
+        "    \"jest\": \"^29.0.0\"",
+        "  }",
+        "}"
+      ]
+    ],
+    default: [
+      [
+        "import { ref, onMounted, computed } from 'vue';",
+        "import { api } from './utils/api';",
+        "",
+        "class AdvancedDataFetcher {",
+        "  constructor(config = {}) {",
+        "    this.apiKey = config.apiKey || null;",
+        "    this.cache = new Map();",
+        "    this.retries = config.retries ?? 3;",
+        "    console.log('Data Fetcher initialized.');",
+        "  }",
+        "",
+        "  async process(items) {",
+        "    for (const item of items) {",
+        "      if (item.id && !this.cache.has(item.id)) {",
+        "        // This is a new item, let's process it",
+        "        let attempts = 0;",
+        "        while (attempts < this.retries) {",
+        "          try {",
+        "            const result = await api.post(item);",
+        "            if (result.status === 200) {",
+        "              // On success, we cache and break the loop",
+        "              this.cache.set(item.id, result.data);",
+        "              break;",
+        "            }",
+        "          } catch (error) {",
+        "            attempts++;",
+        "            console.warn(`Attempt ${attempts} failed for item ${item.id}`);",
+        "            if (attempts >= this.retries) {",
+        "              // All retries failed for this item",
+        "              console.error('Max retries reached. Giving up.');",
+        "            }",
+        "          }",
+        "        }",
+        "      }",
+        "    }",
+        "    return true;",
+        "  }",
+        "}",
+        "",
+        "const dataFetcher = new AdvancedDataFetcher({ apiKey: '...' });",
+        "function initializeEventListeners() {",
+        "  const mainApp = document.getElementById('app');",
+        "  if (!mainApp) return;",
+        "  mainApp.addEventListener('click', handleGlobalClick);",
+        "  // TODO: Add more event listeners for resize and scroll",
+        "}",
+        "",
+        "// Debounce function to limit the rate of function execution",
+        "function debounce(func, delay) {",
+        "  let timeoutId;",
+        "  return function(...args) {",
+        "    clearTimeout(timeoutId);",
+        "    timeoutId = setTimeout(() => func.apply(this, args), delay);",
+        "  };",
+        "}",
+        "",
+        "export const config = {",
+        "  apiEndpoint: '/api/v1/data',",
+        "  timeout: 5000,",
+        "  headers: { 'Content-Type': 'application/json' }",
+        "};",
+        "",
+        "// Utility for deep cloning an object",
+        "const deepClone = (obj) => JSON.parse(JSON.stringify(obj));",
+        "",
+        "/**",
+        " * Main component lifecycle hook.",
+        " * This sets up the initial state of the application.",
+        " */",
+        "onMounted(() => {",
+        "  console.log('Application has been mounted.');",
+        "  dataFetcher.process(['item1', 'item2']);",
+        "  initializeEventListeners();",
+        "});"
+      ]
+    ]
+  };
+  
+  // Initialize adaptive word selector
+  const adaptiveSelector = new AdaptiveWordSelector(wordPool);
+
+  // Try loading extended common-word list from public assets once per session
+  let extendedListLoaded = false;
+  function ensureExtendedWordListLoaded() {
+    if (extendedListLoaded) return;
+    // Fire-and-forget fetch; future calls will benefit once loaded
+    fetch('/wordlists/common_words_10k.txt', { cache: 'force-cache' })
+      .then(r => (r.ok ? r.text() : null))
+      .then(text => {
+        if (!text) return;
+        const words = text
+          .split(/\r?\n/)
+          .map(w => w.trim().toLowerCase())
+          .filter(w => w && /^[a-z]+$/.test(w));
+        if (words.length > 1000) {
+          adaptiveSelector.updateWordPool(Array.from(new Set([...wordPool, ...words])));
+          extendedListLoaded = true;
+        }
+      })
+      .catch(() => {});
+  }
+
+  export function generateTypingLine() {
+    ensureExtendedWordListLoaded();
+    const wordCount = Math.floor(Math.random() * 6) + 13; // 13-18 words
+    const sentence = adaptiveSelector.generateAdaptiveSentence(wordCount);
+    return { text: sentence, type: 'typable', isCommented: false };
+  }
+  
+  // Simple seeded random number generator for consistent randomization
+  function seededRandom(seed) {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  // Get file extension to determine template type
+  function getFileType(fileName) {
+    const extension = fileName.split('.').pop().toLowerCase();
+    return codeTemplates[extension] ? extension : 'default';
+  }
+
+  // For generating default files with randomization
+  export function generateCodeForFile(fileName) {
+    const fileType = getFileType(fileName);
+    const templates = codeTemplates[fileType];
+    
+    // Use filename as seed for consistent randomization per file
+    let seed = 0;
+    for (let i = 0; i < fileName.length; i++) {
+      seed += fileName.charCodeAt(i);
+    }
+    
+    // Select a random template for this file type
+    const templateIndex = Math.floor(seededRandom(seed) * templates.length);
+    const selectedTemplate = templates[templateIndex];
+    
+    const allLines = [];
+    let lineCount = 0;
+    const maxLines = 200;
+    const challengeCount = Math.floor(Math.random() * 6) + 5; // 5-10 challenges
+    
+    // Calculate challenge positions more reliably
+    const challengePositions = [];
+    const minGap = Math.floor(maxLines / challengeCount);
+    for (let i = 0; i < challengeCount; i++) {
+      const position = Math.floor(Math.random() * minGap) + (i * minGap);
+      if (position < maxLines - 5) { // Leave some space at the end
+        challengePositions.push(position);
+      }
+    }
+    challengePositions.sort((a, b) => a - b);
+    
+    let challengesInserted = 0;
+    
+    // Repeat the template to fill up to maxLines
+    while (lineCount < maxLines) {
+      const templateIndex = lineCount % selectedTemplate.length;
+      allLines.push({ text: selectedTemplate[templateIndex], type: 'code' });
+      lineCount++;
+
+      // Add typing challenges at predetermined positions
+      if (challengesInserted < challengePositions.length && 
+          lineCount === challengePositions[challengesInserted]) {
+        allLines.push(generateTypingLine());
+        lineCount++;
+        challengesInserted++;
+      }
+    }
+    
+    // Ensure we have the exact number of challenges we intended
+    const actualChallenges = allLines.filter(line => line.type === 'typable').length;
+    // File ${fileName}: ${actualChallenges} challenges inserted
+
+    return allLines.map(line => {
+      const isTypable = line.type === 'typable';
+      const tokens = tokenize(line);
+      const text = isTypable ? line.text : tokens.map(t => t.text).join('');
+      const fullLineText = tokens.map(t => t.text).join('');
+      const indentMatch = fullLineText.match(/^\s*/);
+      const indent = indentMatch ? indentMatch[0].length / 2 : 0;
+      
+      const prefix = 'const userBio = "';
+      
+      return {
+          tokens,
+          text,
+          isTypable,
+          indent,
+          prefixLength: isTypable ? prefix.length : 0,
+          statuses: Array(text.length).fill('untyped'),
+          isCompleted: false,
+      };
+    });
+  }
+  
+  // NEW, SMARTER VERSION: For processing user-created files
+  export function processUserInput(userInput) {
+    const processedLines = [];
+    const userLines = userInput.split('\n');
+    const maxChallenges = 10;
+    let challengesInserted = 0;
+  
+    // Calculate how many lines to skip between challenges.
+    // Ensure the interval is at least 2 to prevent spamming on short code.
+    const interval = Math.max(2, Math.floor(userLines.length / maxChallenges));
+  
+    userLines.forEach((lineText, index) => {
+      // 1. Add the user's line, tokenized and analyzed
+      const tokens = tokenize({ text: lineText, type: 'code' });
+      const fullLineText = tokens.map(t => t.text).join('');
+      const indentMatch = fullLineText.match(/^\s*/);
+      const indent = indentMatch ? indentMatch[0].length / 2 : 0;
+      
+      processedLines.push({
+        tokens,
+        text: lineText,
+        isTypable: false,
+        indent,
+        prefixLength: 0,
+        statuses: [],
+        isCompleted: false,
+      });
+  
+      // 2. Conditionally insert a typing challenge based on the calculated interval
+      if (challengesInserted < maxChallenges && (index + 1) % interval === 0 && index < userLines.length - 1) {
+        const typableText = generateTypingLine().text;
+        const challengeLine = {
+          text: typableText,
+          type: 'typable',
+          isCommented: true,
+          indent: indent + 1,
+        };
+        const challengeTokens = tokenize(challengeLine);
+        const prefix = ' '.repeat((indent + 1) * 2) + '// ';
+  
+        processedLines.push({
+          tokens: challengeTokens,
+          text: typableText,
+          isTypable: true,
+          indent: indent + 1,
+          prefixLength: prefix.length,
+          statuses: Array(typableText.length).fill('untyped'),
+          isCompleted: false,
+        });
+        challengesInserted++;
+      }
+    });
+  
+    return processedLines;
+  }
