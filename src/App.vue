@@ -189,10 +189,10 @@ function setupAuthListeners() {
       
       if (newAuthState) {
         userStatsService.onUserLogin();
-        // User logged in successfully
+        console.log('User logged in successfully');
       } else {
         userStatsService.onUserLogout();
-        // User logged out
+        console.log('User logged out');
       }
     }
   }, 1000); // Check every second

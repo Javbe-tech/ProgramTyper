@@ -71,8 +71,22 @@ function getUserInitials() {
             </div>
           </div>
           
+          <button 
+            @click="handleLogin" 
+            :disabled="isLoading"
+            class="google-login-btn"
+          >
+            <div v-if="isLoading" class="loading-spinner"></div>
+            <div v-else class="google-icon">G</div>
+            <span>{{ isLoading ? 'Signing in...' : 'Sign in with Google' }}</span>
+          </button>
+          
+          <div v-if="loginError" class="error-message">
+            {{ loginError }}
+          </div>
+          
           <div class="note">
-            <small>To enable Google login, configure OAuth in the environment variables.</small>
+            <small>Sign in to save your progress across devices and browsers.</small>
           </div>
         </div>
     </div>

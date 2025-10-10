@@ -33,10 +33,23 @@ class UserStatsService {
     const savedStats = authService.getUserStats();
     if (savedStats) {
       this.stats = savedStats;
-      // User stats loaded
+      console.log('User stats loaded from account');
     } else {
-      this.stats = this.getDefaultStats();
-      this.saveUserStats();
+      // Check if there are guest stats to migrate
+      const guestStats = this.getGuestStats();
+      if (guestStats && this.hasSignificantGuestData(guestStats)) {
+        console.log('Migrating guest stats to user account');
+        this.stats = this.migrateGuestStatsToUser(guestStats);
+        this.saveUserStats();
+        // Clear guest stats after migration
+        localStorage.removeItem('guest_typing_stats');
+        
+        // Show migration notification (you could emit an event here)
+        console.log('✅ Guest stats successfully migrated to your Google account!');
+      } else {
+        this.stats = this.getDefaultStats();
+        this.saveUserStats();
+      }
     }
   }
 
@@ -49,6 +62,43 @@ class UserStatsService {
       console.error('Error loading guest stats:', error);
       this.stats = this.getDefaultStats();
     }
+  }
+
+  // Get guest stats from localStorage
+  getGuestStats() {
+    try {
+      const savedStats = localStorage.getItem('guest_typing_stats');
+      return savedStats ? JSON.parse(savedStats) : null;
+    } catch (error) {
+      console.error('Error getting guest stats:', error);
+      return null;
+    }
+  }
+
+  // Check if guest stats have significant data worth migrating
+  hasSignificantGuestData(guestStats) {
+    return guestStats && (
+      guestStats.lifetime.totalTime > 60 || // More than 1 minute of typing
+      guestStats.lifetime.wordsCompleted > 10 || // More than 10 words
+      guestStats.lifetime.sessionsCompleted > 0 // At least one session
+    );
+  }
+
+  // Migrate guest stats to user account format
+  migrateGuestStatsToUser(guestStats) {
+    const userStats = this.getDefaultStats();
+    
+    // Migrate all the data from guest stats
+    userStats.lifetime = { ...guestStats.lifetime };
+    userStats.currentDay = { ...guestStats.currentDay };
+    
+    // Update user info to reflect authenticated status
+    userStats.userInfo.accountType = 'google';
+    userStats.userInfo.userId = authService.getUser()?.id;
+    userStats.userInfo.createdAt = guestStats.userInfo?.createdAt || new Date().toISOString();
+    userStats.userInfo.lastActive = new Date().toISOString();
+    
+    return userStats;
   }
 
   getDefaultStats() {
@@ -427,10 +477,13 @@ class UserStatsService {
 
   // Handle user login/logout
   onUserLogin() {
+    console.log('User logged in, switching to authenticated stats');
     this.initializeStats();
   }
 
   onUserLogout() {
+    console.log('User logged out, switching to guest stats');
+    
     // Save current session if active
     if (this.currentSession.startTime) {
       this.endSession();

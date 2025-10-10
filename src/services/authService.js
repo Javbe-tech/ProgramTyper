@@ -11,6 +11,8 @@ class AuthService {
     try {
       // Only initialize if we have a valid client ID
       if (this.googleClientId && this.googleClientId !== 'your-google-client-id') {
+        console.log('Initializing Google Auth with Client ID:', this.googleClientId);
+        
         // Load Google Identity Services script
         await this.loadGoogleScript();
         
@@ -20,16 +22,21 @@ class AuthService {
             client_id: this.googleClientId,
             callback: this.handleCredentialResponse.bind(this),
             auto_select: false,
-            cancel_on_tap_outside: true
+            cancel_on_tap_outside: true,
+            use_fedcm_for_prompt: true,  // Enable FedCM as Google is making it mandatory
+            itp_support: true  // Enable Intelligent Tracking Prevention support
           });
+          console.log('Google Identity Services initialized successfully');
         }
+      } else {
+        console.warn('Google Client ID not configured:', this.googleClientId);
       }
 
       // Check if user is already logged in
       this.checkExistingAuth();
     } catch (error) {
       // Silently fail if Google Auth is not configured
-      console.warn('Google Auth not configured, running in guest mode');
+      console.warn('Google Auth not configured, running in guest mode:', error);
     }
   }
 
@@ -72,8 +79,16 @@ class AuthService {
         throw new Error('Google Authentication not configured. Please set up Google OAuth to enable login.');
       }
 
-      // Prompt for sign-in
-      window.google.accounts.id.prompt();
+      console.log('Starting Google login process...');
+      
+      // Use the One Tap method which is more reliable than FedCM
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('One Tap not displayed, trying alternative method');
+          // If One Tap doesn't work, show a message to the user
+          alert('Please try logging in using the popup that should appear, or check if pop-ups are blocked.');
+        }
+      });
       
       return new Promise((resolve, reject) => {
         this.loginResolve = resolve;
@@ -82,7 +97,7 @@ class AuthService {
         // Set a timeout for the login process
         setTimeout(() => {
           if (this.loginReject) {
-            this.loginReject(new Error('Login timeout'));
+            this.loginReject(new Error('Login timeout - please try again'));
             this.loginResolve = null;
             this.loginReject = null;
           }
@@ -114,6 +129,7 @@ class AuthService {
       localStorage.setItem('user_info', JSON.stringify(userInfo));
       
       // User logged in successfully
+      console.log('User logged in successfully:', userInfo);
       
       // Resolve the login promise
       if (this.loginResolve) {
@@ -138,7 +154,17 @@ class AuthService {
     this.isAuthenticated = false;
     localStorage.removeItem('google_auth_token');
     localStorage.removeItem('user_info');
-    // User logged out
+    
+    // Clear Google Identity Services state if available
+    if (window.google && window.google.accounts) {
+      try {
+        window.google.accounts.id.disableAutoSelect();
+      } catch (error) {
+        console.warn('Could not disable Google auto-select:', error);
+      }
+    }
+    
+    console.log('User logged out successfully');
   }
 
   getUser() {
