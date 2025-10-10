@@ -81,18 +81,19 @@ watch(events, (newEventObject) => {
          </div>
       </div>
       <PerformanceGraph :wpm-history="wpmHistory" />
-
-      <!-- Bottom-centered ad placeholder -->
-      <div class="ad-bottom-center" aria-label="Advertisement" v-if="props.showAds">
-        <div class="ad-content">
-          <div class="ad-text">Remove Ads</div>
-          <div class="ad-price">$5</div>
-          <button class="remove-ads-btn" @click="$emit('remove-ads')">
-            Upgrade to Pro
-          </button>
-        </div>
+    </div>
+    
+    <!-- Bottom-centered ad placeholder -->
+    <div class="ad-bottom-center" aria-label="Advertisement" v-if="props.showAds">
+      <div class="ad-content">
+        <div class="ad-text">Remove Ads</div>
+        <div class="ad-price">$5</div>
+        <button class="remove-ads-btn" @click="$emit('remove-ads')">
+          Upgrade to Pro
+        </button>
       </div>
     </div>
+    
      <div class="terminal-footer">
       <div>Total Active Typing Time: {{ overallTime }}s</div>
     </div>
@@ -100,7 +101,7 @@ watch(events, (newEventObject) => {
 </template>
 
 <style scoped>
-#terminal { flex-basis: 200px; background-color: var(--terminal-bg); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; }
+#terminal { flex-basis: 200px; background-color: var(--terminal-bg); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; }
 .terminal-header { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; height: 35px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
 .tabs { display: flex; gap: 15px; }
 .tab-item { color: var(--gray); font-size: 0.9rem; cursor: pointer; padding: 5px 0; }
@@ -118,10 +119,10 @@ watch(events, (newEventObject) => {
 
 .ad-bottom-center { 
   position: absolute; 
-  bottom: 8px; 
+  bottom: 40px; 
   left: 50%; 
   transform: translateX(-50%); 
-  z-index: 5; 
+  z-index: 10; 
 }
 
 .ad-content {
