@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { authService } from '../services/authService.js';
 
 const user = ref(null);
@@ -7,16 +7,43 @@ const isAuthenticated = ref(false);
 const isLoading = ref(false);
 const loginError = ref('');
 
-// Watch for authentication changes
-watch(() => authService.isAuthenticated, (newValue) => {
-  isAuthenticated.value = newValue;
-  user.value = authService.getUser();
+// Create a reactive reference to auth state
+const authState = ref({
+  isAuthenticated: false,
+  user: null
 });
+
+// Update auth state function
+function updateAuthState() {
+  authState.value.isAuthenticated = authService.isUserAuthenticated();
+  authState.value.user = authService.getUser();
+  isAuthenticated.value = authState.value.isAuthenticated;
+  user.value = authState.value.user;
+}
+
+// Watch for authentication changes by polling
+let authCheckInterval = null;
 
 onMounted(() => {
   // Initialize user state
-  isAuthenticated.value = authService.isUserAuthenticated();
-  user.value = authService.getUser();
+  updateAuthState();
+  
+  // Set up polling to check for auth changes
+  authCheckInterval = setInterval(() => {
+    const currentAuth = authService.isUserAuthenticated();
+    const currentUser = authService.getUser();
+    
+    if (currentAuth !== isAuthenticated.value || currentUser !== user.value) {
+      updateAuthState();
+    }
+  }, 1000); // Check every second
+});
+
+// Clean up interval on unmount
+onUnmounted(() => {
+  if (authCheckInterval) {
+    clearInterval(authCheckInterval);
+  }
 });
 
 async function handleLogin() {
@@ -26,6 +53,7 @@ async function handleLogin() {
   try {
     const userInfo = await authService.login();
     console.log('Login successful:', userInfo);
+    updateAuthState(); // Update state immediately after login
   } catch (error) {
     console.error('Login failed:', error);
     loginError.value = error.message || 'Login failed. Please try again.';
@@ -36,8 +64,7 @@ async function handleLogin() {
 
 function handleLogout() {
   authService.logout();
-  user.value = null;
-  isAuthenticated.value = false;
+  updateAuthState(); // Update state immediately after logout
 }
 
 function getUserInitials() {
