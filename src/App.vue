@@ -182,6 +182,19 @@ onMounted(() => {
   
   // Initialize authentication state
   initializeAuth();
+  
+  // Initialize faded words opacity from settings
+  const savedSettings = localStorage.getItem('pt_typing_settings');
+  if (savedSettings) {
+    try {
+      const settings = JSON.parse(savedSettings);
+      document.documentElement.style.setProperty('--faded-words-opacity', settings.fadedWordsBrightness || 0.5);
+    } catch (e) {
+      console.warn('Failed to load settings:', e);
+    }
+  } else {
+    document.documentElement.style.setProperty('--faded-words-opacity', '0.5');
+  }
 });
 
 function initializeAuth() {

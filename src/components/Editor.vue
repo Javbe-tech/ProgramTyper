@@ -433,7 +433,7 @@ onUnmounted(() => {
 .completed-challenge span { color: var(--completed-green) !important; opacity: 1 !important; }
 
 .typable-challenge { cursor: pointer; }
-.typable-challenge .untyped { color: var(--gray); opacity: 0.45; }
+.typable-challenge .untyped { color: var(--gray); opacity: var(--faded-words-opacity, 0.45); }
 .typable-challenge .correct { color: var(--string); }
 .typable-challenge .incorrect { background-color: var(--red); color: #fff !important; border-radius: 2px; }
 

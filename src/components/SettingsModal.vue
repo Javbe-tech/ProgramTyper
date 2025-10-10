@@ -1,23 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { settingsService } from '../services/settingsService.js';
 
 const emit = defineEmits(['close']);
 
 // Settings state
-const settings = ref({
-  enableCapitals: true,
-  enablePeriods: true,
-  enableWordCapitals: false,
-  enableSpecialChars: true,
-  fadedWordsBrightness: 0.5 // 0.3 = darker, 0.7 = brighter, 0.5 = default
-});
+const settings = ref({ ...settingsService.getSettings() });
 
 function closeModal() {
   emit('close');
 }
 
 function saveSettings() {
-  localStorage.setItem('pt_typing_settings', JSON.stringify(settings.value));
+  settingsService.updateSettings(settings.value);
   applySettings();
   closeModal();
 }
@@ -29,25 +24,10 @@ function applySettings() {
 }
 
 function resetToDefaults() {
-  settings.value = {
-    enableCapitals: true,
-    enablePeriods: true,
-    enableWordCapitals: false,
-    enableSpecialChars: true,
-    fadedWordsBrightness: 0.5
-  };
+  settings.value = { ...settingsService.defaultSettings };
 }
 
 onMounted(() => {
-  // Load saved settings
-  const savedSettings = localStorage.getItem('pt_typing_settings');
-  if (savedSettings) {
-    try {
-      settings.value = { ...settings.value, ...JSON.parse(savedSettings) };
-    } catch (e) {
-      console.warn('Failed to load settings:', e);
-    }
-  }
   applySettings();
 });
 </script>
@@ -126,16 +106,16 @@ onMounted(() => {
               <input 
                 type="range" 
                 v-model="settings.fadedWordsBrightness"
-                min="0.3" 
-                max="0.7" 
-                step="0.1"
+                min="0.1" 
+                max="0.9" 
+                step="0.05"
                 class="brightness-slider"
                 @input="applySettings"
               />
               <div class="brightness-labels">
-                <span>Darker</span>
+                <span>Much Darker</span>
                 <span>Default</span>
-                <span>Brighter</span>
+                <span>Much Brighter</span>
               </div>
             </div>
             <div class="setting-description">

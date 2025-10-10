@@ -1,5 +1,6 @@
 // Adaptive word selection system based on user weaknesses
 import { userStatsService } from './services/userStatsService.js';
+import { settingsService } from './services/settingsService.js';
 
 class AdaptiveWordSelector {
   constructor(wordPool) {
@@ -208,7 +209,7 @@ class AdaptiveWordSelector {
   // Generate a sentence with adaptive word selection
   generateAdaptiveSentence(wordCount = 20) {
     const selectedWords = this.selectWords(wordCount);
-    return selectedWords.join(' ');
+    return settingsService.applySettingsToSentence(selectedWords);
   }
 
   // Get words that contain specific weak characters
