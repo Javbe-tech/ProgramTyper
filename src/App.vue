@@ -23,8 +23,8 @@ const tabChallengeStats = reactive({}); // Track challenge completion per tab
 const fileChallengeRegeneration = reactive({}); // Track challenge regeneration per file
 const challengeRegenerationTimer = ref(null);
 
-// Ads
-const showAds = ref(localStorage.getItem('pt_ads_removed') !== '1');
+// Ads - show ads by default, hide only if user is pro
+const showAds = ref(true);
 const showRemoveAdsModal = ref(false);
 
 // Terminal visibility
@@ -215,6 +215,15 @@ onMounted(() => {
   
   // Initialize authentication state
   initializeAuth();
+  
+  // Check if user is pro and hide ads accordingly
+  const isProUser = localStorage.getItem('pt_pro_user') === '1';
+  const isAuthenticatedUser = authService.isUserAuthenticated();
+  if (isAuthenticatedUser && isProUser) {
+    showAds.value = false;
+  } else {
+    showAds.value = true;
+  }
   
   // Initialize faded words opacity from settings
   const savedSettings = localStorage.getItem('pt_typing_settings');
@@ -538,6 +547,7 @@ onUnmounted(() => {
       @open-help="openHelp"
       @open-settings="openSettings"
       @open-pro-upgrade="openProUpgrade"
+      @user-logout="handleLogout"
     />
     <div id="app-container">
       <Sidebar 

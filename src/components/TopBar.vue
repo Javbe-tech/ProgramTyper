@@ -7,7 +7,7 @@ const props = defineProps({
   terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 const user = ref(null);
@@ -65,6 +65,7 @@ function handleLogout() {
   if (confirm('Are you sure you want to sign out? Your progress will be saved to your Google account.')) {
     authService.logout();
     updateAuthState();
+    emit('user-logout');
   }
 }
 
