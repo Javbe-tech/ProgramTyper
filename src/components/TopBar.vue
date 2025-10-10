@@ -6,7 +6,7 @@ const props = defineProps({
   terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal']);
+const emit = defineEmits(['toggle-terminal', 'open-help']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 
@@ -23,6 +23,10 @@ function applyTheme(value) {
 
 function toggleTerminal() {
   emit('toggle-terminal');
+}
+
+function openHelp() {
+  emit('open-help');
 }
 
 onMounted(() => {
@@ -53,7 +57,7 @@ onMounted(() => {
         <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
           Terminal {{ terminalVisible ? '▼' : '▶' }}
         </li>
-        <li>Help</li>
+        <li @click="openHelp" class="menu-help">Help</li>
       </ul>
     </div>
     <div class="right-section">
@@ -145,6 +149,16 @@ onMounted(() => {
 .menu-terminal.active {
   background: var(--keyword);
   color: white;
+}
+
+.menu-help {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-help:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
 }
 
 .right-section {

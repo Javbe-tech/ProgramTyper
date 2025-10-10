@@ -7,6 +7,7 @@ import Editor from './components/Editor.vue';
 import NewFileModal from './components/NewFileModal.vue';
 import RightAdBar from './components/RightAdBar.vue';
 import RemoveAdsModal from './components/RemoveAdsModal.vue';
+import HelpModal from './components/HelpModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
 import { userStatsService } from './services/userStatsService.js';
@@ -28,11 +29,18 @@ const showRemoveAdsModal = ref(false);
 // Terminal visibility
 const terminalVisible = ref(true);
 
+// Help modal
+const showHelpModal = ref(false);
+
 function openRemoveAds() { showRemoveAdsModal.value = true; }
 function onPurchased() { showAds.value = false; showRemoveAdsModal.value = false; }
 
 function toggleTerminal() {
   terminalVisible.value = !terminalVisible.value;
+}
+
+function openHelp() {
+  showHelpModal.value = true;
 }
 
 // Authentication state
@@ -461,6 +469,7 @@ onUnmounted(() => {
     <TopBar 
       :terminal-visible="terminalVisible"
       @toggle-terminal="toggleTerminal"
+      @open-help="openHelp"
     />
     <div id="app-container">
       <Sidebar 
@@ -499,7 +508,11 @@ onUnmounted(() => {
     <RemoveAdsModal 
       v-if="showRemoveAdsModal" 
       @close="showRemoveAdsModal = false" 
-      @purchased="onPurchased"
+      @purchased="onPurchased" 
+    />
+    <HelpModal 
+      v-if="showHelpModal" 
+      @close="showHelpModal = false" 
     />
   </div>
 </template>
