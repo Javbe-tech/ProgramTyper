@@ -3,6 +3,7 @@ import { ref, watch, nextTick } from 'vue';
 const props = defineProps({
   showAds: { type: Boolean, default: true }
 });
+const emit = defineEmits(['remove-ads']);
 import { events } from '../eventBus.js';
 import PerformanceGraph from './PerformanceGraph.vue';
 
@@ -83,7 +84,13 @@ watch(events, (newEventObject) => {
 
       <!-- Bottom-centered ad placeholder -->
       <div class="ad-bottom-center" aria-label="Advertisement" v-if="props.showAds">
-        <div class="ad-placeholder">Ad space</div>
+        <div class="ad-content">
+          <div class="ad-text">Remove Ads</div>
+          <div class="ad-price">$5</div>
+          <button class="remove-ads-btn" @click="$emit('remove-ads')">
+            Upgrade to Pro
+          </button>
+        </div>
       </div>
     </div>
      <div class="terminal-footer">
@@ -109,8 +116,57 @@ watch(events, (newEventObject) => {
 @keyframes blink { 50% { opacity: 0; } }
 .terminal-footer { padding: 5px 15px; border-top: 1px solid var(--border-color); color: var(--gray); flex-shrink: 0; font-size: 0.9rem; }
 
-.ad-bottom-center { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.ad-placeholder { width: 320px; height: 90px; display: flex; align-items: center; justify-content: center; color: var(--gray); border: 1px dashed var(--border-color); border-radius: 4px; background: var(--bg-color); }
+.ad-bottom-center { 
+  position: absolute; 
+  bottom: 8px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  z-index: 5; 
+}
+
+.ad-content {
+  width: 320px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--font-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ad-text {
+  font-size: 0.9rem;
+  color: var(--gray);
+  margin-bottom: 5px;
+}
+
+.ad-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--keyword);
+  margin-bottom: 10px;
+}
+
+.remove-ads-btn {
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.remove-ads-btn:hover {
+  background: #6d28d9;
+}
 
 :global(.green-text) {
     color: var(--completed-green);

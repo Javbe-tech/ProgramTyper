@@ -1,15 +1,28 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { userStatsService } from '../services/userStatsService.js';
+import { authService } from '../services/authService.js';
 import { events } from '../eventBus.js';
 import StatsChart from './StatsChart.vue';
 
 const stats = ref({});
 const showDashboard = ref(false);
+const isAuthenticated = ref(false);
+
+// Check authentication status
+function updateAuthState() {
+  isAuthenticated.value = authService.isUserAuthenticated();
+}
 
 // Load statistics on component mount
 onMounted(() => {
-  stats.value = userStatsService.getStatsSummary();
+  updateAuthState();
+  if (isAuthenticated.value) {
+    stats.value = userStatsService.getStatsSummary();
+  }
+  
+  // Check for auth changes periodically
+  setInterval(updateAuthState, 1000);
 });
 
 // Watch for statistics updates
@@ -142,7 +155,9 @@ function formatPercentage(value) {
 
 // Refresh statistics
 function refreshStats() {
-  stats.value = userStatsService.getStatsSummary();
+  if (isAuthenticated.value) {
+    stats.value = userStatsService.getStatsSummary();
+  }
 }
 
 // Reset all statistics
@@ -150,6 +165,20 @@ function resetStats() {
   if (confirm('Are you sure you want to reset all statistics? This action cannot be undone.')) {
     userStatsService.resetStats();
     refreshStats();
+  }
+}
+
+// Handle login
+async function handleLogin() {
+  try {
+    await authService.login();
+    updateAuthState();
+    if (isAuthenticated.value) {
+      stats.value = userStatsService.getStatsSummary();
+    }
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('Login failed. Please try again.');
   }
 }
 
@@ -176,6 +205,26 @@ function toggleDashboard() {
         </div>
         
         <div class="dashboard-body">
+          <!-- Login Prompt for Non-Authenticated Users -->
+          <div v-if="!isAuthenticated" class="login-prompt-section">
+            <div class="login-prompt-content">
+              <div class="login-icon">📊</div>
+              <h3>Sign in to View Your Stats</h3>
+              <p>Track your typing progress, view detailed analytics, and save your statistics across devices.</p>
+              <div class="login-benefits">
+                <div class="benefit-item">✓ Free to sign in with Google</div>
+                <div class="benefit-item">✓ Save progress across devices</div>
+                <div class="benefit-item">✓ Detailed performance analytics</div>
+                <div class="benefit-item">✓ Track improvement over time</div>
+              </div>
+              <button @click="handleLogin" class="login-btn">
+                Sign in with Google
+              </button>
+            </div>
+          </div>
+          
+          <!-- Stats Content for Authenticated Users -->
+          <div v-else>
           <!-- Current Day Stats -->
           <div class="stats-section">
             <h3>Today's Performance</h3>
@@ -302,6 +351,7 @@ function toggleDashboard() {
               </div>
             </div>
           </div>
+          </div> <!-- Close v-else div -->
 
           <!-- Actions -->
           <div class="dashboard-actions">
@@ -471,6 +521,66 @@ function toggleDashboard() {
   color: var(--gray);
   font-style: italic;
   padding: 20px;
+}
+
+/* Login Prompt Styles */
+.login-prompt-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 40px 20px;
+}
+
+.login-prompt-content {
+  text-align: center;
+  max-width: 500px;
+}
+
+.login-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.login-prompt-content h3 {
+  color: var(--font-color);
+  margin: 0 0 15px 0;
+  font-size: 1.5rem;
+}
+
+.login-prompt-content p {
+  color: var(--gray);
+  margin: 0 0 25px 0;
+  line-height: 1.5;
+}
+
+.login-benefits {
+  margin: 25px 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.benefit-item {
+  color: var(--font-color);
+  margin: 8px 0;
+  font-size: 0.95rem;
+}
+
+.login-btn {
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 20px;
+}
+
+.login-btn:hover {
+  background: #6d28d9;
 }
 
 .dashboard-actions {

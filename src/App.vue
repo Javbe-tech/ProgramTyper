@@ -574,7 +574,7 @@ onUnmounted(() => {
           @update-tab-challenge-stats="updateTabChallengeStats"
         />
         <div v-if="terminalVisible" class="resizer resizer-y" ref="resizerY"></div>
-        <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" />
+        <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
       </div>
       <RightAdBar v-if="showAds" :show-ads="showAds" @remove-ads="openRemoveAds" />
     </div>
