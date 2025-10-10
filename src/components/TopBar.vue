@@ -1,14 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Dashboard from './Dashboard.vue';
+import { authService } from '../services/authService.js';
 
 const props = defineProps({
   terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
+const user = ref(null);
+const isAuthenticated = ref(false);
 
 function applyTheme(value) {
   theme.value = value;
@@ -21,6 +24,11 @@ function applyTheme(value) {
   }
 }
 
+function updateAuthState() {
+  isAuthenticated.value = authService.isUserAuthenticated();
+  user.value = authService.getUser();
+}
+
 function toggleTerminal() {
   emit('toggle-terminal');
 }
@@ -29,8 +37,39 @@ function openHelp() {
   emit('open-help');
 }
 
+function openSettings() {
+  emit('open-settings');
+}
+
+async function handleLogin() {
+  try {
+    await authService.login();
+    updateAuthState();
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('Login failed. Please try again.');
+  }
+}
+
+function handleLogout() {
+  if (confirm('Are you sure you want to sign out? Your progress will be saved to your Google account.')) {
+    authService.logout();
+    updateAuthState();
+  }
+}
+
+function getUserInitials() {
+  if (!user.value) return '';
+  const name = user.value.name || user.value.email;
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
 onMounted(() => {
   applyTheme(theme.value);
+  updateAuthState();
+  
+  // Check for auth changes periodically
+  setInterval(updateAuthState, 1000);
 });
 </script>
 
@@ -58,9 +97,37 @@ onMounted(() => {
           Terminal {{ terminalVisible ? '▼' : '▶' }}
         </li>
         <li @click="openHelp" class="menu-help">Help</li>
+        <li @click="openSettings" class="menu-settings">Settings</li>
       </ul>
     </div>
     <div class="right-section">
+      <!-- Compact Login/User Info -->
+      <div v-if="!isAuthenticated" class="compact-login">
+        <button @click="handleLogin" class="compact-login-btn" title="Sign in">
+          <span class="compact-login-icon">👤</span>
+        </button>
+      </div>
+      
+      <div v-else class="compact-user-info">
+        <div class="compact-avatar">
+          <img 
+            v-if="user.picture" 
+            :src="user.picture" 
+            :alt="user.name"
+            class="compact-avatar-img"
+          />
+          <div v-else class="compact-avatar-placeholder">
+            {{ getUserInitials() }}
+          </div>
+        </div>
+        <div class="compact-user-details">
+          <div class="compact-user-name">{{ user.name }}</div>
+        </div>
+        <button @click="handleLogout" class="compact-logout-btn" title="Sign out">
+          <span class="compact-logout-icon">🚪</span>
+        </button>
+      </div>
+      
       <Dashboard />
     </div>
   </div>
@@ -159,6 +226,113 @@ onMounted(() => {
 .menu-help:hover {
   background: var(--active-line-bg);
   color: var(--font-color);
+}
+
+.menu-settings {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-settings:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
+}
+
+/* Compact Login Styles */
+.compact-login {
+  display: flex;
+  align-items: center;
+}
+
+.compact-login-btn {
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+}
+
+.compact-login-btn:hover {
+  background: #6d28d9;
+}
+
+.compact-login-icon {
+  font-size: 0.9rem;
+}
+
+.compact-user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.compact-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.compact-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.compact-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--keyword);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.6rem;
+}
+
+.compact-user-details {
+  min-width: 0;
+}
+
+.compact-user-name {
+  font-weight: 500;
+  color: var(--font-color);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.compact-logout-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--gray);
+  padding: 1px 3px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.compact-logout-btn:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
+  border-color: var(--font-color);
+  opacity: 1;
+}
+
+.compact-logout-icon {
+  font-size: 0.6rem;
 }
 
 
