@@ -156,7 +156,7 @@ onMounted(() => {
                   type="range" 
                   v-model="settings.fadedWordsBrightness"
                   min="0.1" 
-                  max="1.0" 
+                  max="2.0" 
                   step="0.05"
                   class="brightness-slider"
                   @input="applySettings"
@@ -164,7 +164,7 @@ onMounted(() => {
               <div class="brightness-labels">
                 <span>Much Darker</span>
                 <span>Default</span>
-                <span>Very Bright</span>
+                <span>Brighter Than Normal</span>
               </div>
             </div>
             <div class="setting-description">

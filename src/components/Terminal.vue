@@ -94,6 +94,17 @@ watch(events, (newEventObject) => {
       </div>
     </div>
     
+    <!-- Debug: Always show ad for testing -->
+    <div class="ad-bottom-center debug-ad" aria-label="Debug Ad">
+      <div class="ad-content">
+        <div class="ad-text">DEBUG: Remove Ads</div>
+        <div class="ad-price">$5</div>
+        <button class="remove-ads-btn" @click="$emit('remove-ads')">
+          Upgrade to Pro
+        </button>
+      </div>
+    </div>
+    
      <div class="terminal-footer">
       <div>Total Active Typing Time: {{ overallTime }}s</div>
     </div>
@@ -167,6 +178,18 @@ watch(events, (newEventObject) => {
 
 .remove-ads-btn:hover {
   background: #6d28d9;
+}
+
+/* Debug styles */
+.debug-ad {
+  background: red !important;
+  border: 3px solid yellow !important;
+  z-index: 999 !important;
+}
+
+.debug-ad .ad-content {
+  background: red !important;
+  border: 3px solid yellow !important;
 }
 
 :global(.green-text) {
