@@ -85,8 +85,8 @@ class AuthService {
       window.google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
           console.log('One Tap not displayed, trying alternative method');
-          // If One Tap doesn't work, show a message to the user
-          alert('Please try logging in using the popup that should appear, or check if pop-ups are blocked.');
+          // If One Tap doesn't work, try renderButton method
+          this.tryRenderButtonMethod();
         }
       });
       
@@ -107,6 +107,67 @@ class AuthService {
       console.error('Login error:', error);
       throw error;
     }
+  }
+
+  // Fallback method using renderButton
+  tryRenderButtonMethod() {
+    console.log('Trying renderButton method as fallback');
+    
+    // Create a temporary container for the Google button
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.top = '50%';
+    tempContainer.style.left = '50%';
+    tempContainer.style.transform = 'translate(-50%, -50%)';
+    tempContainer.style.zIndex = '10000';
+    tempContainer.style.background = 'white';
+    tempContainer.style.padding = '20px';
+    tempContainer.style.borderRadius = '8px';
+    tempContainer.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+    
+    document.body.appendChild(tempContainer);
+    
+    // Render the Google sign-in button
+    window.google.accounts.id.renderButton(tempContainer, {
+      theme: 'outline',
+      size: 'large',
+      type: 'standard',
+      shape: 'rectangular',
+      text: 'signin_with',
+      width: 250
+    });
+    
+    // Add a close button
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '5px';
+    closeBtn.style.right = '5px';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.fontSize = '16px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.onclick = () => {
+      document.body.removeChild(tempContainer);
+      if (this.loginReject) {
+        this.loginReject(new Error('Login cancelled'));
+        this.loginResolve = null;
+        this.loginReject = null;
+      }
+    };
+    tempContainer.appendChild(closeBtn);
+    
+    // Auto-remove after 30 seconds
+    setTimeout(() => {
+      if (document.body.contains(tempContainer)) {
+        document.body.removeChild(tempContainer);
+        if (this.loginReject) {
+          this.loginReject(new Error('Login timeout'));
+          this.loginResolve = null;
+          this.loginReject = null;
+        }
+      }
+    }, 30000);
   }
 
   handleCredentialResponse(response) {

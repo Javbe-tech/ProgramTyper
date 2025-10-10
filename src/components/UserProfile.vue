@@ -15,10 +15,18 @@ const authState = ref({
 
 // Update auth state function
 function updateAuthState() {
-  authState.value.isAuthenticated = authService.isUserAuthenticated();
-  authState.value.user = authService.getUser();
-  isAuthenticated.value = authState.value.isAuthenticated;
-  user.value = authState.value.user;
+  const newAuthState = authService.isUserAuthenticated();
+  const newUser = authService.getUser();
+  
+  console.log('UserProfile: Updating auth state:', { 
+    isAuthenticated: newAuthState, 
+    user: newUser?.name || 'no user' 
+  });
+  
+  authState.value.isAuthenticated = newAuthState;
+  authState.value.user = newUser;
+  isAuthenticated.value = newAuthState;
+  user.value = newUser;
 }
 
 // Watch for authentication changes by polling
