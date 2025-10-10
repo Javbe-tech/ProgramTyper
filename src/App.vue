@@ -25,8 +25,15 @@ const challengeRegenerationTimer = ref(null);
 const showAds = ref(localStorage.getItem('pt_ads_removed') !== '1');
 const showRemoveAdsModal = ref(false);
 
+// Terminal visibility
+const terminalVisible = ref(true);
+
 function openRemoveAds() { showRemoveAdsModal.value = true; }
 function onPurchased() { showAds.value = false; showRemoveAdsModal.value = false; }
+
+function toggleTerminal() {
+  terminalVisible.value = !terminalVisible.value;
+}
 
 // Authentication state
 const isAuthenticated = ref(false);
@@ -451,7 +458,10 @@ onUnmounted(() => {
 
 <template>
   <div id="full-app-container">
-    <TopBar />
+    <TopBar 
+      :terminal-visible="terminalVisible"
+      @toggle-terminal="toggleTerminal"
+    />
     <div id="app-container">
       <Sidebar 
         ref="sidebarRef" 
@@ -476,8 +486,8 @@ onUnmounted(() => {
           @initialize-tab-stats="initializeTabStats"
           @update-tab-challenge-stats="updateTabChallengeStats"
         />
-        <div class="resizer resizer-y" ref="resizerY"></div>
-        <Terminal ref="terminalRef" :show-ads="showAds" />
+        <div v-if="terminalVisible" class="resizer resizer-y" ref="resizerY"></div>
+        <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" />
       </div>
       <RightAdBar v-if="showAds" :show-ads="showAds" @remove-ads="openRemoveAds" />
     </div>

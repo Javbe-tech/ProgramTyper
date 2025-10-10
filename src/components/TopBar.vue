@@ -2,6 +2,12 @@
 import { ref, onMounted } from 'vue';
 import Dashboard from './Dashboard.vue';
 
+const props = defineProps({
+  terminalVisible: { type: Boolean, default: true }
+});
+
+const emit = defineEmits(['toggle-terminal']);
+
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 
 function applyTheme(value) {
@@ -13,6 +19,10 @@ function applyTheme(value) {
   } else {
     root.setAttribute('data-theme', value);
   }
+}
+
+function toggleTerminal() {
+  emit('toggle-terminal');
 }
 
 onMounted(() => {
@@ -40,7 +50,9 @@ onMounted(() => {
           </div>
         </li>
         <li>Run</li>
-        <li>Terminal</li>
+        <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
+          Terminal {{ terminalVisible ? '▼' : '▶' }}
+        </li>
         <li>Help</li>
       </ul>
     </div>
@@ -118,6 +130,21 @@ onMounted(() => {
 }
 .menu-view .dropdown button:hover {
   background: var(--active-line-bg);
+}
+
+.menu-terminal {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-terminal:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
+}
+
+.menu-terminal.active {
+  background: var(--keyword);
+  color: white;
 }
 
 .right-section {
