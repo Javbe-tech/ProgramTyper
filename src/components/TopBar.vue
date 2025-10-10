@@ -6,7 +6,7 @@ const props = defineProps({
   terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'file-menu']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 
@@ -29,6 +29,10 @@ function openHelp() {
   emit('open-help');
 }
 
+function openFileMenu() {
+  emit('file-menu');
+}
+
 onMounted(() => {
   applyTheme(theme.value);
 });
@@ -39,7 +43,15 @@ onMounted(() => {
     <div class="left-section">
       <span class="app-title">James Dark</span>
       <ul class="menu-list">
-        <li>File</li>
+        <li class="menu-file">
+          File
+          <div class="dropdown">
+            <button @click="openFileMenu">New File</button>
+            <button @click="openFileMenu">Open File</button>
+            <button @click="openFileMenu">Save Progress</button>
+            <button @click="openFileMenu">Export Stats</button>
+          </div>
+        </li>
         <li>Edit</li>
         <li>Selection</li>
         <li class="menu-view">
@@ -159,6 +171,14 @@ onMounted(() => {
 .menu-help:hover {
   background: var(--active-line-bg);
   color: var(--font-color);
+}
+
+.menu-file {
+  position: relative;
+}
+
+.menu-file:hover .dropdown {
+  display: block;
 }
 
 .right-section {

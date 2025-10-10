@@ -43,6 +43,11 @@ function openHelp() {
   showHelpModal.value = true;
 }
 
+function handleFileMenu() {
+  // For now, just open the new file modal
+  showNewFileModal.value = true;
+}
+
 // Authentication state
 const isAuthenticated = ref(false);
 const currentUser = ref(null);
@@ -470,6 +475,7 @@ onUnmounted(() => {
       :terminal-visible="terminalVisible"
       @toggle-terminal="toggleTerminal"
       @open-help="openHelp"
+      @file-menu="handleFileMenu"
     />
     <div id="app-container">
       <Sidebar 
