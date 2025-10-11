@@ -377,7 +377,15 @@ function initializeTabStats(fileName) {
 function updateTabChallengeStats(fileName, completedCount) {
   if (tabChallengeStats[fileName]) {
     tabChallengeStats[fileName].completed = completedCount;
-    tabChallengeStats[fileName].remaining = tabChallengeStats[fileName].total - completedCount;
+    
+    // Get the current total challenges (including regenerated ones)
+    const regen = fileChallengeRegeneration[fileName];
+    const currentTotal = regen && regen.currentChallengeCount > 0 ? regen.currentChallengeCount : 
+                        (fileContents[fileName] || []).filter(line => line.isTypable).length;
+    
+    tabChallengeStats[fileName].total = currentTotal;
+    tabChallengeStats[fileName].remaining = currentTotal - completedCount;
+    
     if (tabChallengeStats[fileName].remaining < 0) {
       tabChallengeStats[fileName].remaining = 0;
       tabChallengeStats[fileName].total = completedCount; // normalize if content changed
@@ -499,8 +507,16 @@ function regenerateOneChallenge(fileName) {
     regen.currentChallengeCount = currentChallenges;
   }
   
-  // Only regenerate if we haven't reached the original count
+  // Only regenerate if we haven't reached the original count AND user hasn't completed all original challenges
   if (regen.currentChallengeCount < regen.originalChallengeCount) {
+    // Check if user has already completed all original challenges
+    const tabStats = tabChallengeStats[fileName];
+    const userCompletedAll = tabStats && tabStats.completed >= regen.originalChallengeCount;
+    
+    // Don't add more challenges if user has already completed all original ones
+    if (userCompletedAll) {
+      return;
+    }
     // Find a good position to insert a new challenge
     const codeLines = content.filter(line => !line.isTypable);
     if (codeLines.length > 0) {
