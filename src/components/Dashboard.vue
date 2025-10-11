@@ -64,12 +64,12 @@ const accuracyChartData = computed(() => ({
 }));
 
 const characterMistakeChartData = computed(() => {
-  const topChars = weakestChars.value.slice(0, 8);
+  const allChars = weakestChars.value; // Show all characters, not just top 8
   return {
-    labels: topChars.map(char => char.character),
+    labels: allChars.map(char => char.character),
     datasets: [{
       label: 'Error Rate (%)',
-      data: topChars.map(char => Math.round(char.mistakeRate * 100)),
+      data: allChars.map(char => Math.round(char.mistakeRate * 100)),
       backgroundColor: '#ef4444',
       borderColor: '#dc2626',
       borderWidth: 2

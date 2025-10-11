@@ -464,8 +464,8 @@ class UserStatsService {
         mistakes: stats.mistakes
       }))
       .filter(item => item.total >= 5) // Only include characters typed at least 5 times
-      .sort((a, b) => b.mistakeRate - a.mistakeRate)
-      .slice(0, 10);
+      .sort((a, b) => b.mistakeRate - a.mistakeRate);
+      // Removed .slice(0, 10) to show all characters
   }
 
   getWeakestWords() {
