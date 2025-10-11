@@ -1054,17 +1054,27 @@ function tokenize(line) {
     const allLines = [];
     let lineCount = 0;
     const maxLines = 200;
-    const challengeCount = Math.floor(Math.random() * 6) + 5; // 5-10 challenges
+    const challengeCount = Math.floor(Math.random() * 6) + 4; // 4-9 challenges
     
     // Calculate challenge positions more reliably
     const challengePositions = [];
     const minGap = Math.floor(maxLines / challengeCount);
     for (let i = 0; i < challengeCount; i++) {
       const position = Math.floor(Math.random() * minGap) + (i * minGap);
-      if (position < maxLines - 5) { // Leave some space at the end
+      // Ensure position is within bounds and not too close to the end
+      if (position < maxLines - 10) { // Leave more space at the end
         challengePositions.push(position);
       }
     }
+    
+    // If we don't have enough positions, add more
+    while (challengePositions.length < challengeCount) {
+      const position = Math.floor(Math.random() * (maxLines - 20)) + 10; // Random position in middle section
+      if (!challengePositions.includes(position)) {
+        challengePositions.push(position);
+      }
+    }
+    
     challengePositions.sort((a, b) => a - b);
     
     let challengesInserted = 0;
@@ -1086,7 +1096,16 @@ function tokenize(line) {
     
     // Ensure we have the exact number of challenges we intended
     const actualChallenges = allLines.filter(line => line.type === 'typable').length;
-    // File ${fileName}: ${actualChallenges} challenges inserted
+    console.log(`File ${fileName}: ${actualChallenges} challenges inserted (planned: ${challengeCount})`);
+    
+    // If we don't have enough challenges, add more at the end
+    if (actualChallenges < challengeCount) {
+      const needed = challengeCount - actualChallenges;
+      for (let i = 0; i < needed; i++) {
+        allLines.push(generateTypingLine());
+      }
+      console.log(`Added ${needed} more challenges to reach target of ${challengeCount}`);
+    }
 
     return allLines.map(line => {
       const isTypable = line.type === 'typable';
@@ -1114,7 +1133,7 @@ function tokenize(line) {
   export function processUserInput(userInput) {
     const processedLines = [];
     const userLines = userInput.split('\n');
-    const maxChallenges = 10;
+    const maxChallenges = 9;
     let challengesInserted = 0;
   
     // Calculate how many lines to skip between challenges.
