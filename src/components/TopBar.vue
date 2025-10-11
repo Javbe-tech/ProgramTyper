@@ -18,9 +18,11 @@ function checkProAccess() {
   return isAuthenticated.value && isProUser;
 }
 
-function applyTheme(value) {
+function applyTheme(value, showUpgradePrompt = true) {
   if (!checkProAccess()) {
-    emit('open-pro-upgrade');
+    if (showUpgradePrompt) {
+      emit('open-pro-upgrade');
+    }
     return;
   }
   
@@ -76,7 +78,7 @@ function getUserInitials() {
 }
 
 onMounted(() => {
-  applyTheme(theme.value);
+  applyTheme(theme.value, false); // Don't show upgrade prompt on initial load
   updateAuthState();
   
   // Check for auth changes periodically
