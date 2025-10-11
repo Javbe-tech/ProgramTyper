@@ -233,7 +233,8 @@ function completeLine() {
   // Record word completion statistics per actual word in the line
   const wordsInLine = currentLine.text.split(/\s+/).filter(Boolean);
   const perWordSeconds = wordsInLine.length > 0 ? elapsedLineSeconds / wordsInLine.length : elapsedLineSeconds;
-  wordsInLine.forEach(w => userStatsService.completeWord(w, perWordSeconds));
+  const lineAccuracy = lineStrokes.value > 0 ? lineCorrectStrokes.value / lineStrokes.value : 1;
+  wordsInLine.forEach(w => userStatsService.completeWord(w, perWordSeconds, lineAccuracy >= 0.8));
   
   const sessionElapsedMinutes = sessionTotalActiveTime.value / 1000 / 60;
   const currentSessionWpm = sessionElapsedMinutes > 0 ? Math.round((sessionCorrectStrokes.value / 5) / sessionElapsedMinutes) : 0;

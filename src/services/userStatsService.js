@@ -226,7 +226,7 @@ class UserStatsService {
   }
 
   // Complete a word
-  completeWord(word, timeTaken) {
+  completeWord(word, timeTaken, isCorrect = true) {
     if (!this.currentSession.startTime) return;
 
     this.currentSession.wordsCompleted++;
@@ -247,6 +247,20 @@ class UserStatsService {
     this.stats.lifetime.wordStats[wordKey].averageTime = 
       this.stats.lifetime.wordStats[wordKey].totalTime / 
       this.stats.lifetime.wordStats[wordKey].total;
+    
+    // Track word-level mistakes
+    if (!isCorrect) {
+      this.stats.lifetime.wordStats[wordKey].mistakes++;
+    }
+    
+    // Also track in current session for merging later
+    if (!this.currentSession.wordStats[wordKey]) {
+      this.currentSession.wordStats[wordKey] = { total: 0, mistakes: 0 };
+    }
+    this.currentSession.wordStats[wordKey].total++;
+    if (!isCorrect) {
+      this.currentSession.wordStats[wordKey].mistakes++;
+    }
 
     // Note: do not update current day stats here; updated only when a session ends
   }
