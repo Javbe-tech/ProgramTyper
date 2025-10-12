@@ -105,9 +105,10 @@ function setActiveLine(index) {
     console.log('Setting active line to:', index);
     activeLineIndex.value = index;
     currentCharacterIndex.value = 0;
-    lineStartTime.value = null;
-    lineStrokes.value = 0;
-    lineCorrectStrokes.value = 0;
+    // Don't reset these here - let resetLineState handle it
+    // lineStartTime.value = null;
+    // lineStrokes.value = 0;
+    // lineCorrectStrokes.value = 0;
     scrollToActiveLine();
   } else {
     console.log('Cannot set active line - line is not typable or already completed');
@@ -287,10 +288,10 @@ function completeLine() {
     console.log('Selected nextIndex:', nextIndex);
     console.log('Target line:', lines.value[nextIndex]);
 
-    resetLineState(false);
     console.log('About to call setActiveLine with:', nextIndex);
     setActiveLine(nextIndex);
     console.log('setActiveLine called, activeLineIndex is now:', activeLineIndex.value);
+    resetLineState(false);
     // Dynamically refresh the next challenge's words based on current weaknesses
     const line = lines.value[nextIndex];
     if (line && line.isTypable) {
