@@ -479,6 +479,7 @@ function initializeTabStats(fileName) {
 
 // Update challenge completion for a tab
 function updateTabChallengeStats(fileName, completedCount) {
+  console.log('updateTabChallengeStats called:', fileName, completedCount);
   if (tabChallengeStats[fileName]) {
     tabChallengeStats[fileName].completed = completedCount;
     
@@ -490,6 +491,8 @@ function updateTabChallengeStats(fileName, completedCount) {
     tabChallengeStats[fileName].total = currentTotal;
     tabChallengeStats[fileName].remaining = currentTotal - completedCount;
     
+    console.log('Updated stats for', fileName, ':', tabChallengeStats[fileName]);
+    
     if (tabChallengeStats[fileName].remaining < 0) {
       tabChallengeStats[fileName].remaining = 0;
       tabChallengeStats[fileName].total = completedCount; // normalize if content changed
@@ -499,6 +502,8 @@ function updateTabChallengeStats(fileName, completedCount) {
     if (tabChallengeStats[fileName].remaining === 0) {
       switchToNextTab();
     }
+  } else {
+    console.log('No tab stats found for:', fileName);
   }
 }
 
