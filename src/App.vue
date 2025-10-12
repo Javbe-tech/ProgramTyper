@@ -187,9 +187,8 @@ function startRunSequence() {
     // Show typing challenge after matrix effect
     setTimeout(() => {
       showTypingChallenge(currentStep);
+      currentStep++;
     }, 2000);
-    
-    currentStep++;
   }
   
   function showTypingChallenge(step) {
