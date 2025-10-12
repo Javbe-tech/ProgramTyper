@@ -216,8 +216,8 @@ function handleKeyDown(e) {
       return;
   }
 
-  // Tab key to auto-complete current line (for testing)
-  if (e.key === 'Tab') {
+  // Backtick key to auto-complete current line (for testing)
+  if (e.key === '`') {
     e.preventDefault();
     if (activeLineIndex.value !== -1 && ['typing', 'waiting'].includes(gameStatus.value)) {
       const currentLine = lines.value[activeLineIndex.value];
