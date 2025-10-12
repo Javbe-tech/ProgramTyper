@@ -20,10 +20,12 @@ function openFile(fileName) {
 }
 
 // Get challenge count for a file (including regenerated challenges)
-function getFileChallengeCount(fileName) {
-  const stats = props.getTabChallengeStats ? props.getTabChallengeStats(fileName) : { remaining: 0, total: 0 };
-  return stats.remaining;
-}
+const getFileChallengeCount = computed(() => {
+  return (fileName) => {
+    const stats = props.getTabChallengeStats ? props.getTabChallengeStats(fileName) : { remaining: 0, total: 0 };
+    return stats.remaining;
+  };
+});
 
 // Get file icon class based on file extension
 function getFileIconClass(fileName) {
@@ -39,7 +41,7 @@ function renderFileSystemItem(item, indentLevel = 0) {
       name: item.name,
       indentLevel,
       iconClass: getFileIconClass(item.name),
-      challengeCount: getFileChallengeCount(item.name)
+      challengeCount: getFileChallengeCount.value(item.name)
     };
   } else if (item.type === 'folder') {
     return {

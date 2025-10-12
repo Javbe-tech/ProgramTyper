@@ -167,6 +167,25 @@ function closeFileCompletion() {
   showFileCompletion.value = false;
 }
 
+// Handle file completion
+function handleFileCompleted(fileName, stats) {
+  // Track completed files for Run button
+  completedFiles.value++;
+  if (completedFiles.value % 2 === 0) {
+    runButtonActive.value = true;
+  }
+  
+  // Show file completion animation
+  completedFileName.value = fileName;
+  completedFileStats.value = {
+    averageWpm: stats.averageWpm,
+    accuracy: stats.accuracy,
+    time: stats.time + 's',
+    lines: stats.completedLines
+  };
+  showFileCompletion.value = true;
+}
+
 function openProUpgrade() {
   showRemoveAdsModal.value = true;
 }
@@ -478,22 +497,6 @@ function updateTabChallengeStats(fileName, completedCount) {
 
     // If all challenges completed, switch to next tab
     if (tabChallengeStats[fileName].remaining === 0) {
-      // Track completed files for Run button
-      completedFiles.value++;
-      if (completedFiles.value % 2 === 0) {
-        runButtonActive.value = true;
-      }
-      
-      // Show file completion animation
-      completedFileName.value = fileName;
-      completedFileStats.value = {
-        averageWpm: Math.floor(Math.random() * 50) + 30, // Random WPM between 30-80
-        accuracy: Math.floor(Math.random() * 20) + 80, // Random accuracy between 80-100%
-        time: Math.floor(Math.random() * 300) + 60 + 's', // Random time between 1-6 minutes
-        lines: tabChallengeStats[fileName].total
-      };
-      showFileCompletion.value = true;
-      
       switchToNextTab();
     }
   }
@@ -691,6 +694,7 @@ onUnmounted(() => {
           @close-tab="closeTab"
           @initialize-tab-stats="initializeTabStats"
           @update-tab-challenge-stats="updateTabChallengeStats"
+          @file-completed="handleFileCompleted"
         />
         <div v-if="terminalVisible" class="resizer resizer-y" ref="resizerY"></div>
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />

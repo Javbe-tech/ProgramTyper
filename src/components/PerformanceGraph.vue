@@ -21,14 +21,21 @@ function drawGraph() {
   const { width, height } = canvas;
   const padding = 20; // Space for labels
 
+  // Get theme colors from CSS variables
+  const computedStyle = getComputedStyle(document.documentElement);
+  const bgColor = computedStyle.getPropertyValue('--terminal-bg').trim() || '#1a1a1a';
+  const borderColor = computedStyle.getPropertyValue('--border-color').trim() || '#2a2a2a';
+  const textColor = computedStyle.getPropertyValue('--gray').trim() || '#808080';
+  const lineColor = computedStyle.getPropertyValue('--completed-green').trim() || '#4d8d4d';
+
   // Clear canvas
-  ctx.fillStyle = '#1a1a1a'; // Match the new darker background
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
   
   // --- Draw Axis Labels and Grid ---
   const maxWpm = Math.max(...props.wpmHistory, 100);
-  ctx.strokeStyle = '#2a2a2a'; // Darker border color for grid
-  ctx.fillStyle = '#808080'; // Gray for text
+  ctx.strokeStyle = borderColor;
+  ctx.fillStyle = textColor;
   ctx.font = '10px Consolas';
   
   // Y-axis labels and grid lines
@@ -45,7 +52,7 @@ function drawGraph() {
   // --- Draw WPM Line ---
   if (props.wpmHistory.length < 2) return;
 
-  ctx.strokeStyle = '#4d8d4d';
+  ctx.strokeStyle = lineColor;
   ctx.lineWidth = 2;
   ctx.beginPath();
   
@@ -67,6 +74,11 @@ function drawGraph() {
 
 onMounted(drawGraph);
 watch(() => props.wpmHistory, drawGraph, { deep: true });
+
+// Watch for theme changes
+watch(() => document.documentElement.getAttribute('data-theme'), () => {
+  setTimeout(drawGraph, 100); // Small delay to ensure CSS variables are updated
+}, { immediate: false });
 </script>
 
 <template>

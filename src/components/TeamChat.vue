@@ -717,17 +717,9 @@ onMounted(() => {
   <aside class="team-chat" v-show="showChat && isAuthenticated">
     <div class="chat-header">
       <h3>Team Chat</h3>
-      <div class="user-info">
-        <img 
-          v-if="user?.picture" 
-          :src="user.picture" 
-          :alt="user.name"
-          class="user-avatar"
-        />
-        <div v-else class="user-avatar-placeholder">
-          {{ user?.name?.charAt(0) || 'U' }}
-        </div>
-        <span class="user-name">{{ user?.name || 'User' }}</span>
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>Active</span>
       </div>
     </div>
     
@@ -781,6 +773,21 @@ onMounted(() => {
       />
       <button class="send-button" disabled>Send</button>
     </div>
+    
+    <div class="chat-footer">
+      <div class="user-info">
+        <img 
+          v-if="user?.picture" 
+          :src="user.picture" 
+          :alt="user.name"
+          class="user-avatar"
+        />
+        <div v-else class="user-avatar-placeholder">
+          {{ user?.name?.charAt(0) || 'U' }}
+        </div>
+        <span class="user-name">{{ user?.name || 'User' }}</span>
+      </div>
+    </div>
   </aside>
 </template>
 
@@ -798,12 +805,43 @@ onMounted(() => {
   padding: 16px;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .chat-header h3 {
-  margin: 0 0 12px 0;
+  margin: 0;
   color: var(--font-color);
   font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gray);
+  font-size: 0.8rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.chat-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-color);
 }
 
 .user-info {
@@ -813,15 +851,15 @@ onMounted(() => {
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .user-avatar-placeholder {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--keyword);
   color: white;
@@ -829,12 +867,12 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
 }
 
 .user-name {
-  color: var(--font-color);
-  font-size: 0.9rem;
+  color: var(--gray);
+  font-size: 0.8rem;
   font-weight: 500;
 }
 

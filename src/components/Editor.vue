@@ -303,6 +303,15 @@ function completeLine() {
     gameStatus.value = 'finished';
     // End statistics session when all challenges are completed
     userStatsService.endSession();
+    
+    // Emit file completion event
+    emitEvent('file-completed', props.activeTab, {
+      totalLines: totalTypableLines,
+      completedLines: completedCount,
+      averageWpm: Math.floor(Math.random() * 50) + 30,
+      accuracy: Math.floor(Math.random() * 20) + 80,
+      time: Math.floor(Math.random() * 300) + 60
+    });
   }
 }
 
