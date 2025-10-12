@@ -6,6 +6,8 @@ import Sidebar from './components/Sidebar.vue';
 import Editor from './components/Editor.vue';
 import NewFileModal from './components/NewFileModal.vue';
 import RightAdBar from './components/RightAdBar.vue';
+import TeamChat from './components/TeamChat.vue';
+import FileCompletionAnimation from './components/FileCompletionAnimation.vue';
 import RemoveAdsModal from './components/RemoveAdsModal.vue';
 import HelpModal from './components/HelpModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
@@ -22,6 +24,13 @@ const userCreatedFiles = ref([]);
 const tabChallengeStats = reactive({}); // Track challenge completion per tab
 const fileChallengeRegeneration = reactive({}); // Track challenge regeneration per file
 const challengeRegenerationTimer = ref(null);
+const completedFiles = ref(0); // Track completed files for Run button
+const runButtonActive = ref(false); // Run button state
+const showMatrixEffect = ref(false); // Matrix effect state
+const matrixText = ref(''); // Matrix effect text
+const showFileCompletion = ref(false); // File completion animation state
+const completedFileStats = ref({}); // Stats for completed file
+const completedFileName = ref(''); // Name of completed file
 
 // Ads - show ads by default, hide only if user is pro
 const showAds = ref(true);
@@ -61,6 +70,101 @@ function openHelp() {
 
 function openSettings() {
   showSettingsModal.value = true;
+}
+
+// Matrix effect texts
+const matrixEffects = [
+  `01001000 01100001 01100011 01101011 01100101 01110010 00100000 01001101 01101111 01100100 01100101
+01110011 00100000 01100001 01100011 01110100 01101001 01110110 01100001 01110100 01100101 01100100
+01000111 01110010 01100101 01100101 01110100 01101001 01101110 01100111 01110011 00100000 01010000 01110010 01101111 01100111 01110010 01100001 01101101 01101101 01100101 01110010
+01010011 01111001 01110011 01110100 01100101 01101101 00100000 01000001 01100011 01100011 01100101 01110011 01110011 00100000 01000111 01110010 01100001 01101110 01110100 01100101 01100100
+01000001 01100011 01100011 01100101 01110011 01110011 01101001 01101110 01100111 00100000 01001000 01100001 01100011 01101011 01100101 01110010 00100000 01010000 01110010 01101111 01110100 01101111 01100011 01101111 01101100 01110011`,
+
+  `██╗   ██╗██╗   ██╗██╗██╗     ██████╗ ███████╗██████╗ 
+██║   ██║██║   ██║██║██║     ██╔══██╗██╔════╝██╔══██╗
+██║   ██║██║   ██║██║██║     ██████╔╝█████╗  ██████╔╝
+╚██╗ ██╔╝██║   ██║██║██║     ██╔══██╗██╔══╝  ██╔══██╗
+ ╚████╔╝ ╚██████╔╝██║███████╗██████╔╝███████╗██║  ██║
+  ╚═══╝   ╚═════╝ ╚═╝╚══════╝╚═════╝ ╚══════╝╚═╝  ╚═╝`,
+
+  `[SYSTEM] Initializing quantum protocols...
+[SYSTEM] Bypassing security protocols...
+[SYSTEM] Accessing mainframe...
+[SYSTEM] Decrypting encrypted data streams...
+[SYSTEM] Establishing secure connection...
+[SYSTEM] Hacker mode activated successfully.
+[SYSTEM] Welcome to the matrix, programmer.`,
+
+  `> sudo rm -rf /
+> Access granted. Welcome, hacker.
+> Initializing neural network protocols...
+> Bypassing firewall restrictions...
+> Accessing secure databases...
+> Decryption algorithms running...
+> System compromised successfully.
+> You are now one with the code.`,
+
+  `┌─────────────────────────────────────────┐
+│  ███████╗██╗   ██╗███████╗███████╗███████╗  │
+│  ██╔════╝██║   ██║██╔════╝██╔════╝██╔════╝  │
+│  ███████╗██║   ██║█████╗  ███████╗█████╗    │
+│  ╚════██║██║   ██║██╔══╝  ╚════██║██╔══╝    │
+│  ███████║╚██████╔╝███████╗███████║███████╗  │
+│  ╚══════╝ ╚═════╝ ╚══════╝╚══════╝╚══════╝  │
+└─────────────────────────────────────────┘`,
+
+  `[ERROR] Security breach detected...
+[ERROR] Unauthorized access attempt...
+[ERROR] Firewall bypassed...
+[ERROR] Encryption keys compromised...
+[SUCCESS] Access granted to main system.
+[SUCCESS] Welcome to the underground.
+[SUCCESS] You are now a certified hacker.`,
+
+  `01001000 01100001 01100011 01101011 01100101 01110010 00100000 01001101 01101111 01100100 01100101
+01110011 00100000 01100001 01100011 01110100 01101001 01110110 01100001 01110100 01100101 01100100
+01000111 01110010 01100101 01100101 01110100 01101001 01101110 01100111 01110011 00100000 01010000 01110010 01101111 01100111 01110010 01100001 01101101 01101101 01100101 01110010
+01010011 01111001 01110011 01110100 01100101 01101101 00100000 01000001 01100011 01100011 01100101 01110011 01110011 00100000 01000111 01110010 01100001 01101110 01110100 01100101 01100100
+01000001 01100011 01100011 01100101 01110011 01110011 01101001 01101110 01100111 00100000 01001000 01100001 01100011 01101011 01100101 01110010 00100000 01010000 01110010 01101111 01110100 01101111 01100011 01101111 01101100 01110011`,
+
+  `[INIT] Starting hacker protocols...
+[INIT] Loading quantum encryption...
+[INIT] Bypassing security measures...
+[INIT] Accessing restricted areas...
+[INIT] Decrypting confidential data...
+[INIT] Establishing secure channels...
+[INIT] Hacker mode fully operational.
+[INIT] Welcome to the digital underground.`,
+
+  `> Accessing mainframe...
+> Security protocols bypassed...
+> Firewall disabled...
+> Encryption keys obtained...
+> Database access granted...
+> System compromised...
+> Welcome to the matrix, programmer.
+> You are now one with the code.`
+];
+
+// Run button functionality
+function handleRunButton() {
+  if (!runButtonActive.value) return;
+  
+  runButtonActive.value = false;
+  showMatrixEffect.value = true;
+  
+  // Select random matrix effect
+  const randomEffect = matrixEffects[Math.floor(Math.random() * matrixEffects.length)];
+  matrixText.value = randomEffect;
+  
+  // Hide matrix effect after 5 seconds
+  setTimeout(() => {
+    showMatrixEffect.value = false;
+  }, 5000);
+}
+
+function closeFileCompletion() {
+  showFileCompletion.value = false;
 }
 
 function openProUpgrade() {
@@ -374,6 +478,22 @@ function updateTabChallengeStats(fileName, completedCount) {
 
     // If all challenges completed, switch to next tab
     if (tabChallengeStats[fileName].remaining === 0) {
+      // Track completed files for Run button
+      completedFiles.value++;
+      if (completedFiles.value % 2 === 0) {
+        runButtonActive.value = true;
+      }
+      
+      // Show file completion animation
+      completedFileName.value = fileName;
+      completedFileStats.value = {
+        averageWpm: Math.floor(Math.random() * 50) + 30, // Random WPM between 30-80
+        accuracy: Math.floor(Math.random() * 20) + 80, // Random accuracy between 80-100%
+        time: Math.floor(Math.random() * 300) + 60 + 's', // Random time between 1-6 minutes
+        lines: tabChallengeStats[fileName].total
+      };
+      showFileCompletion.value = true;
+      
       switchToNextTab();
     }
   }
@@ -540,11 +660,13 @@ onUnmounted(() => {
   <div id="full-app-container">
     <TopBar 
       :terminal-visible="terminalVisible"
+      :run-button-active="runButtonActive"
       @toggle-terminal="toggleTerminal"
       @open-help="openHelp"
       @open-settings="openSettings"
       @open-pro-upgrade="openProUpgrade"
       @user-logout="handleLogout"
+      @run-button="handleRunButton"
     />
     <div id="app-container">
       <Sidebar 
@@ -573,7 +695,8 @@ onUnmounted(() => {
         <div v-if="terminalVisible" class="resizer resizer-y" ref="resizerY"></div>
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
       </div>
-      <RightAdBar v-if="showAds" :show-ads="showAds" @remove-ads="openRemoveAds" />
+      <RightAdBar v-if="showAds && !isAuthenticated" :show-ads="showAds" @remove-ads="openRemoveAds" />
+      <TeamChat v-if="isAuthenticated" :show-chat="true" />
     </div>
     <NewFileModal 
       v-if="showNewFileModal" 
@@ -594,6 +717,21 @@ onUnmounted(() => {
       @close="showSettingsModal = false"
       @open-pro-upgrade="openProUpgrade"
     />
+    
+    <!-- Matrix Effect Overlay -->
+    <div v-if="showMatrixEffect" class="matrix-overlay">
+      <div class="matrix-text">
+        <pre>{{ matrixText }}</pre>
+      </div>
+    </div>
+    
+    <!-- File Completion Animation -->
+    <FileCompletionAnimation 
+      :show="showFileCompletion"
+      :file-name="completedFileName"
+      :stats="completedFileStats"
+      @close="closeFileCompletion"
+    />
   </div>
 </template>
 
@@ -605,4 +743,43 @@ onUnmounted(() => {
 .resizer-x { cursor: col-resize; width: 4px; }
 .resizer-y { cursor: row-resize; height: 4px; }
 .resizer:hover { background-color: var(--keyword); }
+
+/* Matrix Effect Styles */
+.matrix-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: matrixFadeIn 0.5s ease-in;
+}
+
+.matrix-text {
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 80%;
+  animation: matrixGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes matrixFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes matrixGlow {
+  from { 
+    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+  }
+  to { 
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  }
+}
 </style>
