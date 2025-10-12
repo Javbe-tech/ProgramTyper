@@ -184,6 +184,11 @@ class UserStatsService {
   // Record the WPM for a completed line to track peak speed
   recordLineResult(lineWpm) {
     if (!this.currentSession.startTime) return;
+    if (!this.stats) {
+      console.warn('Stats not initialized, cannot record line result');
+      return;
+    }
+    
     if (typeof lineWpm === 'number' && lineWpm > this.currentSession.highestLineWpm) {
       this.currentSession.highestLineWpm = lineWpm;
     }
@@ -195,9 +200,24 @@ class UserStatsService {
 
   // Record a completed lesson (typable line) with both WPM and accuracy
   recordLessonResult(wpm, accuracy) {
+    if (!this.stats) {
+      console.warn('Stats not initialized, cannot record lesson result');
+      return;
+    }
+    
     const now = Date.now();
-    this.stats.lifetime.lessonHistory.push({ wpm: Number(wpm) || 0, accuracy: Number(accuracy) || 0, timestamp: now });
-    this.stats.currentDay.lessonHistory.push({ wpm: Number(wpm) || 0, accuracy: Number(accuracy) || 0, timestamp: now });
+    const lessonData = { wpm: Number(wpm) || 0, accuracy: Number(accuracy) || 0, timestamp: now };
+    
+    // Ensure arrays exist before pushing
+    if (!this.stats.lifetime.lessonHistory) {
+      this.stats.lifetime.lessonHistory = [];
+    }
+    if (!this.stats.currentDay.lessonHistory) {
+      this.stats.currentDay.lessonHistory = [];
+    }
+    
+    this.stats.lifetime.lessonHistory.push(lessonData);
+    this.stats.currentDay.lessonHistory.push(lessonData);
   }
 
   // Record a character input
@@ -228,6 +248,10 @@ class UserStatsService {
   // Complete a word
   completeWord(word, timeTaken, isCorrect = true) {
     if (!this.currentSession.startTime) return;
+    if (!this.stats) {
+      console.warn('Stats not initialized, cannot complete word');
+      return;
+    }
 
     this.currentSession.wordsCompleted++;
     
@@ -268,6 +292,10 @@ class UserStatsService {
   // End the current session
   endSession() {
     if (!this.currentSession.startTime) return;
+    if (!this.stats) {
+      console.warn('Stats not initialized, cannot end session');
+      return;
+    }
 
     const sessionDuration = (new Date() - this.currentSession.startTime) / 1000;
     this.currentSession.totalTime = sessionDuration;
