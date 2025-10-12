@@ -153,18 +153,104 @@ function handleRunButton() {
   runButtonActive.value = false;
   showMatrixEffect.value = true;
   
-  // Select random matrix effect
-  const randomEffect = matrixEffects[Math.floor(Math.random() * matrixEffects.length)];
-  matrixText.value = randomEffect;
+  // Start the enhanced run sequence
+  startRunSequence();
+}
+
+function startRunSequence() {
+  let currentStep = 0;
+  const totalSteps = 5;
   
-  // Hide matrix effect after 5 seconds
-  setTimeout(() => {
-    showMatrixEffect.value = false;
-  }, 5000);
+  function nextStep() {
+    if (currentStep >= totalSteps) {
+      // Final glitch effect
+      showGlitchEffect();
+      return;
+    }
+    
+    // Show different matrix effects and typing challenges
+    const effect = matrixEffects[currentStep];
+    matrixText.value = effect;
+    
+    // Show typing challenge after matrix effect
+    setTimeout(() => {
+      showTypingChallenge(currentStep);
+    }, 2000);
+    
+    currentStep++;
+  }
+  
+  function showTypingChallenge(step) {
+    const challenges = [
+      "sudo rm -rf /",
+      "git push --force",
+      "npm install --global",
+      "chmod 777 *",
+      "killall -9 process"
+    ];
+    
+    matrixText.value = `\n\n> ${challenges[step]}\n> Type this command to continue...\n\n`;
+    
+    // Simulate typing completion after 3 seconds
+    setTimeout(() => {
+      matrixText.value += `\n> Command executed successfully!\n`;
+      setTimeout(nextStep, 1000);
+    }, 3000);
+  }
+  
+  function showGlitchEffect() {
+    // Glitch effect with random characters
+    let glitchText = '';
+    const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+    
+    for (let i = 0; i < 20; i++) {
+      glitchText += chars[Math.floor(Math.random() * chars.length)];
+    }
+    
+    matrixText.value = `\n\nSYSTEM ERROR: ${glitchText}\nCORRUPTION DETECTED\nRETURNING TO MAIN INTERFACE...\n\n`;
+    
+    // Hide effect and return to main screen
+    setTimeout(() => {
+      showMatrixEffect.value = false;
+    }, 3000);
+  }
+  
+  // Start the sequence
+  nextStep();
 }
 
 function closeFileCompletion() {
   showFileCompletion.value = false;
+}
+
+function startNextFile() {
+  showFileCompletion.value = false;
+  
+  // Get all available files from the file system
+  const allFiles = [];
+  function collectFiles(items) {
+    items.forEach(item => {
+      if (item.type === 'file') {
+        allFiles.push(item.name);
+      } else if (item.type === 'folder' && item.children) {
+        collectFiles(item.children);
+      }
+    });
+  }
+  collectFiles(fileSystem);
+  
+  // Filter out already open files
+  const availableFiles = allFiles.filter(file => !openTabs.value.includes(file));
+  
+  if (availableFiles.length > 0) {
+    // Select a random file
+    const randomFile = availableFiles[Math.floor(Math.random() * availableFiles.length)];
+    handleOpenFile(randomFile);
+  } else {
+    // All files are open, just switch to a random one
+    const randomTab = openTabs.value[Math.floor(Math.random() * openTabs.value.length)];
+    activeTab.value = randomTab;
+  }
 }
 
 // Handle file completion
@@ -312,7 +398,10 @@ onMounted(() => {
   });
   
   // Initialize stats for the initial tab
-  initializeTabStats(activeTab.value);
+  console.log('Initializing stats for activeTab:', activeTab.value);
+  if (activeTab.value) {
+    initializeTabStats(activeTab.value);
+  }
   
   // Start challenge regeneration system
   startChallengeRegenerationSystem();
@@ -735,12 +824,13 @@ onUnmounted(() => {
     </div>
     
     <!-- File Completion Animation -->
-    <FileCompletionAnimation 
-      :show="showFileCompletion"
-      :file-name="completedFileName"
-      :stats="completedFileStats"
-      @close="closeFileCompletion"
-    />
+           <FileCompletionAnimation 
+             :show="showFileCompletion"
+             :file-name="completedFileName"
+             :stats="completedFileStats"
+             @close="closeFileCompletion"
+             @start-next-file="startNextFile"
+           />
   </div>
 </template>
 

@@ -7,11 +7,13 @@ const props = defineProps({
   stats: { type: Object, default: () => ({}) }
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'start-next-file']);
 
 const animationStep = ref(0);
 const highlightProgress = ref(0);
 const animationTimer = ref(null);
+const scrollProgress = ref(0);
+const matrixChars = ref([]);
 
 // ASCII art for completion messages
 const completionMessages = [
@@ -77,29 +79,87 @@ function startAnimation() {
   
   animationStep.value = 0;
   highlightProgress.value = 0;
+  scrollProgress.value = 0;
+  matrixChars.value = [];
   
-  // Step 1: Scroll to top and highlight (5-8 seconds)
+  // Step 1: Scroll to top (1 second)
   animationStep.value = 1;
-  const highlightDuration = 6000; // 6 seconds
+  scrollToTop();
+  
+  // Step 2: Matrix highlight effect (5-7 seconds)
+  setTimeout(() => {
+    animationStep.value = 2;
+    startMatrixHighlight();
+  }, 1000);
+  
+  // Step 3: Show completion popup
+  setTimeout(() => {
+    animationStep.value = 3;
+  }, 8000);
+}
+
+function scrollToTop() {
+  const scrollDuration = 1000;
+  const scrollInterval = 16; // ~60fps
+  const totalSteps = scrollDuration / scrollInterval;
+  let currentStep = 0;
+  
+  const scrollTimer = setInterval(() => {
+    currentStep++;
+    scrollProgress.value = (currentStep / totalSteps) * 100;
+    
+    if (currentStep >= totalSteps) {
+      clearInterval(scrollTimer);
+      scrollProgress.value = 100;
+    }
+  }, scrollInterval);
+}
+
+function startMatrixHighlight() {
+  const highlightDuration = 7000; // 7 seconds
   const highlightInterval = 50; // Update every 50ms
   const totalSteps = highlightDuration / highlightInterval;
+  
+  // Generate matrix characters
+  const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{}|;:,.<>?';
+  matrixChars.value = Array.from({ length: 100 }, () => ({
+    char: chars[Math.floor(Math.random() * chars.length)],
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    opacity: Math.random(),
+    speed: Math.random() * 0.02 + 0.01
+  }));
   
   let currentStep = 0;
   animationTimer.value = setInterval(() => {
     currentStep++;
     highlightProgress.value = (currentStep / totalSteps) * 100;
     
+    // Update matrix characters
+    matrixChars.value.forEach(char => {
+      char.y += char.speed;
+      char.opacity = Math.sin(currentStep * 0.1) * 0.5 + 0.5;
+      if (char.y > 100) {
+        char.y = 0;
+        char.char = chars[Math.floor(Math.random() * chars.length)];
+      }
+    });
+    
     if (currentStep >= totalSteps) {
       clearInterval(animationTimer.value);
-      // Step 2: Show completion popup
-      animationStep.value = 2;
-      
-      // Auto-close after 4 seconds
-      setTimeout(() => {
-        emit('close');
-      }, 4000);
+      highlightProgress.value = 100;
     }
   }, highlightInterval);
+}
+
+function startNextFile() {
+  emit('start-next-file');
+}
+
+function closePopup(event) {
+  if (event.target === event.currentTarget) {
+    emit('close');
+  }
 }
 
 function stopAnimation() {
@@ -133,14 +193,33 @@ onUnmounted(() => {
 
 <template>
   <div v-if="show" class="file-completion-overlay">
-    <!-- Highlight animation -->
-    <div v-if="animationStep === 1" class="highlight-animation">
-      <div class="highlight-bar" :style="{ width: highlightProgress + '%' }"></div>
+    <!-- Scroll to top animation -->
+    <div v-if="animationStep === 1" class="scroll-animation">
+      <div class="scroll-indicator" :style="{ top: scrollProgress + '%' }"></div>
+    </div>
+    
+    <!-- Matrix highlight animation -->
+    <div v-if="animationStep === 2" class="matrix-animation">
+      <div class="matrix-overlay">
+        <div 
+          v-for="(char, index) in matrixChars" 
+          :key="index"
+          class="matrix-char"
+          :style="{ 
+            left: char.x + '%', 
+            top: char.y + '%', 
+            opacity: char.opacity 
+          }"
+        >
+          {{ char.char }}
+        </div>
+      </div>
+      <div class="highlight-progress" :style="{ width: highlightProgress + '%' }"></div>
     </div>
     
     <!-- Completion popup -->
-    <div v-if="animationStep === 2" class="completion-popup">
-      <div class="completion-content">
+    <div v-if="animationStep === 3" class="completion-popup" @click="closePopup">
+      <div class="completion-content" @click.stop>
         <pre class="ascii-art">{{ currentMessage }}</pre>
         
         <div class="file-info">
@@ -171,7 +250,9 @@ onUnmounted(() => {
         
         <div class="next-file-prompt">
           <p>🎯 Ready for your next challenge?</p>
-          <p>Select another file from the sidebar to continue!</p>
+          <button @click="startNextFile" class="start-next-btn">
+            Start Next File
+          </button>
         </div>
       </div>
     </div>
@@ -189,28 +270,68 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.highlight-animation {
+.scroll-animation {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(0, 255, 0, 0.1) 50%, 
-    transparent 100%
-  );
-  animation: highlightSweep 6s ease-in-out;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.highlight-bar {
+.scroll-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 60px;
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    var(--completed-green) 50%, 
+    transparent 100%
+  );
+  animation: scrollPulse 1s ease-in-out;
+}
+
+.matrix-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+.matrix-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.matrix-char {
+  position: absolute;
+  color: var(--completed-green);
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 5px var(--completed-green);
+  pointer-events: none;
+}
+
+.highlight-progress {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    rgba(0, 255, 0, 0.2) 50%, 
+    rgba(0, 255, 0, 0.1) 50%, 
     transparent 100%
   );
   transition: width 0.05s linear;
@@ -229,6 +350,7 @@ onUnmounted(() => {
   text-align: center;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   animation: popupAppear 0.5s ease-out;
+  pointer-events: auto;
 }
 
 .completion-content {
@@ -301,17 +423,38 @@ onUnmounted(() => {
   margin: 5px 0;
 }
 
-@keyframes highlightSweep {
+.start-next-btn {
+  background: var(--completed-green);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.start-next-btn:hover {
+  background: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes scrollPulse {
   0% { 
-    background-position: -100% 0;
     opacity: 0;
+    transform: translateX(-50%) scaleY(0);
   }
   50% { 
     opacity: 1;
+    transform: translateX(-50%) scaleY(1);
   }
   100% { 
-    background-position: 100% 0;
     opacity: 0;
+    transform: translateX(-50%) scaleY(0);
   }
 }
 
