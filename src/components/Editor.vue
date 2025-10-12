@@ -444,12 +444,12 @@ onUnmounted(() => {
   height: 1.35rem;
   width: 2px;
   background-color: var(--keyword);
-  animation: blink 1s steps(1) infinite;
+  /* animation: blink 1s steps(1) infinite; */
   pointer-events: none;
   border-radius: 1px;
 }
 
-@keyframes blink { 50% { opacity: 0; } }
+/* @keyframes blink { 50% { opacity: 0; } } */
 
 :global(.token-keyword) { color: var(--keyword); }
 :global(.token-function) { color: var(--function); }
@@ -468,7 +468,7 @@ onUnmounted(() => {
 
 .auto-completion-cursor {
   color: var(--keyword);
-  animation: blink 1s steps(1) infinite;
+  /* animation: blink 1s steps(1) infinite; */
   font-weight: bold;
 }
 </style>

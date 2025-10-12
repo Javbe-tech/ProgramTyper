@@ -138,17 +138,17 @@ body::before {
   z-index: -1;
   background: linear-gradient(120deg, #ff0080, #7928ca, #2af598, #fcb045, #fd1d1d);
   background-size: 300% 300%;
-  animation: rainbowFlow 20s ease infinite;
+  /* animation: rainbowFlow 20s ease infinite; */
   filter: blur(60px) saturate(1.15);
   opacity: 0; /* default off */
 }
 [data-theme="psychedelic"] body::before, body[data-theme="psychedelic"]::before { opacity: 0.6; }
 
-@keyframes rainbowFlow {
+/* @keyframes rainbowFlow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}
+} */
 
 body { 
   background-color: var(--bg-color); 

@@ -247,7 +247,7 @@ function getUserInitials() {
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top: 2px solid white;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  /* animation: spin 1s linear infinite; */
 }
 
 @keyframes spin {

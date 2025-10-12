@@ -88,101 +88,82 @@ function handleLogout() {
 const isAuthenticated = ref(false);
 const currentUser = ref(null);
 
-// This is the full, rich file system data, making the sidebar populated.
+// File system with multiple unique code files for typing practice
 const fileSystem = ref([
   { 
-    name: 'codetype-pro', type: 'folder', isOpen: true, 
+    name: 'typing-practice', type: 'folder', isOpen: true, 
     children: [
       { 
-        name: '.vscode', type: 'folder', isOpen: false, 
+        name: 'javascript', type: 'folder', isOpen: true, 
         children: [
-          { name: 'settings.json', type: 'file' },
-          { name: 'launch.json', type: 'file' },
-          { name: 'extensions.json', type: 'file' },
-          { name: 'tasks.json', type: 'file' }
+          { name: 'main.js', type: 'file' },
+          { name: 'utils.js', type: 'file' },
+          { name: 'api.js', type: 'file' },
+          { name: 'validation.js', type: 'file' },
+          { name: 'helpers.js', type: 'file' }
         ]
       },
       { 
-        name: 'dist', type: 'folder', isOpen: false, 
+        name: 'react', type: 'folder', isOpen: true, 
+        children: [
+          { name: 'App.jsx', type: 'file' },
+          { name: 'components', type: 'folder', isOpen: true, children: [
+            { name: 'Header.jsx', type: 'file' },
+            { name: 'Footer.jsx', type: 'file' },
+            { name: 'Button.jsx', type: 'file' },
+            { name: 'Modal.jsx', type: 'file' }
+          ]},
+          { name: 'hooks', type: 'folder', isOpen: true, children: [
+            { name: 'useAuth.js', type: 'file' },
+            { name: 'useLocalStorage.js', type: 'file' }
+          ]}
+        ]
+      },
+      { 
+        name: 'python', type: 'folder', isOpen: true, 
+        children: [
+          { name: 'main.py', type: 'file' },
+          { name: 'data_processing.py', type: 'file' },
+          { name: 'machine_learning.py', type: 'file' },
+          { name: 'web_scraper.py', type: 'file' }
+        ]
+      },
+      { 
+        name: 'vue', type: 'folder', isOpen: true, 
+        children: [
+          { name: 'App.vue', type: 'file' },
+          { name: 'components', type: 'folder', isOpen: true, children: [
+            { name: 'Editor.vue', type: 'file' },
+            { name: 'Sidebar.vue', type: 'file' },
+            { name: 'Terminal.vue', type: 'file' }
+          ]}
+        ]
+      },
+      { 
+        name: 'css', type: 'folder', isOpen: true, 
+        children: [
+          { name: 'styles.css', type: 'file' },
+          { name: 'animations.css', type: 'file' },
+          { name: 'responsive.css', type: 'file' }
+        ]
+      },
+      { 
+        name: 'html', type: 'folder', isOpen: true, 
         children: [
           { name: 'index.html', type: 'file' },
-          { name: 'assets', type: 'folder', isOpen: false, children: [
-            { name: 'index.css', type: 'file' },
-            { name: 'index.js', type: 'file' }
-          ]}
+          { name: 'about.html', type: 'file' },
+          { name: 'contact.html', type: 'file' }
         ]
       },
       { 
-        name: 'node_modules', type: 'folder', isOpen: false, 
+        name: 'config', type: 'folder', isOpen: true, 
         children: [
-          { name: 'vue', type: 'folder', isOpen: false, children: [
-            { name: 'package.json', type: 'file' },
-            { name: 'index.js', type: 'file' }
-          ]},
-          { name: 'chart.js', type: 'folder', isOpen: false, children: [
-            { name: 'package.json', type: 'file' },
-            { name: 'index.js', type: 'file' }
-          ]}
+          { name: 'package.json', type: 'file' },
+          { name: 'webpack.config.js', type: 'file' },
+          { name: 'babel.config.js', type: 'file' },
+          { name: 'eslint.config.js', type: 'file' }
         ]
-      },
-      { 
-        name: 'public', type: 'folder', isOpen: false, 
-        children: [
-          { name: 'vite.svg', type: 'file' },
-          { name: 'favicon.ico', type: 'file' },
-          { name: 'robots.txt', type: 'file' },
-          { name: 'manifest.json', type: 'file' }
-        ]
-      },
-      { 
-        name: 'src', type: 'folder', isOpen: true, 
-        children: [
-          { 
-            name: 'assets', type: 'folder', isOpen: false, 
-            children: [
-              { name: 'logo.svg', type: 'file' },
-              { name: 'main.css', type: 'file' },
-              { name: 'vue.svg', type: 'file' },
-              { name: 'favicon.ico', type: 'file' }
-            ]
-          },
-          { 
-            name: 'components', type: 'folder', isOpen: false, 
-            children: [
-              { name: 'Editor.vue', type: 'file' },
-              { name: 'Sidebar.vue', type: 'file' },
-              { name: 'Terminal.vue', type: 'file' },
-              { name: 'TopBar.vue', type: 'file' },
-              { name: 'Dashboard.vue', type: 'file' },
-              { name: 'NewFileModal.vue', type: 'file' },
-              { name: 'PerformanceGraph.vue', type: 'file' },
-              { name: 'StatsChart.vue', type: 'file' },
-              { name: 'UserProfile.vue', type: 'file' }
-            ]
-          },
-          { 
-            name: 'services', type: 'folder', isOpen: false, 
-            children: [
-              { name: 'authService.js', type: 'file' },
-              { name: 'userStatsService.js', type: 'file' }
-            ]
-          },
-          { name: 'App.vue', type: 'file' },
-          { name: 'main.js', type: 'file' },
-          { name: 'style.css', type: 'file' },
-          { name: 'codeGenerator.js', type: 'file' },
-          { name: 'adaptiveWordSelector.js', type: 'file' },
-          { name: 'eventBus.js', type: 'file' },
-          { name: 'statistics.js', type: 'file' }
-        ]
-      },
-      { name: '.gitignore', type: 'file' },
-      { name: 'index.html', type: 'file' },
-      { name: 'package.json', type: 'file' },
-      { name: 'package-lock.json', type: 'file' },
-      { name: 'README.md', type: 'file' },
-      { name: 'vite.config.js', type: 'file' },
-      { name: 'GOOGLE_AUTH_SETUP.md', type: 'file' }
+      }
     ]
   }
 ]);

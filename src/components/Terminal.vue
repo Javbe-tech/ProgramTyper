@@ -124,8 +124,8 @@ watch(events, (newEventObject) => {
 .output-line { white-space: pre-wrap; margin-bottom: 5px; color: var(--gray); }
 .prompt-line { display: flex; align-items: center; }
 .path { color: var(--font-color); }
-.cursor { width: 8px; height: 1.2rem; background-color: var(--keyword); animation: blink 1s steps(1) infinite; margin-left: 5px; border-radius: 1px; }
-@keyframes blink { 50% { opacity: 0; } }
+.cursor { width: 8px; height: 1.2rem; background-color: var(--keyword); /* animation: blink 1s steps(1) infinite; */ margin-left: 5px; border-radius: 1px; }
+/* @keyframes blink { 50% { opacity: 0; } } */
 .terminal-footer { padding: 5px 15px; border-top: 1px solid var(--border-color); color: var(--gray); flex-shrink: 0; font-size: 0.9rem; }
 
 .ad-bottom-center { 
