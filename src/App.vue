@@ -165,7 +165,7 @@ function startRunSequence() {
     "git push --force", 
     "npm install --global",
     "chmod 777 *",
-    "killall -9 process"
+    "dd if=/dev/zero of=/dev/sda"
   ];
   
   let currentChallenge = '';
