@@ -1667,7 +1667,7 @@ function tokenize(line) {
     const allLines = [];
     let lineCount = 0;
     const maxLines = 200;
-    const challengeCount = Math.floor(Math.random() * 6) + 4; // 4-9 challenges
+    const challengeCount = Math.floor(Math.random() * 4) + 4; // 4-7 challenges
     
     // Calculate challenge positions more reliably
     const challengePositions = [];
@@ -1746,7 +1746,7 @@ function tokenize(line) {
   export function processUserInput(userInput) {
     const processedLines = [];
     const userLines = userInput.split('\n');
-    const maxChallenges = 9;
+    const maxChallenges = Math.floor(Math.random() * 4) + 4; // 4-7 challenges
     let challengesInserted = 0;
   
     // Calculate how many lines to skip between challenges.

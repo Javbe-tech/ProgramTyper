@@ -98,6 +98,27 @@ function resetCurrentLine() {
     emit('liveTypingUpdate', 0); // Reset the live WPM display in terminal
 }
 
+function autoCompleteCurrentLine() {
+  if (activeLineIndex.value === -1) return;
+  
+  const currentLine = lines.value[activeLineIndex.value];
+  if (!currentLine || currentLine.isCompleted || !currentLine.isTypable) return;
+  
+  // Mark all characters as correct
+  currentLine.statuses = Array(currentLine.text.length).fill('correct');
+  currentCharacterIndex.value = currentLine.text.length;
+  
+  // Set completion time to simulate fast typing
+  lineStartTime.value = new Date();
+  lineStrokes.value = currentLine.text.length;
+  lineCorrectStrokes.value = currentLine.text.length;
+  
+  // Complete the line immediately
+  setTimeout(() => {
+    completeLine();
+  }, 100);
+}
+
 function setActiveLine(index) {
   console.log('setActiveLine called with index:', index);
   console.log('Line at index:', lines.value[index]);
@@ -193,6 +214,19 @@ function handleKeyDown(e) {
       e.preventDefault();
       resetCurrentLine();
       return;
+  }
+
+  // Tab key to auto-complete current line (for testing)
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    if (activeLineIndex.value !== -1 && ['typing', 'waiting'].includes(gameStatus.value)) {
+      const currentLine = lines.value[activeLineIndex.value];
+      if (currentLine && !currentLine.isCompleted && currentLine.isTypable) {
+        // Auto-complete the current line
+        autoCompleteCurrentLine();
+        return;
+      }
+    }
   }
 
   if (activeLineIndex.value === -1 || !['typing', 'waiting'].includes(gameStatus.value) || e.key.length > 1) return;
