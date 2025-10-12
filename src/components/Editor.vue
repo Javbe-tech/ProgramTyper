@@ -13,7 +13,7 @@ const props = defineProps({
   getTabChallengeStats: Function,
 });
 
-const emitEvent = defineEmits(['update:activeTab', 'close-tab', 'initialize-tab-stats', 'update-tab-challenge-stats']);
+const emitEvent = defineEmits(['update:activeTab', 'close-tab', 'initialize-tab-stats', 'update-tab-challenge-stats', 'file-completed']);
 
 const editorContentRef = ref(null);
 const fileContents = reactive({});
@@ -99,13 +99,18 @@ function resetCurrentLine() {
 }
 
 function setActiveLine(index) {
+  console.log('setActiveLine called with index:', index);
+  console.log('Line at index:', lines.value[index]);
   if (lines.value[index]?.isTypable && !lines.value[index]?.isCompleted) {
+    console.log('Setting active line to:', index);
     activeLineIndex.value = index;
     currentCharacterIndex.value = 0;
     lineStartTime.value = null;
     lineStrokes.value = 0;
     lineCorrectStrokes.value = 0;
     scrollToActiveLine();
+  } else {
+    console.log('Cannot set active line - line is not typable or already completed');
   }
 }
 
@@ -259,9 +264,13 @@ function completeLine() {
     .map((line, index) => ({ ...line, index }))
     .filter(line => line.isTypable && !line.isCompleted);
 
+  console.log('Line completed. Remaining challenges:', remainingChallenges.length);
+  console.log('All lines:', lines.value.map((l, i) => ({ index: i, isTypable: l.isTypable, isCompleted: l.isCompleted })));
+
   if (remainingChallenges.length > 0) {
     // Random jump to another remaining challenge
     const nextIndex = remainingChallenges[Math.floor(Math.random() * remainingChallenges.length)].index;
+    console.log('Jumping to line:', nextIndex);
 
     resetLineState(false);
     setActiveLine(nextIndex);
