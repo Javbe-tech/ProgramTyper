@@ -101,6 +101,9 @@ function resetCurrentLine() {
 function setActiveLine(index) {
   console.log('setActiveLine called with index:', index);
   console.log('Line at index:', lines.value[index]);
+  console.log('Line isTypable:', lines.value[index]?.isTypable);
+  console.log('Line isCompleted:', lines.value[index]?.isCompleted);
+  
   if (lines.value[index]?.isTypable && !lines.value[index]?.isCompleted) {
     console.log('Setting active line to:', index);
     activeLineIndex.value = index;
@@ -112,6 +115,7 @@ function setActiveLine(index) {
     scrollToActiveLine();
   } else {
     console.log('Cannot set active line - line is not typable or already completed');
+    console.log('isTypable:', lines.value[index]?.isTypable, 'isCompleted:', lines.value[index]?.isCompleted);
   }
 }
 
