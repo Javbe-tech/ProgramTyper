@@ -145,27 +145,34 @@ function startCodeHighlighting() {
   }));
   
   const highlightDuration = 5000; // 5 seconds
-  const highlightInterval = 100; // Update every 100ms
+  const highlightInterval = 80; // Update every 80ms for smoother animation
   const totalSteps = highlightDuration / highlightInterval;
   
   let currentStep = 0;
+  let currentLineIndex = 0;
+  
   animationTimer.value = setInterval(() => {
     currentStep++;
-    highlightProgress.value = (currentStep / totalSteps) * 100;
     
-    // Highlight lines progressively
-    const linesToHighlight = Math.floor((currentStep / totalSteps) * highlightedLines.value.length);
+    // Calculate which line to highlight based on progress
+    const progress = currentStep / totalSteps;
+    const targetLineIndex = Math.floor(progress * highlightedLines.value.length);
     
-    highlightedLines.value.forEach((line, index) => {
-      if (index < linesToHighlight && !line.highlighted) {
+    // Highlight the current line if it hasn't been highlighted yet
+    if (targetLineIndex > currentLineIndex && currentLineIndex < highlightedLines.value.length) {
+      const line = highlightedLines.value[currentLineIndex];
+      if (!line.highlighted) {
         line.highlighted = true;
         highlightLine(line.element);
+        
+        // Scroll to keep the highlighted line in view
+        line.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-    });
+      currentLineIndex++;
+    }
     
     if (currentStep >= totalSteps) {
       clearInterval(animationTimer.value);
-      highlightProgress.value = 100;
       // Clear all highlights
       highlightedLines.value.forEach(line => {
         clearLineHighlight(line.element);
@@ -248,7 +255,7 @@ onUnmounted(() => {
     
     <!-- Code highlighting animation -->
     <div v-if="animationStep === 2" class="highlight-animation">
-      <div class="highlight-progress" :style="{ width: highlightProgress + '%' }"></div>
+      <!-- No overlay needed - highlighting happens directly on the code -->
     </div>
     
     <!-- Completion popup -->
@@ -336,22 +343,8 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
   pointer-events: none;
   z-index: 9999;
-}
-
-.highlight-progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(0, 255, 0, 0.1) 50%, 
-    transparent 100%
-  );
-  transition: width 0.05s linear;
 }
 
 .completion-popup {
