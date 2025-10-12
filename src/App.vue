@@ -301,13 +301,45 @@ function handleRunButton() {
 function startRunSequence() {
   let currentStep = 0;
   const totalSteps = 5;
-  const challenges = [
-    "sudo rm -rf /",
-    "git push --force", 
-    "npm install --global",
-    "chmod 777 *",
-    "dd if=/dev/zero of=/dev/sda"
-  ];
+  
+  // Different challenge sets for different themes
+  const challengeSets = {
+    hacker: [
+      "sudo rm -rf /",
+      "git push --force", 
+      "npm install --global",
+      "chmod 777 *",
+      "dd if=/dev/zero of=/dev/sda"
+    ],
+    eye: [
+      "watch -n 1 ps aux",
+      "strace -f -e trace=network",
+      "tcpdump -i any -n",
+      "netstat -tulpn",
+      "ss -tulpn"
+    ],
+    skull: [
+      "kill -9 -1",
+      "rm -rf /boot",
+      "dd if=/dev/urandom of=/dev/sda",
+      "mkfs.ext4 /dev/sda",
+      "shutdown -h now"
+    ],
+    spider: [
+      "curl -X POST http://target.com",
+      "wget --spider -r http://site.com",
+      "nmap -sS -O target.com",
+      "nikto -h target.com",
+      "sqlmap -u 'http://target.com'"
+    ],
+    crystal: [
+      "tarot --spread celtic-cross",
+      "fortune -s",
+      "crystal ball --predict",
+      "divine --future",
+      "prophesy --destiny"
+    ]
+  };
   
   let currentChallenge = '';
   let userInput = '';
@@ -322,6 +354,21 @@ function startRunSequence() {
     selectedEffects.push(availableEffects[randomIndex]);
     availableEffects.splice(randomIndex, 1); // Remove to avoid duplicates
   }
+  
+  // Determine which challenge set to use based on the first effect
+  let challengeSet = 'hacker'; // default
+  const firstEffect = selectedEffects[0];
+  if (firstEffect.includes('👁️')) {
+    challengeSet = 'eye';
+  } else if (firstEffect.includes('💀')) {
+    challengeSet = 'skull';
+  } else if (firstEffect.includes('🕷️')) {
+    challengeSet = 'spider';
+  } else if (firstEffect.includes('🔮')) {
+    challengeSet = 'crystal';
+  }
+  
+  const challenges = challengeSets[challengeSet];
   
   function nextStep() {
     if (currentStep >= totalSteps) {
