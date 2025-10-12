@@ -223,13 +223,18 @@ function handleKeyDown(e) {
 }
 
 function completeLine() {
+  console.log('=== COMPLETE LINE CALLED ===');
   clearInterval(liveTimerInterval.value);
   liveTimerInterval.value = null;
   stopAutoCompletionEffect();
 
   const completedLineIndex = activeLineIndex.value;
   const currentLine = lines.value[completedLineIndex];
+  console.log('Completing line at index:', completedLineIndex);
+  console.log('Current line before completion:', currentLine);
+  
   currentLine.isCompleted = true;
+  console.log('Current line after setting isCompleted:', currentLine);
   const lineDuration = new Date() - lineStartTime.value;
   const elapsedLineSeconds = lineDuration / 1000;
   const lineWpm = elapsedLineSeconds > 0 ? Math.round(((lineCorrectStrokes.value / 5) / elapsedLineSeconds) * 60) : 0;
@@ -260,9 +265,17 @@ function completeLine() {
   const totalTypableLines = lines.value.filter(l => l.isTypable).length;
   emitEvent('update-tab-challenge-stats', props.activeTab, completedCount);
   
+  console.log('=== CALCULATING REMAINING CHALLENGES ===');
+  console.log('Total lines:', lines.value.length);
+  
   const remainingChallenges = lines.value
     .map((line, index) => ({ ...line, index }))
-    .filter(line => line.isTypable && !line.isCompleted);
+    .filter(line => {
+      const isTypable = line.isTypable;
+      const isNotCompleted = !line.isCompleted;
+      console.log(`Line ${line.index}: isTypable=${isTypable}, isCompleted=${line.isCompleted}, passes=${isTypable && isNotCompleted}`);
+      return isTypable && isNotCompleted;
+    });
 
   console.log('Line completed. Remaining challenges:', remainingChallenges.length);
   console.log('All lines:', lines.value.map((l, i) => ({ index: i, isTypable: l.isTypable, isCompleted: l.isCompleted })));
@@ -270,10 +283,14 @@ function completeLine() {
   if (remainingChallenges.length > 0) {
     // Random jump to another remaining challenge
     const nextIndex = remainingChallenges[Math.floor(Math.random() * remainingChallenges.length)].index;
-    console.log('Jumping to line:', nextIndex);
+    console.log('=== ATTEMPTING TO JUMP ===');
+    console.log('Selected nextIndex:', nextIndex);
+    console.log('Target line:', lines.value[nextIndex]);
 
     resetLineState(false);
+    console.log('About to call setActiveLine with:', nextIndex);
     setActiveLine(nextIndex);
+    console.log('setActiveLine called, activeLineIndex is now:', activeLineIndex.value);
     // Dynamically refresh the next challenge's words based on current weaknesses
     const line = lines.value[nextIndex];
     if (line && line.isTypable) {
