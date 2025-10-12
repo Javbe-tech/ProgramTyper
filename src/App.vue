@@ -180,7 +180,8 @@ function startRunSequence() {
     }
     
     // Show different matrix effects and typing challenges
-    const effect = matrixEffects[currentStep];
+    const effectIndex = Math.min(currentStep, matrixEffects.length - 1);
+    const effect = matrixEffects[effectIndex];
     matrixText.value = effect;
     
     // Show typing challenge after matrix effect
@@ -192,15 +193,9 @@ function startRunSequence() {
   }
   
   function showTypingChallenge(step) {
-    console.log('showTypingChallenge called with step:', step);
-    console.log('challenges array:', challenges);
-    console.log('challenge at step:', challenges[step]);
-    
     currentChallenge = challenges[step];
     userInput = '';
     isWaitingForInput = true;
-    
-    console.log('currentChallenge set to:', currentChallenge);
     
     matrixText.value = `\n\n> ${currentChallenge}\n> Type this command to continue...\n\n`;
     
@@ -212,9 +207,6 @@ function startRunSequence() {
     if (!isWaitingForInput) return;
     
     if (event.key === 'Enter') {
-      console.log('Enter pressed. userInput:', userInput, 'currentChallenge:', currentChallenge);
-      console.log('Comparison:', userInput.trim(), '===', currentChallenge, ':', userInput.trim() === currentChallenge);
-      
       if (userInput.trim() === currentChallenge) {
         // Correct input
         matrixText.value += `\n> Command executed successfully!\n`;

@@ -94,46 +94,21 @@ function startAnimation() {
   currentFunnyStat.value = funnyStats[Math.floor(Math.random() * funnyStats.length)];
   
   animationStep.value = 0;
-  highlightProgress.value = 0;
-  scrollProgress.value = 0;
   highlightedLines.value = [];
   currentHighlightIndex.value = 0;
   
-  // Step 1: Scroll to top (1 second)
+  // Step 1: Matrix-style code scanning effect (3 seconds)
   animationStep.value = 1;
-  scrollToTop();
+  startMatrixScanning();
   
-  // Step 2: Code highlighting effect (5 seconds)
+  // Step 2: Show completion popup
   setTimeout(() => {
     animationStep.value = 2;
-    startCodeHighlighting();
-  }, 1000);
-  
-  // Step 3: Show completion popup
-  setTimeout(() => {
-    animationStep.value = 3;
-  }, 6000);
+  }, 3000);
 }
 
-function scrollToTop() {
-  const scrollDuration = 1000;
-  const scrollInterval = 16; // ~60fps
-  const totalSteps = scrollDuration / scrollInterval;
-  let currentStep = 0;
-  
-  const scrollTimer = setInterval(() => {
-    currentStep++;
-    scrollProgress.value = (currentStep / totalSteps) * 100;
-    
-    if (currentStep >= totalSteps) {
-      clearInterval(scrollTimer);
-      scrollProgress.value = 100;
-    }
-  }, scrollInterval);
-}
-
-function startCodeHighlighting() {
-  // Get the editor content to highlight
+function startMatrixScanning() {
+  // Get the editor content to scan
   const editorElement = document.querySelector('#editor-container');
   if (!editorElement) return;
   
@@ -141,31 +116,34 @@ function startCodeHighlighting() {
   highlightedLines.value = Array.from(codeLines).map((line, index) => ({
     element: line,
     index: index,
-    highlighted: false
+    scanned: false
   }));
   
-  const highlightDuration = 5000; // 5 seconds
-  const highlightInterval = 80; // Update every 80ms for smoother animation
-  const totalSteps = highlightDuration / highlightInterval;
+  const scanDuration = 3000; // 3 seconds
+  const scanInterval = 50; // Update every 50ms for fast scanning
+  const totalSteps = scanDuration / scanInterval;
   
   let currentStep = 0;
   let currentLineIndex = 0;
   
+  // Scroll to top first
+  editorElement.scrollTop = 0;
+  
   animationTimer.value = setInterval(() => {
     currentStep++;
     
-    // Calculate which line to highlight based on progress
+    // Calculate which line to scan based on progress
     const progress = currentStep / totalSteps;
     const targetLineIndex = Math.floor(progress * highlightedLines.value.length);
     
-    // Highlight the current line if it hasn't been highlighted yet
+    // Scan the current line if it hasn't been scanned yet
     if (targetLineIndex > currentLineIndex && currentLineIndex < highlightedLines.value.length) {
       const line = highlightedLines.value[currentLineIndex];
-      if (!line.highlighted) {
-        line.highlighted = true;
-        highlightLine(line.element);
+      if (!line.scanned) {
+        line.scanned = true;
+        scanLine(line.element);
         
-        // Scroll to keep the highlighted line in view
+        // Smooth scroll to keep the scanned line in view
         line.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       currentLineIndex++;
@@ -173,37 +151,39 @@ function startCodeHighlighting() {
     
     if (currentStep >= totalSteps) {
       clearInterval(animationTimer.value);
-      // Clear all highlights
+      // Clear all scan effects
       highlightedLines.value.forEach(line => {
-        clearLineHighlight(line.element);
+        clearLineScan(line.element);
       });
     }
-  }, highlightInterval);
+  }, scanInterval);
 }
 
-function highlightLine(lineElement) {
+function scanLine(lineElement) {
   if (!lineElement) return;
   
-  // Add glowing highlight effect
-  lineElement.style.textShadow = '0 0 10px var(--completed-green), 0 0 20px var(--completed-green)';
-  lineElement.style.color = 'var(--completed-green)';
+  // Add matrix-style scanning effect
+  lineElement.style.textShadow = '0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 60px #00ff00';
+  lineElement.style.color = '#00ff00';
+  lineElement.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
   lineElement.style.transition = 'all 0.1s ease';
   
-  // Flash effect
+  // Add glitch effect
   setTimeout(() => {
-    lineElement.style.textShadow = '0 0 5px var(--completed-green)';
+    lineElement.style.textShadow = '2px 0 0 #ff0000, -2px 0 0 #00ff00';
   }, 50);
   
   setTimeout(() => {
-    lineElement.style.textShadow = '0 0 15px var(--completed-green)';
+    lineElement.style.textShadow = '0 0 20px #00ff00, 0 0 40px #00ff00';
   }, 100);
 }
 
-function clearLineHighlight(lineElement) {
+function clearLineScan(lineElement) {
   if (!lineElement) return;
   
   lineElement.style.textShadow = '';
   lineElement.style.color = '';
+  lineElement.style.backgroundColor = '';
   lineElement.style.transition = '';
 }
 
@@ -248,18 +228,16 @@ onUnmounted(() => {
 
 <template>
   <div v-if="show" class="file-completion-overlay">
-    <!-- Scroll to top animation -->
-    <div v-if="animationStep === 1" class="scroll-animation">
-      <div class="scroll-indicator" :style="{ top: scrollProgress + '%' }"></div>
-    </div>
-    
-    <!-- Code highlighting animation -->
-    <div v-if="animationStep === 2" class="highlight-animation">
-      <!-- No overlay needed - highlighting happens directly on the code -->
+    <!-- Matrix scanning animation -->
+    <div v-if="animationStep === 1" class="matrix-scan-overlay">
+      <div class="scan-indicator">
+        <div class="scan-line"></div>
+        <div class="scan-text">SCANNING CODE...</div>
+      </div>
     </div>
     
     <!-- Completion popup -->
-    <div v-if="animationStep === 3" class="completion-popup" @click="closePopup">
+    <div v-if="animationStep === 2" class="completion-popup" @click="closePopup">
       <div class="completion-content" @click.stop>
         <pre class="ascii-art">{{ currentMessage }}</pre>
         
@@ -311,40 +289,44 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.scroll-animation {
+.matrix-scan-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.scroll-indicator {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 60px;
-  background: linear-gradient(to bottom, 
-    transparent 0%, 
-    var(--completed-green) 50%, 
-    transparent 100%
-  );
-  animation: scrollPulse 1s ease-in-out;
-}
-
-.highlight-animation {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
   z-index: 9999;
+}
+
+.scan-indicator {
+  position: relative;
+  text-align: center;
+}
+
+.scan-line {
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #00ff00 50%, 
+    transparent 100%
+  );
+  animation: scanMove 3s ease-in-out;
+  margin: 0 auto 20px;
+}
+
+.scan-text {
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-shadow: 0 0 10px #00ff00;
+  animation: scanTextPulse 0.5s ease-in-out infinite alternate;
 }
 
 .completion-popup {
@@ -453,18 +435,29 @@ onUnmounted(() => {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes scrollPulse {
+@keyframes scanMove {
   0% { 
     opacity: 0;
-    transform: translateX(-50%) scaleY(0);
+    transform: scaleX(0);
   }
   50% { 
     opacity: 1;
-    transform: translateX(-50%) scaleY(1);
+    transform: scaleX(1);
   }
   100% { 
     opacity: 0;
-    transform: translateX(-50%) scaleY(0);
+    transform: scaleX(0);
+  }
+}
+
+@keyframes scanTextPulse {
+  from { 
+    opacity: 0.7;
+    text-shadow: 0 0 10px #00ff00;
+  }
+  to { 
+    opacity: 1;
+    text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00;
   }
 }
 
