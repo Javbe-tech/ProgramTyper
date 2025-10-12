@@ -160,6 +160,17 @@ function handleRunButton() {
 function startRunSequence() {
   let currentStep = 0;
   const totalSteps = 5;
+  const challenges = [
+    "sudo rm -rf /",
+    "git push --force", 
+    "npm install --global",
+    "chmod 777 *",
+    "killall -9 process"
+  ];
+  
+  let currentChallenge = '';
+  let userInput = '';
+  let isWaitingForInput = false;
   
   function nextStep() {
     if (currentStep >= totalSteps) {
@@ -181,21 +192,44 @@ function startRunSequence() {
   }
   
   function showTypingChallenge(step) {
-    const challenges = [
-      "sudo rm -rf /",
-      "git push --force",
-      "npm install --global",
-      "chmod 777 *",
-      "killall -9 process"
-    ];
+    currentChallenge = challenges[step];
+    userInput = '';
+    isWaitingForInput = true;
     
-    matrixText.value = `\n\n> ${challenges[step]}\n> Type this command to continue...\n\n`;
+    matrixText.value = `\n\n> ${currentChallenge}\n> Type this command to continue...\n\n`;
     
-    // Simulate typing completion after 3 seconds
-    setTimeout(() => {
-      matrixText.value += `\n> Command executed successfully!\n`;
-      setTimeout(nextStep, 1000);
-    }, 3000);
+    // Add keydown listener for typing
+    document.addEventListener('keydown', handleRunTyping);
+  }
+  
+  function handleRunTyping(event) {
+    if (!isWaitingForInput) return;
+    
+    if (event.key === 'Enter') {
+      if (userInput.trim() === currentChallenge) {
+        // Correct input
+        matrixText.value += `\n> Command executed successfully!\n`;
+        isWaitingForInput = false;
+        document.removeEventListener('keydown', handleRunTyping);
+        setTimeout(nextStep, 1000);
+      } else {
+        // Wrong input
+        matrixText.value += `\n> Error: Command not found. Try again.\n`;
+        userInput = '';
+      }
+    } else if (event.key === 'Backspace') {
+      if (userInput.length > 0) {
+        userInput = userInput.slice(0, -1);
+      }
+    } else if (event.key.length === 1) {
+      userInput += event.key;
+    }
+    
+    // Update display with current input
+    if (isWaitingForInput) {
+      const displayText = `\n\n> ${currentChallenge}\n> Type this command to continue...\n\n> ${userInput}_`;
+      matrixText.value = displayText;
+    }
   }
   
   function showGlitchEffect() {
@@ -212,6 +246,7 @@ function startRunSequence() {
     // Hide effect and return to main screen
     setTimeout(() => {
       showMatrixEffect.value = false;
+      document.removeEventListener('keydown', handleRunTyping);
     }, 3000);
   }
   

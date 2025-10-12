@@ -13,44 +13,60 @@ const animationStep = ref(0);
 const highlightProgress = ref(0);
 const animationTimer = ref(null);
 const scrollProgress = ref(0);
-const matrixChars = ref([]);
+const highlightedLines = ref([]);
+const currentHighlightIndex = ref(0);
 
 // ASCII art for completion messages
 const completionMessages = [
-  `╔══════════════════════════════════════╗
-║          🎉 FILE COMPLETED! 🎉         ║
-║                                        ║
-║    Your code is now production ready!  ║
-║                                        ║
-╚══════════════════════════════════════╝`,
+  `    ███████╗██╗     ███████╗
+    ██╔════╝██║     ██╔════╝
+    █████╗  ██║     █████╗  
+    ██╔══╝  ██║     ██╔══╝  
+    ███████╗███████╗███████╗
+    ╚══════╝╚══════╝╚══════╝
+    
+    🎉 FILE COMPLETED! 🎉
+    Your code is now production ready!`,
 
-  `╔══════════════════════════════════════╗
-║         ⚡ CODE MASTERED! ⚡          ║
-║                                        ║
-║    Another file conquered! Well done!  ║
-║                                        ║
-╚══════════════════════════════════════╝`,
+  `    ██████╗ ██████╗ ██████╗ ███████╗
+    ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
+    ██║   ██║██║  ██║██║  ██║█████╗  
+    ██║   ██║██║  ██║██║  ██║██╔══╝  
+    ╚██████╔╝██████╔╝██████╔╝███████╗
+     ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
+    
+    ⚡ CODE MASTERED! ⚡
+    Another file conquered! Well done!`,
 
-  `╔══════════════════════════════════════╗
-║        🚀 DEPLOYMENT READY! 🚀        ║
-║                                        ║
-║    This code is ready for production!  ║
-║                                        ║
-╚══════════════════════════════════════╝`,
+  `    ██████╗ ███████╗██████╗ ██╗     ██╗ ██████╗ ██╗   ██╗████████╗
+    ██╔══██╗██╔════╝██╔══██╗██║     ██║██╔═══██╗██║   ██║╚══██╔══╝
+    ██████╔╝█████╗  ██████╔╝██║     ██║██║   ██║██║   ██║   ██║   
+    ██╔══██╗██╔══╝  ██╔═══╝ ██║     ██║██║   ██║██║   ██║   ██║   
+    ██║  ██║███████╗██║     ███████╗╚██████╔╝╚██████╔╝   ██║   
+    ╚═╝  ╚═╝╚══════╝╚═╝     ╚══════╝ ╚═════╝  ╚═════╝    ╚═╝   
+    
+    🚀 DEPLOYMENT READY! 🚀
+    This code is ready for production!`,
 
-  `╔══════════════════════════════════════╗
-║         💻 HACKER LEVEL UP! 💻         ║
-║                                        ║
-║    Your typing skills are legendary!   ║
-║                                        ║
-╚══════════════════════════════════════╝`,
+  `    ██╗  ██╗ █████╗  ██████╗██╗  ██╗███████╗██████╗ 
+    ██║  ██║██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+    ███████║███████║██║     █████╔╝ █████╗  ██████╔╝
+    ██╔══██║██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+    ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║
+    ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+    
+    💻 HACKER LEVEL UP! 💻
+    Your typing skills are legendary!`,
 
-  `╔══════════════════════════════════════╗
-║        🔥 CODE ON FIRE! 🔥            ║
-║                                        ║
-║    You're coding like a true master!  ║
-║                                        ║
-╚══════════════════════════════════════╝`
+  `    ██████╗ ██████╗ ██████╗ ███████╗
+    ██╔═══██╗██╔══██╗██╔══██╗██╔════╝
+    ██║   ██║██║  ██║██║  ██║█████╗  
+    ██║   ██║██║  ██║██║  ██║██╔══╝  
+    ╚██████╔╝██████╔╝██████╔╝███████╗
+     ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
+    
+    🔥 CODE ON FIRE! 🔥
+    You're coding like a true master!`
 ];
 
 // Funny completion stats
@@ -80,22 +96,23 @@ function startAnimation() {
   animationStep.value = 0;
   highlightProgress.value = 0;
   scrollProgress.value = 0;
-  matrixChars.value = [];
+  highlightedLines.value = [];
+  currentHighlightIndex.value = 0;
   
   // Step 1: Scroll to top (1 second)
   animationStep.value = 1;
   scrollToTop();
   
-  // Step 2: Matrix highlight effect (5-7 seconds)
+  // Step 2: Code highlighting effect (5 seconds)
   setTimeout(() => {
     animationStep.value = 2;
-    startMatrixHighlight();
+    startCodeHighlighting();
   }, 1000);
   
   // Step 3: Show completion popup
   setTimeout(() => {
     animationStep.value = 3;
-  }, 8000);
+  }, 6000);
 }
 
 function scrollToTop() {
@@ -115,41 +132,72 @@ function scrollToTop() {
   }, scrollInterval);
 }
 
-function startMatrixHighlight() {
-  const highlightDuration = 7000; // 7 seconds
-  const highlightInterval = 50; // Update every 50ms
-  const totalSteps = highlightDuration / highlightInterval;
+function startCodeHighlighting() {
+  // Get the editor content to highlight
+  const editorElement = document.querySelector('#editor-container');
+  if (!editorElement) return;
   
-  // Generate matrix characters
-  const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{}|;:,.<>?';
-  matrixChars.value = Array.from({ length: 100 }, () => ({
-    char: chars[Math.floor(Math.random() * chars.length)],
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    opacity: Math.random(),
-    speed: Math.random() * 0.02 + 0.01
+  const codeLines = editorElement.querySelectorAll('.code-line');
+  highlightedLines.value = Array.from(codeLines).map((line, index) => ({
+    element: line,
+    index: index,
+    highlighted: false
   }));
+  
+  const highlightDuration = 5000; // 5 seconds
+  const highlightInterval = 100; // Update every 100ms
+  const totalSteps = highlightDuration / highlightInterval;
   
   let currentStep = 0;
   animationTimer.value = setInterval(() => {
     currentStep++;
     highlightProgress.value = (currentStep / totalSteps) * 100;
     
-    // Update matrix characters
-    matrixChars.value.forEach(char => {
-      char.y += char.speed;
-      char.opacity = Math.sin(currentStep * 0.1) * 0.5 + 0.5;
-      if (char.y > 100) {
-        char.y = 0;
-        char.char = chars[Math.floor(Math.random() * chars.length)];
+    // Highlight lines progressively
+    const linesToHighlight = Math.floor((currentStep / totalSteps) * highlightedLines.value.length);
+    
+    highlightedLines.value.forEach((line, index) => {
+      if (index < linesToHighlight && !line.highlighted) {
+        line.highlighted = true;
+        highlightLine(line.element);
       }
     });
     
     if (currentStep >= totalSteps) {
       clearInterval(animationTimer.value);
       highlightProgress.value = 100;
+      // Clear all highlights
+      highlightedLines.value.forEach(line => {
+        clearLineHighlight(line.element);
+      });
     }
   }, highlightInterval);
+}
+
+function highlightLine(lineElement) {
+  if (!lineElement) return;
+  
+  // Add glowing highlight effect
+  lineElement.style.textShadow = '0 0 10px var(--completed-green), 0 0 20px var(--completed-green)';
+  lineElement.style.color = 'var(--completed-green)';
+  lineElement.style.transition = 'all 0.1s ease';
+  
+  // Flash effect
+  setTimeout(() => {
+    lineElement.style.textShadow = '0 0 5px var(--completed-green)';
+  }, 50);
+  
+  setTimeout(() => {
+    lineElement.style.textShadow = '0 0 15px var(--completed-green)';
+  }, 100);
+}
+
+function clearLineHighlight(lineElement) {
+  if (!lineElement) return;
+  
+  lineElement.style.textShadow = '';
+  lineElement.style.color = '';
+  lineElement.style.transition = '';
 }
 
 function startNextFile() {
@@ -198,22 +246,8 @@ onUnmounted(() => {
       <div class="scroll-indicator" :style="{ top: scrollProgress + '%' }"></div>
     </div>
     
-    <!-- Matrix highlight animation -->
-    <div v-if="animationStep === 2" class="matrix-animation">
-      <div class="matrix-overlay">
-        <div 
-          v-for="(char, index) in matrixChars" 
-          :key="index"
-          class="matrix-char"
-          :style="{ 
-            left: char.x + '%', 
-            top: char.y + '%', 
-            opacity: char.opacity 
-          }"
-        >
-          {{ char.char }}
-        </div>
-      </div>
+    <!-- Code highlighting animation -->
+    <div v-if="animationStep === 2" class="highlight-animation">
       <div class="highlight-progress" :style="{ width: highlightProgress + '%' }"></div>
     </div>
     
@@ -296,32 +330,15 @@ onUnmounted(() => {
   animation: scrollPulse 1s ease-in-out;
 }
 
-.matrix-animation {
+.highlight-animation {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  overflow: hidden;
-}
-
-.matrix-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.matrix-char {
-  position: absolute;
-  color: var(--completed-green);
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: bold;
-  text-shadow: 0 0 5px var(--completed-green);
+  background: rgba(0, 0, 0, 0.3);
   pointer-events: none;
+  z-index: 9999;
 }
 
 .highlight-progress {

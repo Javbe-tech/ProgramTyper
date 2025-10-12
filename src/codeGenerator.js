@@ -1772,6 +1772,17 @@ function tokenize(line) {
   
       // 2. Conditionally insert a typing challenge based on the calculated interval
       if (challengesInserted < maxChallenges && (index + 1) % interval === 0 && index < userLines.length - 1) {
+        // Add spacing before challenge
+        processedLines.push({
+          tokens: [{ type: 'token-comment', text: ' '.repeat((indent + 1) * 2) }],
+          text: ' '.repeat((indent + 1) * 2),
+          isTypable: false,
+          indent: indent + 1,
+          prefixLength: 0,
+          statuses: [],
+          isCompleted: false,
+        });
+        
         const typableText = generateTypingLine().text;
         const challengeLine = {
           text: typableText,
