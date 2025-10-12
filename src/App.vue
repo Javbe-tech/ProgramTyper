@@ -193,18 +193,17 @@ function startRunSequence() {
   }
   
   function showTypingChallenge(step) {
-    console.log('showTypingChallenge called with step:', step);
+    // Ensure step is within bounds
+    const safeStep = Math.min(step, challenges.length - 1);
+    console.log('showTypingChallenge called with step:', step, 'safeStep:', safeStep);
     console.log('challenges array:', challenges);
-    console.log('challenge at step:', challenges[step]);
-    console.log('typeof challenge:', typeof challenges[step]);
-    console.log('challenge length:', challenges[step]?.length);
+    console.log('challenge at safeStep:', challenges[safeStep]);
     
-    currentChallenge = challenges[step];
+    currentChallenge = challenges[safeStep];
     userInput = '';
     isWaitingForInput = true;
     
     console.log('currentChallenge set to:', currentChallenge);
-    console.log('currentChallenge === undefined:', currentChallenge === undefined);
     
     matrixText.value = `\n\n> ${currentChallenge}\n> Type this command to continue...\n\n`;
     
