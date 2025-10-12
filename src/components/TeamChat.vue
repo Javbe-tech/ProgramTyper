@@ -15,6 +15,7 @@ const isTyping = ref(false);
 const chatTimer = ref(null);
 const currentInteraction = ref(null);
 const interactionHistory = ref([]);
+const isMinimized = ref(false);
 
 // Team members with realistic names and avatars
 const teamMembers = [
@@ -671,6 +672,11 @@ function stopChatSystem() {
   isTyping.value = false;
 }
 
+// Toggle minimize state
+function toggleMinimize() {
+  isMinimized.value = !isMinimized.value;
+}
+
 // Computed properties
 const canSendResponse = computed(() => {
   return selectedResponse.value && currentInteraction.value && isTyping.value;
@@ -714,16 +720,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <aside class="team-chat" v-show="showChat && isAuthenticated">
+  <aside class="team-chat" v-show="showChat && isAuthenticated" :class="{ minimized: isMinimized }">
     <div class="chat-header">
       <h3>Team Chat</h3>
-      <div class="status-indicator">
-        <div class="status-dot"></div>
-        <span>Active</span>
+      <div class="header-controls">
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span>Active</span>
+        </div>
+        <button @click="toggleMinimize" class="minimize-btn" :title="isMinimized ? 'Expand chat' : 'Minimize chat'">
+          {{ isMinimized ? '▲' : '▼' }}
+        </button>
       </div>
     </div>
     
-    <div class="chat-messages">
+    <div v-if="!isMinimized" class="chat-content">
+      <div class="chat-messages">
       <div 
         v-for="message in messages" 
         :key="message.id"
@@ -774,18 +786,19 @@ onMounted(() => {
       <button class="send-button" disabled>Send</button>
     </div>
     
-    <div class="chat-footer">
-      <div class="user-info">
-        <img 
-          v-if="user?.picture" 
-          :src="user.picture" 
-          :alt="user.name"
-          class="user-avatar"
-        />
-        <div v-else class="user-avatar-placeholder">
-          {{ user?.name?.charAt(0) || 'U' }}
+      <div class="chat-footer">
+        <div class="user-info">
+          <img 
+            v-if="user?.picture" 
+            :src="user.picture" 
+            :alt="user.name"
+            class="user-avatar"
+          />
+          <div v-else class="user-avatar-placeholder">
+            {{ user?.name?.charAt(0) || 'U' }}
+          </div>
+          <span class="user-name">{{ user?.name || 'User' }}</span>
         </div>
-        <span class="user-name">{{ user?.name || 'User' }}</span>
       </div>
     </div>
   </aside>
@@ -799,6 +812,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.team-chat.minimized {
+  height: auto;
+}
+
+.team-chat.minimized .chat-content {
+  display: none;
 }
 
 .chat-header {
@@ -808,6 +830,12 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .chat-header h3 {
@@ -836,6 +864,22 @@ onMounted(() => {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+.minimize-btn {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.minimize-btn:hover {
+  background: var(--terminal-bg);
+  color: var(--font-color);
 }
 
 .chat-footer {
