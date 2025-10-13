@@ -137,8 +137,9 @@ function setActiveLine(index) {
     console.log('Setting active line to:', index);
     activeLineIndex.value = index;
     currentCharacterIndex.value = 0;
+    // Set start time when line becomes active
+    lineStartTime.value = new Date();
     // Don't reset these here - let resetLineState handle it
-    // lineStartTime.value = null;
     // lineStrokes.value = 0;
     // lineCorrectStrokes.value = 0;
     scrollToActiveLine();
@@ -244,7 +245,6 @@ function handleKeyDown(e) {
   if (!currentLine || currentLine.isCompleted) return;
   if (gameStatus.value === 'waiting') {
     gameStatus.value = 'typing';
-    lineStartTime.value = new Date();
     liveTimerInterval.value = setInterval(updateLiveStats, 250);
     startAutoCompletionEffect();
   }
@@ -292,9 +292,18 @@ function completeLine() {
   const lineWpm = elapsedLineSeconds > 0 ? Math.round(((lineCorrectStrokes.value / 5) / elapsedLineSeconds) * 60) : 0;
   const lineAcc = lineStrokes.value > 0 ? Math.round((lineCorrectStrokes.value / lineStrokes.value) * 100) : 100;
   
+  console.log('Line WPM calculation:', {
+    lineDuration,
+    elapsedLineSeconds,
+    lineCorrectStrokes: lineCorrectStrokes.value,
+    lineWpm,
+    sessionHighestWpm: sessionHighestWpm.value
+  });
+  
   // Track highest line WPM for this session
   if (lineWpm > sessionHighestWpm.value) {
     sessionHighestWpm.value = lineWpm;
+    console.log('New highest WPM set:', lineWpm);
   }
   
   // Record word completion statistics per actual word in the line
