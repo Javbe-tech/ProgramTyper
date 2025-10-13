@@ -527,7 +527,15 @@ function updateSessionStats() {
   emit('updateSessionStats', wpm, acc, totalSeconds, lifetimeAvg);
 }
 
-onMounted(() => window.addEventListener('keydown', handleKeyDown));
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+  // ensure matrix observer and initial state
+  if (!matrixThemeWatcher.value) {
+    matrixThemeWatcher.value = new MutationObserver(maybeStartMatrixThemeScan);
+    matrixThemeWatcher.value.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+  maybeStartMatrixThemeScan();
+});
 onUnmounted(() => {
     window.removeEventListener('keydown', handleKeyDown);
     if(liveTimerInterval.value) clearInterval(liveTimerInterval.value);
