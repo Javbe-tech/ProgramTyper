@@ -383,13 +383,18 @@ function completeLine() {
     // End statistics session when all challenges are completed
     userStatsService.endSession();
     
-    // Emit file completion event
+    // Emit file completion event with real session stats
+    const sessionElapsedMinutes = sessionTotalActiveTime.value / 1000 / 60;
+    const sessionWpm = sessionElapsedMinutes > 0 ? Math.round((sessionCorrectStrokes.value / 5) / sessionElapsedMinutes) : 0;
+    const sessionAccuracy = sessionTotalStrokes.value > 0 ? Math.round((sessionCorrectStrokes.value / sessionTotalStrokes.value) * 100) : 100;
+    const sessionTimeSeconds = Math.round(sessionTotalActiveTime.value / 1000);
+    
     const completionStats = {
       totalLines: totalTypableLines,
       completedLines: completedCount,
-      averageWpm: Math.floor(Math.random() * 50) + 30,
-      accuracy: Math.floor(Math.random() * 20) + 80,
-      time: Math.floor(Math.random() * 300) + 60
+      averageWpm: sessionWpm,
+      accuracy: sessionAccuracy,
+      time: sessionTimeSeconds
     };
     
     console.log('Emitting file-completed event with:', props.activeTab, completionStats);
