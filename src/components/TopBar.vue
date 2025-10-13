@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import Dashboard from './Dashboard.vue';
 import { authService } from '../services/authService.js';
 
 const props = defineProps({
@@ -148,7 +147,6 @@ onMounted(() => {
         </button>
       </div>
       
-      <Dashboard />
     </div>
   </div>
 </template>
