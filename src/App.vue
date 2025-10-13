@@ -33,7 +33,7 @@ const completedFileStats = ref({}); // Stats for completed file
 const completedFileName = ref(''); // Name of completed file
 
 // Ads - show ads by default, hide only if user is pro
-const showAds = ref(true);
+const showAds = ref(false);
 const showRemoveAdsModal = ref(false);
 
 // Terminal visibility
@@ -533,7 +533,7 @@ function handleLogout() {
   // Clear pro status and ads when logging out
   localStorage.removeItem('pt_pro_user');
   localStorage.removeItem('pt_ads_removed');
-  showAds.value = true;
+  showAds.value = false;
   
   // Clear user-specific data
   localStorage.removeItem('pt_typing_settings');
@@ -668,7 +668,7 @@ onMounted(() => {
   if (isAuthenticatedUser && isProUser) {
     showAds.value = false;
   } else {
-    showAds.value = true;
+    showAds.value = false;
   }
   
   // Initialize faded words opacity from settings

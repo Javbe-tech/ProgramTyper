@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue';
 const props = defineProps({
-  showAds: { type: Boolean, default: true }
+  showAds: { type: Boolean, default: false }
 });
 const emit = defineEmits(['remove-ads']);
 import { events } from '../eventBus.js';
@@ -88,7 +88,7 @@ watch(events, (newEventObject) => {
     </div>
     
     <!-- Bottom-centered ad placeholder -->
-    <div class="ad-bottom-center" aria-label="Advertisement" v-if="props.showAds">
+    <div class="ad-bottom-center" aria-label="Advertisement" v-if="false">
       <div class="ad-content">
         <div class="ad-text">Remove Ads</div>
         <div class="ad-price">$5</div>
@@ -99,7 +99,7 @@ watch(events, (newEventObject) => {
     </div>
     
     <!-- Debug: Always show ad for testing -->
-    <div class="ad-bottom-center debug-ad" aria-label="Debug Ad">
+    <div class="ad-bottom-center debug-ad" aria-label="Debug Ad" v-if="false">
       <div class="ad-content">
         <div class="ad-text">DEBUG: Remove Ads</div>
         <div class="ad-price">$5</div>

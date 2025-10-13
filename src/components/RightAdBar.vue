@@ -73,7 +73,7 @@ function openRemoveAds() {
 </script>
 
 <template>
-  <aside class="right-ad-bar" v-show="showAds">
+<aside class="right-ad-bar" v-show="false">
     <!-- Login Section -->
     <div class="login-section-right">
       <div v-if="!isAuthenticated" class="login-prompt-right">
@@ -133,7 +133,7 @@ function openRemoveAds() {
       </svg>
     </div>
   </aside>
-  <aside class="right-ad-bar" v-show="!showAds">
+<aside class="right-ad-bar" v-show="false">
     <div class="ad-free">Thanks for supporting ProgramTyper ✨</div>
   </aside>
 </template>
