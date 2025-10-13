@@ -144,18 +144,15 @@ function startMatrixScanning() {
     const progress = currentStep / totalSteps;
     const targetLineIndex = Math.floor(progress * highlightedLines.value.length);
     
-    // Scan the current line if it hasn't been scanned yet
-    if (targetLineIndex > currentLineIndex && currentLineIndex < highlightedLines.value.length) {
-      const line = highlightedLines.value[currentLineIndex];
-      if (!line.scanned) {
-        line.scanned = true;
-        scanLine(line.element);
-        
-        // Smooth scroll to keep the scanned line in view
-        line.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      currentLineIndex++;
-    }
+        // Scan the current line if it hasn't been scanned yet
+        if (targetLineIndex > currentLineIndex && currentLineIndex < highlightedLines.value.length) {
+          const line = highlightedLines.value[currentLineIndex];
+          if (!line.scanned) {
+            line.scanned = true;
+            scanLine(line.element);
+          }
+          currentLineIndex++;
+        }
     
     if (currentStep >= totalSteps) {
       clearInterval(animationTimer.value);
@@ -163,6 +160,8 @@ function startMatrixScanning() {
       highlightedLines.value.forEach(line => {
         clearLineScan(line.element);
       });
+      // Also clear any lingering effects
+      clearAllGlowingEffects();
     }
   }, scanInterval);
 }
@@ -210,8 +209,23 @@ function stopAnimation() {
     clearInterval(animationTimer.value);
     animationTimer.value = null;
   }
+  
+  // Clear ALL glowing effects from the editor
+  clearAllGlowingEffects();
+  
   animationStep.value = 0;
   highlightProgress.value = 0;
+}
+
+function clearAllGlowingEffects() {
+  // Get all code lines in the editor and clear any glowing effects
+  const editorElement = document.querySelector('#editor-container');
+  if (!editorElement) return;
+  
+  const allCodeLines = editorElement.querySelectorAll('.code-line');
+  allCodeLines.forEach(line => {
+    clearLineScan(line);
+  });
 }
 
 onMounted(() => {

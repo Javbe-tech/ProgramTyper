@@ -766,8 +766,25 @@ function handleOpenFile(filePath) {
   }
   activeTab.value = filePath;
   
+  // Clear any lingering glowing effects from previous animations
+  clearAllGlowingEffects();
+  
   // Initialize tab stats for the newly opened file
   initializeTabStats(filePath);
+}
+
+function clearAllGlowingEffects() {
+  // Get all code lines in the editor and clear any glowing effects
+  const editorElement = document.querySelector('#editor-container');
+  if (!editorElement) return;
+  
+  const allCodeLines = editorElement.querySelectorAll('.code-line');
+  allCodeLines.forEach(line => {
+    line.style.textShadow = '';
+    line.style.color = '';
+    line.style.backgroundColor = '';
+    line.style.transition = '';
+  });
 }
 
 function closeTab(tabToClose) {
