@@ -11,7 +11,8 @@ const outputLines = ref(['Welcome to James Dark ProgramTyper...']);
 const wpmHistory = ref([]);
 const terminalContentRef = ref(null);
 const overallTime = ref(0);
-const sessionWpm = ref(0); // <-- NEW: State to hold the session's average WPM
+const sessionWpm = ref(0); // session average for this file
+const lifetimeAverageWpm = ref(0); // persistent user baseline
 
 watch(events, (newEventObject) => {
   // This event comes every 250ms while the user is typing
@@ -20,8 +21,10 @@ watch(events, (newEventObject) => {
     
     // --- LOGIC UPDATED ---
     // If we have an average WPM to compare against, decide the color
-    if (sessionWpm.value > 0) {
-      const statusClass = liveWpm >= sessionWpm.value ? 'green-text' : 'red-text';
+    // Prefer lifetime baseline if available; fallback to session average
+    const baseline = lifetimeAverageWpm.value > 0 ? lifetimeAverageWpm.value : sessionWpm.value;
+    if (baseline > 0) {
+      const statusClass = liveWpm >= baseline ? 'green-text' : 'red-text';
       outputLines.value.push(`> Typing... Current Speed: <span class="${statusClass}">${liveWpm} WPM</span>`);
     } else {
       // Before the first line is complete, just show the plain WPM
@@ -41,9 +44,10 @@ watch(events, (newEventObject) => {
 
   // This event comes after a line is completed with the new session totals
   if (newEventObject.updateSessionStats) {
-      const [wpm, acc, time] = newEventObject.updateSessionStats.data;
-      sessionWpm.value = wpm; // <-- NEW: Update the session average
+      const [wpm, acc, time, lifetimeAvg] = newEventObject.updateSessionStats.data;
+      sessionWpm.value = wpm;
       overallTime.value = time;
+      if (typeof lifetimeAvg === 'number') lifetimeAverageWpm.value = lifetimeAvg;
   }
 
   // Auto-scroll to the bottom of the output on every update

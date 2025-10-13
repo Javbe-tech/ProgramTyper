@@ -367,10 +367,14 @@ function completeLine() {
     console.log('Selected nextIndex:', nextIndex);
     console.log('Target line:', lines.value[nextIndex]);
 
+    // Reset current line state first, then activate the next line so timers keep working
+    resetLineState(false);
     console.log('About to call setActiveLine with:', nextIndex);
     setActiveLine(nextIndex);
     console.log('setActiveLine called, activeLineIndex is now:', activeLineIndex.value);
-    resetLineState(false);
+    if (!liveTimerInterval.value) {
+      liveTimerInterval.value = setInterval(updateLiveStats, 250);
+    }
     // Dynamically refresh the next challenge's words based on current weaknesses
     const line = lines.value[nextIndex];
     if (line && line.isTypable) {
@@ -456,7 +460,10 @@ function updateSessionStats() {
   const wpm = elapsedMinutes > 0 ? Math.round((sessionCorrectStrokes.value / 5) / elapsedMinutes) : 0;
   const acc = sessionTotalStrokes.value > 0 ? Math.round((sessionCorrectStrokes.value / sessionTotalStrokes.value) * 100) : 100;
   const totalSeconds = Math.round(sessionTotalActiveTime.value / 1000);
-  emit('updateSessionStats', wpm, acc, totalSeconds);
+  // Also include lifetime average WPM for terminal coloring
+  const statsSummary = userStatsService.getStatsSummary();
+  const lifetimeAvg = statsSummary?.lifetime?.averageWpm || 0;
+  emit('updateSessionStats', wpm, acc, totalSeconds, lifetimeAvg);
 }
 
 onMounted(() => window.addEventListener('keydown', handleKeyDown));

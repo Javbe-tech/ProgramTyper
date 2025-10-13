@@ -514,7 +514,9 @@ function handleFileCompleted(fileName, stats) {
     averageWpm: stats.averageWpm,
     accuracy: stats.accuracy,
     time: stats.time + 's',
-    lines: stats.completedLines
+    lines: stats.completedLines,
+    highestWpm: stats.highestWpm || 0,
+    mistakes: stats.mistakes || 0
   };
   showFileCompletion.value = true;
   
