@@ -9,7 +9,9 @@ class SettingsService {
       fadedWordsBrightness: 0.5,
       typingSoundId: 1,
       errorSoundId: 2,
-      soundVolume: 0.5
+      soundVolume: 0.5,
+      enableTypingSound: true,
+      enableErrorSound: true
     };
     this.settings = { ...this.defaultSettings };
     this.loadSettings();

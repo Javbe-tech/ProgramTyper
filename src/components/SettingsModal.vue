@@ -185,7 +185,7 @@ onMounted(() => {
             <div class="brightness-control">
                 <input 
                   type="range" 
-                  v-model="settings.fadedWordsBrightness"
+                  v-model.number="settings.fadedWordsBrightness"
                   min="0.1" 
                   max="2.0" 
                   step="0.05"
@@ -208,6 +208,16 @@ onMounted(() => {
         <div class="settings-section">
           <h3>🔊 Sound Settings</h3>
           <div class="settings-grid">
+            <div class="setting-item">
+              <label class="setting-label">
+                <input type="checkbox" v-model="settings.enableTypingSound" class="setting-checkbox" />
+                <span class="setting-text">Enable typing sound</span>
+              </label>
+              <label class="setting-label">
+                <input type="checkbox" v-model="settings.enableErrorSound" class="setting-checkbox" />
+                <span class="setting-text">Enable error sound</span>
+              </label>
+            </div>
             <div class="setting-item">
               <label class="setting-label">
                 <span class="setting-text">Typing sound</span>

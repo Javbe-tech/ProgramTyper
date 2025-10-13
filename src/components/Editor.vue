@@ -348,8 +348,11 @@ function handleKeyDown(e) {
   }
   const expectedChar = currentLine.text[currentCharacterIndex.value];
   const isCorrect = e.key === expectedChar;
-  // play sound based on correctness
-  playKeySound(!isCorrect);
+  // play sound based on correctness and user settings
+  const s = settingsService.getSettings();
+  if ((isCorrect && s.enableTypingSound) || (!isCorrect && s.enableErrorSound)) {
+    playKeySound(!isCorrect);
+  }
   
   // Record character statistics (do not attribute to an entire line as a word)
   userStatsService.recordCharacter(expectedChar, isCorrect);
