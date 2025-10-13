@@ -558,18 +558,15 @@ function getRandomTeamMember() {
   return teamMembers[Math.floor(Math.random() * teamMembers.length)];
 }
 
-// Get random interaction that hasn't been used recently
+// Get random interaction that hasn't been used; when exhausted, reshuffle
 function getRandomInteraction() {
-  const recentIds = interactionHistory.value.slice(-10).map(i => i.id);
-  const availableInteractions = chatInteractions.filter(i => !recentIds.includes(i.id));
-  
-  if (availableInteractions.length === 0) {
-    // Reset history if all interactions have been used
+  const used = new Set(interactionHistory.value.map(i => i.id));
+  const pool = chatInteractions.filter(i => !used.has(i.id));
+  if (pool.length === 0) {
     interactionHistory.value = [];
     return chatInteractions[Math.floor(Math.random() * chatInteractions.length)];
   }
-  
-  return availableInteractions[Math.floor(Math.random() * availableInteractions.length)];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 // Start a new chat interaction
@@ -806,6 +803,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  max-height: 100vh; /* prevent overflow */
   transition: all 0.3s ease;
 }
 
@@ -915,12 +913,13 @@ onMounted(() => {
 }
 
 .chat-messages {
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 0;
 }
 
 .message {
@@ -990,6 +989,7 @@ onMounted(() => {
   padding: 16px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-color);
+  flex: 0 0 auto; /* pin controls */
 }
 
 .response-prompt {
@@ -1060,6 +1060,7 @@ onMounted(() => {
   background: var(--bg-color);
   display: flex;
   gap: 8px;
+  flex: 0 0 auto; /* pin input */
 }
 
 .message-input {
