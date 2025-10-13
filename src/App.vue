@@ -462,6 +462,22 @@ function startRunSequence() {
 
 function closeFileCompletion() {
   showFileCompletion.value = false;
+  // Re-apply matrix glow once popup is closed and editor is visible again
+  setTimeout(() => {
+    const theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'matrix') {
+      const editorElement = document.querySelector('#editor-container');
+      const root = document.querySelector('#app') || document.body;
+      if (root) root.style.textShadow = '0 0 6px #00ff00, 0 0 12px #00ff00';
+      if (editorElement) {
+        editorElement.querySelectorAll('.code-line').forEach(el => {
+          el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
+          el.style.color = '#aaffaa';
+          el.style.backgroundColor = 'rgba(0,255,0,0.04)';
+        });
+      }
+    }
+  }, 50);
 }
 
 function startNextFile() {

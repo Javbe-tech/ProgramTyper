@@ -680,8 +680,9 @@ onMounted(() => {
     }
   }, 1000);
   
-  // Start chat if already authenticated
+  // Start chat if already authenticated with creepy set enforced
   if (isAuthenticated.value) {
+    chatInteractions = buildCreepySet();
     startChatSystem();
   }
   
