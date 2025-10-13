@@ -83,6 +83,12 @@ function applySettings() {
   const root = document.documentElement;
   console.log('Applying faded words brightness:', settings.value.fadedWordsBrightness);
   root.style.setProperty('--faded-words-opacity', settings.value.fadedWordsBrightness);
+  
+  // Also apply to preview immediately
+  const previewFaded = document.querySelector('.preview-faded');
+  if (previewFaded) {
+    previewFaded.style.opacity = settings.value.fadedWordsBrightness;
+  }
 }
 
 function resetToDefaults() {
@@ -194,16 +200,16 @@ onMounted(() => {
                 type="range" 
                 v-model.number="settings.fadedWordsBrightness"
                 min="0.1" 
-                max="2.0" 
+                max="1.0" 
                 step="0.05"
                 class="brightness-slider-new"
                 @input="applySettings"
                 style="width: 100%; height: 20px; background: #ddd; outline: none; border-radius: 10px;"
               />
               <div class="brightness-labels">
-                <span>Much Darker</span>
+                <span>Very Faded</span>
                 <span>Default</span>
-                <span>Brighter Than Normal</span>
+                <span>More Visible</span>
               </div>
               
               <!-- Preview box RIGHT HERE next to slider -->
