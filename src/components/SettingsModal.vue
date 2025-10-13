@@ -79,24 +79,18 @@ function applySettings() {
     return;
   }
   
-  // Convert brightness (0.1-2.0) to opacity (0.1-1.0)
-  // 0.1 = very faded, 0.5 = default, 2.0 = fully visible
-  let opacity;
-  if (settings.value.fadedWordsBrightness <= 0.5) {
-    // 0.1-0.5 maps to 0.1-0.5 opacity (more faded)
-    opacity = settings.value.fadedWordsBrightness;
-  } else {
-    // 0.5-2.0 maps to 0.5-1.0 opacity (less faded, more visible)
-    opacity = 0.5 + ((settings.value.fadedWordsBrightness - 0.5) * 0.5 / 1.5);
-  }
+  // Simple mapping: 0.1-2.0 brightness -> 0.1-1.0 opacity
+  // This makes the ENTIRE slider range work
+  const brightness = settings.value.fadedWordsBrightness;
+  const opacity = Math.min(1.0, Math.max(0.1, brightness / 2.0));
   
-  console.log('Brightness:', settings.value.fadedWordsBrightness, '-> Opacity:', opacity);
+  console.log('Brightness:', brightness, '-> Opacity:', opacity);
   
-  // Apply faded words brightness
+  // Apply to CSS variable
   const root = document.documentElement;
   root.style.setProperty('--faded-words-opacity', opacity);
   
-  // Also apply to preview immediately
+  // Apply to preview immediately
   const previewFaded = document.querySelector('.preview-faded');
   if (previewFaded) {
     previewFaded.style.opacity = opacity;
@@ -221,7 +215,7 @@ onMounted(() => {
               <div class="brightness-labels">
                 <span>Very Faded</span>
                 <span>Default</span>
-                <span>More Visible</span>
+                <span>Fully Visible</span>
               </div>
               
               <!-- Preview box RIGHT HERE next to slider -->
