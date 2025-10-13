@@ -87,6 +87,12 @@ function resetLineState(isNewFile = false) {
     autoCompletionProgress.value = {};
     if (isNewFile) {
         activeLineIndex.value = -1;
+        // Reset session-level stats for new file
+        sessionTotalActiveTime.value = 0;
+        sessionTotalStrokes.value = 0;
+        sessionCorrectStrokes.value = 0;
+        sessionHighestWpm.value = 0;
+        sessionMistakes.value = 0;
     }
 }
 
@@ -407,6 +413,12 @@ function completeLine() {
       mistakes: sessionMistakes.value
     };
     
+    console.log('=== FILE COMPLETION STATS ===');
+    console.log('Session Highest WPM:', sessionHighestWpm.value);
+    console.log('Session Mistakes:', sessionMistakes.value);
+    console.log('Session Total Strokes:', sessionTotalStrokes.value);
+    console.log('Session Correct Strokes:', sessionCorrectStrokes.value);
+    console.log('Session Total Time:', sessionTotalActiveTime.value);
     console.log('Emitting file-completed event with:', props.activeTab, completionStats);
     emitEvent('file-completed', props.activeTab, completionStats);
     console.log('File completion event emitted!');
