@@ -209,6 +209,14 @@ onMounted(() => {
             <div class="setting-description">
               Adjust how bright/dark the faded words appear while typing
             </div>
+            
+            <!-- Preview box right here -->
+            <div class="preview-box" style="margin-top: 15px;">
+              <div class="preview-text">
+                <span class="preview-faded">This is how faded text will look</span>
+                <span class="preview-normal">This is normal text</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -255,17 +263,6 @@ onMounted(() => {
                 <span class="setting-text">Volume</span>
               </label>
               <input type="range" min="0" max="1" step="0.05" v-model.number="settings.soundVolume" class="brightness-slider" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview Section -->
-        <div class="settings-section">
-          <h3>👀 Preview</h3>
-          <div class="preview-box">
-            <div class="preview-text">
-              <span class="preview-faded">This is how faded text will look</span>
-              <span class="preview-normal">This is normal text</span>
             </div>
           </div>
         </div>
