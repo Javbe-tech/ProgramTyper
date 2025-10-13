@@ -8,6 +8,12 @@ const emit = defineEmits(['close', 'open-pro-upgrade']);
 // Settings state
 const settings = ref({ ...settingsService.getSettings() });
 
+// Debug: Log settings on mount
+onMounted(() => {
+  console.log('Settings loaded:', settings.value);
+  console.log('Faded words brightness:', settings.value.fadedWordsBrightness);
+});
+
 // Lightweight WebAudio preview for typing/error sounds
 const audioCtx = ref(null);
 function initAudio() {
@@ -75,6 +81,7 @@ function applySettings() {
   
   // Apply faded words brightness
   const root = document.documentElement;
+  console.log('Applying faded words brightness:', settings.value.fadedWordsBrightness);
   root.style.setProperty('--faded-words-opacity', settings.value.fadedWordsBrightness);
 }
 
@@ -185,7 +192,7 @@ onMounted(() => {
             <div class="brightness-control">
                 <input 
                   type="range" 
-                  v-model.number="settings.fadedWordsBrightness"
+                  v-model.number="settings.fadedWordsBrightness || 0.5"
                   min="0.1" 
                   max="2.0" 
                   step="0.05"
@@ -485,12 +492,15 @@ onMounted(() => {
 
 .brightness-slider {
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   background: var(--border-color);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+  opacity: 1;
+  visibility: visible;
+  display: block;
 }
 
 .brightness-slider::-webkit-slider-thumb {
