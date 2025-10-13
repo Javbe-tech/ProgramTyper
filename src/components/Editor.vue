@@ -65,8 +65,10 @@ function loadContentForTab(fileName) {
     lines.value = [...fileContents[fileName]]; // Create a copy to avoid reference issues
   }
   resetLineState(true); // Full reset for new file
-  // Start/stop matrix scan depending on theme
-  maybeStartMatrixThemeScan();
+  // Apply matrix glow after DOM updates (handles post-popup new file)
+  nextTick(() => {
+    maybeStartMatrixThemeScan();
+  });
   
   // Initialize tab stats
   emitEvent('initialize-tab-stats', fileName);
@@ -78,6 +80,10 @@ function loadContentForTab(fileName) {
   if (firstChallenge !== -1) {
     setActiveLine(firstChallenge);
   }
+  // Ensure a second pass after active line is set
+  nextTick(() => {
+    maybeStartMatrixThemeScan();
+  });
 }
 
 function resetLineState(isNewFile = false) {

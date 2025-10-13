@@ -112,6 +112,18 @@ function startAnimation() {
   // Step 2: Show completion popup
   setTimeout(() => {
     animationStep.value = 2;
+      // Re-apply matrix glow on the newly active editor content if matrix theme is active
+      const theme = document.documentElement.getAttribute('data-theme');
+      if (theme === 'matrix') {
+        const editorElement = document.querySelector('#editor-container');
+        if (editorElement) {
+          editorElement.querySelectorAll('.code-line').forEach(el => {
+            el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
+            el.style.color = '#aaffaa';
+            el.style.backgroundColor = 'rgba(0,255,0,0.04)';
+          });
+        }
+      }
   }, 3000);
 }
 
