@@ -190,15 +190,16 @@ onMounted(() => {
               <span class="setting-text">Faded words brightness</span>
             </label>
             <div class="brightness-control">
-                <input 
-                  type="range" 
-                  v-model.number="settings.fadedWordsBrightness || 0.5"
-                  min="0.1" 
-                  max="2.0" 
-                  step="0.05"
-                  class="brightness-slider"
-                  @input="applySettings"
-                />
+              <input 
+                type="range" 
+                v-model.number="settings.fadedWordsBrightness"
+                min="0.1" 
+                max="2.0" 
+                step="0.05"
+                class="brightness-slider-new"
+                @input="applySettings"
+                style="width: 100%; height: 20px; background: #ddd; outline: none; border-radius: 10px;"
+              />
               <div class="brightness-labels">
                 <span>Much Darker</span>
                 <span>Default</span>
@@ -503,23 +504,40 @@ onMounted(() => {
   display: block;
 }
 
-.brightness-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--keyword);
-  cursor: pointer;
+.brightness-slider-new {
+  width: 100% !important;
+  height: 20px !important;
+  background: #ddd !important;
+  outline: none !important;
+  border-radius: 10px !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  margin: 10px 0 !important;
 }
 
-.brightness-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--keyword);
-  cursor: pointer;
-  border: none;
+.brightness-slider-new::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: #007bff !important;
+  cursor: pointer !important;
+  border: 2px solid white !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+.brightness-slider-new::-moz-range-thumb {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: #007bff !important;
+  cursor: pointer !important;
+  border: 2px solid white !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
 }
 
 .brightness-labels {
