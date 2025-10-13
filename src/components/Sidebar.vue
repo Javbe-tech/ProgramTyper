@@ -1,6 +1,5 @@
 <script setup>
 import { computed } from 'vue';
-import UserProfile from './UserProfile.vue';
 
 const props = defineProps({
   userFiles: Array, // Accept the new prop for custom files
@@ -66,9 +65,6 @@ const processedFileSystem = computed(() => {
 
 <template>
   <div id="sidebar-left">
-    <!-- User Profile Section -->
-    <UserProfile />
-    
     <div class="project-header">
       <span>PROJECT</span>
       <button class="new-file-btn" @click="$emit('new-file-modal')" title="Create New File">+</button>
