@@ -33,6 +33,11 @@ const lineStrokes = ref(0);
 const lineCorrectStrokes = ref(0);
 const liveTimerInterval = ref(null);
 
+// Matrix theme continuous scan effect
+const matrixScanInterval = ref(null);
+const matrixScanIndex = ref(0);
+const matrixThemeWatcher = ref(null);
+
 // Auto-completion effect state
 const autoCompletionProgress = ref({});
 const autoCompletionInterval = ref(null);
@@ -62,6 +67,8 @@ function loadContentForTab(fileName) {
     lines.value = [...fileContents[fileName]]; // Create a copy to avoid reference issues
   }
   resetLineState(true); // Full reset for new file
+  // Start/stop matrix scan depending on theme
+  maybeStartMatrixThemeScan();
   
   // Initialize tab stats
   emitEvent('initialize-tab-stats', fileName);
@@ -96,6 +103,60 @@ function resetLineState(isNewFile = false) {
         sessionMistakes.value = 0;
         sessionLineWpms.value = [];
     }
+}
+
+function maybeStartMatrixThemeScan() {
+  const theme = document.documentElement.getAttribute('data-theme');
+  if (theme === 'matrix') {
+    startMatrixThemeScan();
+  } else {
+    stopMatrixThemeScan();
+  }
+}
+
+function startMatrixThemeScan() {
+  stopMatrixThemeScan();
+  const editorElement = document.querySelector('#editor-container');
+  if (!editorElement) return;
+  const codeLines = editorElement.querySelectorAll('.code-line');
+  matrixScanIndex.value = 0;
+  matrixScanInterval.value = setInterval(() => {
+    if (!codeLines.length) return;
+    const idx = matrixScanIndex.value % codeLines.length;
+    const el = codeLines[idx];
+    // brief scan pulse
+    el.style.textShadow = '0 0 12px #00ff00, 0 0 24px #00ff00';
+    el.style.color = '#00ff00';
+    el.style.backgroundColor = 'rgba(0,255,0,0.06)';
+    setTimeout(() => {
+      el.style.textShadow = '';
+      el.style.color = '';
+      el.style.backgroundColor = '';
+    }, 140);
+    matrixScanIndex.value++;
+    // smooth scroll follows slowly
+    const container = editorElement;
+    if (idx % 8 === 0) {
+      container.scrollTop = Math.min(container.scrollTop + 18, container.scrollHeight);
+    }
+  }, 90);
+
+  // watch theme changes to stop automatically
+  if (!matrixThemeWatcher.value) {
+    matrixThemeWatcher.value = new MutationObserver(maybeStartMatrixThemeScan);
+    matrixThemeWatcher.value.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+}
+
+function stopMatrixThemeScan() {
+  if (matrixScanInterval.value) {
+    clearInterval(matrixScanInterval.value);
+    matrixScanInterval.value = null;
+  }
+  if (matrixThemeWatcher.value) {
+    matrixThemeWatcher.value.disconnect();
+    matrixThemeWatcher.value = null;
+  }
 }
 
 function resetCurrentLine() {
@@ -471,6 +532,7 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleKeyDown);
     if(liveTimerInterval.value) clearInterval(liveTimerInterval.value);
     if(autoCompletionInterval.value) clearInterval(autoCompletionInterval.value);
+    stopMatrixThemeScan();
 });
 </script>
 
