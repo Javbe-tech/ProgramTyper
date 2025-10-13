@@ -274,6 +274,10 @@ function completeLine() {
   
   currentLine.isCompleted = true;
   console.log('Current line after setting isCompleted:', currentLine);
+  console.log('=== MARKING LINE AS COMPLETED ===');
+  console.log('Line index:', completedLineIndex);
+  console.log('Line text:', currentLine.text);
+  console.log('Line isTypable:', currentLine.isTypable);
   const lineDuration = new Date() - lineStartTime.value;
   const elapsedLineSeconds = lineDuration / 1000;
   const lineWpm = elapsedLineSeconds > 0 ? Math.round(((lineCorrectStrokes.value / 5) / elapsedLineSeconds) * 60) : 0;
@@ -302,6 +306,10 @@ function completeLine() {
   // Update tab challenge stats after each completion
   const completedCount = lines.value.filter(l => l.isTypable && l.isCompleted).length;
   const totalTypableLines = lines.value.filter(l => l.isTypable).length;
+  console.log('=== CHALLENGE STATS ===');
+  console.log('Total typable lines:', totalTypableLines);
+  console.log('Completed typable lines:', completedCount);
+  console.log('Remaining typable lines:', totalTypableLines - completedCount);
   emitEvent('update-tab-challenge-stats', props.activeTab, completedCount);
   
   console.log('=== CALCULATING REMAINING CHALLENGES ===');
