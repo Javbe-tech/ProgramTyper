@@ -480,6 +480,7 @@ onMounted(() => {
 
 .brightness-control {
   margin: 10px 0;
+  display: block;
 }
 
 .brightness-slider {

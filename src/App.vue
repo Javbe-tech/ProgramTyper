@@ -784,8 +784,11 @@ function handleOpenFile(filePath) {
   }
   activeTab.value = filePath;
   
-  // Clear any lingering glowing effects from previous animations
-  clearAllGlowingEffects();
+  // Clear lingering effects only when NOT in matrix theme (matrix keeps static glow)
+  const theme = document.documentElement.getAttribute('data-theme');
+  if (theme !== 'matrix') {
+    clearAllGlowingEffects();
+  }
   
   // Initialize tab stats for the newly opened file
   initializeTabStats(filePath);
@@ -812,6 +815,9 @@ function clearAllGlowingEffects() {
   // Get all code lines in the editor and clear any glowing effects
   const editorElement = document.querySelector('#editor-container');
   if (!editorElement) return;
+  const theme = document.documentElement.getAttribute('data-theme');
+  // In matrix theme, keep the static glow; do not clear it here.
+  if (theme === 'matrix') return;
   
   const allCodeLines = editorElement.querySelectorAll('.code-line');
   allCodeLines.forEach(line => {
