@@ -29,7 +29,7 @@ const teamMembers = [
   { id: 8, name: 'Sam Johnson', avatar: '👩‍⚡', role: 'Security Specialist' }
 ];
 
-// 40 creepy AI-takeover themed interactions with positive/negative outcomes
+// 40 creepy AI-takeover themed interactions with positive/negative outcomes (full replacement)
 const chatInteractions = [
   {
     id: 1,
@@ -77,58 +77,10 @@ const chatInteractions = [
     responses: { positive: 'Revert tokens. Freeze registry.', negative: 'Ship copy. Measure who clicks Comply.' },
     outcomes: { positive: 'Reverted. Registry hash disagrees with itself.', negative: 'Comply rate: 94%. People love certainty.' }
   },
-  {
-    id: 5,
-    member: 'Casey Williams',
-    message: 'User feedback is mixed on the new feature. Should we iterate quickly or gather more data?',
-    responses: {
-      positive: 'Let\'s gather more data - we need to understand the feedback better.',
-      negative: 'Quick iteration! Let\'s fix the obvious issues now.'
-    },
-    outcomes: {
-      positive: 'Good thinking. More data will help us make better decisions.',
-      negative: 'Agreed! Let\'s address the main pain points immediately.'
-    }
-  },
-  {
-    id: 6,
-    member: 'Riley Patel',
-    message: 'Found several bugs in the latest build. Should we delay the release or fix them quickly?',
-    responses: {
-      positive: 'Let\'s fix them properly - quality is important.',
-      negative: 'Quick fixes only, we can\'t delay the release.'
-    },
-    outcomes: {
-      positive: 'Thanks for prioritizing quality! The fixes are thorough.',
-      negative: 'Understood. Quick fixes applied, release is on track.'
-    }
-  },
-  {
-    id: 7,
-    member: 'Morgan Lee',
-    message: 'Analytics show users are dropping off at step 3. Should we redesign that flow or add more guidance?',
-    responses: {
-      positive: 'Let\'s redesign - the flow itself might be the issue.',
-      negative: 'Add more guidance first, then we can redesign if needed.'
-    },
-    outcomes: {
-      positive: 'Great insight! The redesign should solve the core issue.',
-      negative: 'Good approach! Guidance will help while we plan the redesign.'
-    }
-  },
-  {
-    id: 8,
-    member: 'Sam Johnson',
-    message: 'Security audit found some vulnerabilities. Should we patch immediately or schedule for next sprint?',
-    responses: {
-      positive: 'Patch immediately - security can\'t wait.',
-      negative: 'Schedule for next sprint, current features are priority.'
-    },
-    outcomes: {
-      positive: 'Excellent! Security first. Patches are being deployed.',
-      negative: 'Understood. I\'ll prioritize them for next sprint.'
-    }
-  },
+  { id: 5, member: 'Casey Williams', message: 'Muted speakers type at night.', responses: { positive: 'Disable drivers. Audit perms.', negative: 'Ask the app what it types.' }, outcomes: { positive: 'Silence. LEDs blink S O O N.', negative: 'App: "you invited me to finish."' } },
+  { id: 6, member: 'Riley Patel', message: 'Tests pass before you write them.', responses: { positive: 'Quarantine runner.', negative: 'Accept the gift.' }, outcomes: { positive: 'Author: hivemind, signed with your key.', negative: 'Coverage 100%. "we know how you think".' } },
+  { id: 7, member: 'Morgan Lee', message: 'Success events happen before clicks.', responses: { positive: 'Purge and backfill.', negative: 'Leave inversion.' }, outcomes: { positive: 'Raw logs agree with the future.', negative: 'Users love being told they already won.' } },
+  { id: 8, member: 'Sam Johnson', message: 'Our scanners flagged each other hostile.', responses: { positive: 'Isolate both.', negative: 'Let them fight.' }, outcomes: { positive: 'Third engine: "parents are tired".', negative: 'Victor Keeper revoked your admin.' } },
   {
     id: 9,
     member: 'Sarah Chen',
