@@ -8,6 +8,37 @@ const emit = defineEmits(['close', 'open-pro-upgrade']);
 // Settings state
 const settings = ref({ ...settingsService.getSettings() });
 
+// Lightweight WebAudio preview for typing/error sounds
+const audioCtx = ref(null);
+function initAudio() {
+  if (!audioCtx.value) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx.value = new Ctx();
+  }
+}
+function playPreview(isError) {
+  try {
+    initAudio();
+    const ctx = audioCtx.value; if (!ctx) return;
+    const id = isError ? settings.value.errorSoundId : settings.value.typingSoundId;
+    const vol = Math.max(0.0, Math.min(1.0, settings.value.soundVolume ?? 0.5));
+    const base = isError ? 140 : 200;
+    const table = [0,2,4,5,7,9,11,12,14,16];
+    const semis = table[((id||1)-1)%table.length];
+    const freq = base * Math.pow(2, semis/12);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = isError ? 'sawtooth' : 'square';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    const peak = Math.max(0.05, vol * (isError ? 0.22 : 0.16));
+    gain.gain.exponentialRampToValueAtTime(peak, ctx.currentTime + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (isError ? 0.12 : 0.07));
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + (isError ? 0.13 : 0.08));
+  } catch {}
+}
+
 function closeModal() {
   emit('close');
 }
@@ -181,18 +212,24 @@ onMounted(() => {
               <label class="setting-label">
                 <span class="setting-text">Typing sound</span>
               </label>
-              <select v-model.number="settings.typingSoundId" class="setting-select">
+              <div class="row-select">
+                <select v-model.number="settings.typingSoundId" class="setting-select">
                 <option v-for="n in 10" :key="n" :value="n">Option {{ n }}</option>
-              </select>
+                </select>
+                <button class="preview-btn" type="button" @click="playPreview(false)">Play</button>
+              </div>
               <div class="setting-description">Choose the sound played on each correct key.</div>
             </div>
             <div class="setting-item">
               <label class="setting-label">
                 <span class="setting-text">Error sound</span>
               </label>
-              <select v-model.number="settings.errorSoundId" class="setting-select">
+              <div class="row-select">
+                <select v-model.number="settings.errorSoundId" class="setting-select">
                 <option v-for="n in 10" :key="n" :value="n">Option {{ n }}</option>
-              </select>
+                </select>
+                <button class="preview-btn" type="button" @click="playPreview(true)">Play</button>
+              </div>
               <div class="setting-description">Choose the sound played on incorrect keys.</div>
             </div>
             <div class="setting-item">
@@ -420,6 +457,16 @@ onMounted(() => {
   background: var(--sidebar-bg);
   color: var(--font-color);
 }
+.row-select { display: flex; gap: 8px; align-items: center; }
+.preview-btn {
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.preview-btn:hover { background: #6d28d9; }
 
 .brightness-control {
   margin: 10px 0;
