@@ -318,6 +318,7 @@ function completeLine() {
 
   console.log('Line completed. Remaining challenges:', remainingChallenges.length);
   console.log('All lines:', lines.value.map((l, i) => ({ index: i, isTypable: l.isTypable, isCompleted: l.isCompleted })));
+  console.log('Remaining challenge details:', remainingChallenges.map(c => ({ index: c.index, isTypable: c.isTypable, isCompleted: c.isCompleted })));
 
   if (remainingChallenges.length > 0) {
     // Random jump to another remaining challenge
