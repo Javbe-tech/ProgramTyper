@@ -205,17 +205,17 @@ onMounted(() => {
                 <span>Default</span>
                 <span>Brighter Than Normal</span>
               </div>
+              
+              <!-- Preview box RIGHT HERE next to slider -->
+              <div class="preview-box" style="margin-top: 10px; background: var(--terminal-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; text-align: center;">
+                <div class="preview-text">
+                  <span class="preview-faded">This is how faded text will look</span><br>
+                  <span class="preview-normal">This is normal text</span>
+                </div>
+              </div>
             </div>
             <div class="setting-description">
               Adjust how bright/dark the faded words appear while typing
-            </div>
-            
-            <!-- Preview box right here -->
-            <div class="preview-box" style="margin-top: 15px;">
-              <div class="preview-text">
-                <span class="preview-faded">This is how faded text will look</span>
-                <span class="preview-normal">This is normal text</span>
-              </div>
             </div>
           </div>
         </div>
