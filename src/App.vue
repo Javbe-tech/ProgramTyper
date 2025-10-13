@@ -783,7 +783,7 @@ function closeTab(tabToClose) {
 
 function handleCreateFile(fileData) {
   const { filename, code } = fileData;
-  fileContents[filename] = processUserInput(code);
+  fileContents[filename] = processUserInput(code, filename);
 
   const srcFolder = fileSystem.value[0].children.find(f => f.name === 'src');
   if (srcFolder && srcFolder.children) {

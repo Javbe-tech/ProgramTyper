@@ -1667,7 +1667,7 @@ function tokenize(line) {
     const allLines = [];
     let lineCount = 0;
     const maxLines = 200;
-    const challengeCount = Math.floor(Math.random() * 4) + 4; // 4-7 challenges
+    const challengeCount = Math.floor(seededRandom(seed + 1) * 4) + 4; // 4-7 challenges (consistent with seed)
     
     // Calculate challenge positions more reliably
     const challengePositions = [];
@@ -1743,11 +1743,18 @@ function tokenize(line) {
   }
   
   // NEW, SMARTER VERSION: For processing user-created files
-  export function processUserInput(userInput) {
-    const processedLines = [];
-    const userLines = userInput.split('\n');
-    const maxChallenges = Math.floor(Math.random() * 4) + 4; // 4-7 challenges
-    let challengesInserted = 0;
+export function processUserInput(userInput, fileName = '') {
+  const processedLines = [];
+  const userLines = userInput.split('\n');
+  
+  // Use filename as seed for consistent randomization (same as generateCodeForFile)
+  let seed = 0;
+  for (let i = 0; i < fileName.length; i++) {
+    seed += fileName.charCodeAt(i);
+  }
+  
+  const maxChallenges = Math.floor(seededRandom(seed + 1) * 4) + 4; // 4-7 challenges (consistent with seed)
+  let challengesInserted = 0;
   
     // Calculate how many lines to skip between challenges.
     // Ensure the interval is at least 2 to prevent spamming on short code.
