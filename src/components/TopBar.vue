@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { authService } from '../services/authService.js';
+import Dashboard from './Dashboard.vue';
 
 const props = defineProps({
   terminalVisible: { type: Boolean, default: true },
@@ -120,6 +121,9 @@ onMounted(() => {
       </ul>
     </div>
     <div class="right-section">
+      <!-- Dashboard Component -->
+      <Dashboard v-if="isAuthenticated" />
+      
       <!-- Compact Login/User Info -->
       <div v-if="!isAuthenticated" class="compact-login">
         <button @click="handleLogin" class="compact-login-btn" title="Sign in">
