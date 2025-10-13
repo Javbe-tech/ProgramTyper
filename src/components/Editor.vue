@@ -36,6 +36,33 @@ const liveTimerInterval = ref(null);
 // Matrix theme static glow effect
 const matrixThemeWatcher = ref(null);
 
+// Keystroke sound (WebAudio)
+const audioCtx = ref(null);
+function initAudio() {
+  if (!audioCtx.value) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx.value = new Ctx();
+  }
+}
+function playKeySound() {
+  try {
+    initAudio();
+    const ctx = audioCtx.value;
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(210, ctx.currentTime);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.07);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  } catch {}
+}
+
 // Auto-completion effect state
 const autoCompletionProgress = ref({});
 const autoCompletionInterval = ref(null);
@@ -120,22 +147,35 @@ function maybeStartMatrixThemeScan() {
 
 function applyMatrixStaticGlow() {
   const editorElement = document.querySelector('#editor-container');
-  if (!editorElement) return;
-  editorElement.querySelectorAll('.code-line').forEach(el => {
-    el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
-    el.style.color = '#aaffaa';
-    el.style.backgroundColor = 'rgba(0,255,0,0.04)';
-  });
+  // Apply to entire app content when matrix theme is active
+  const root = document.querySelector('#app') || document.body;
+  if (root) {
+    root.style.textShadow = '0 0 6px #00ff00, 0 0 12px #00ff00';
+    root.style.color = getComputedStyle(document.documentElement).getPropertyValue('--font-color') || '#aaffaa';
+  }
+  if (editorElement) {
+    editorElement.querySelectorAll('.code-line').forEach(el => {
+      el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
+      el.style.color = '#aaffaa';
+      el.style.backgroundColor = 'rgba(0,255,0,0.04)';
+    });
+  }
 }
 
 function removeMatrixStaticGlow() {
   const editorElement = document.querySelector('#editor-container');
-  if (!editorElement) return;
-  editorElement.querySelectorAll('.code-line').forEach(el => {
-    el.style.textShadow = '';
-    el.style.color = '';
-    el.style.backgroundColor = '';
-  });
+  const root = document.querySelector('#app') || document.body;
+  if (root) {
+    root.style.textShadow = '';
+    root.style.color = '';
+  }
+  if (editorElement) {
+    editorElement.querySelectorAll('.code-line').forEach(el => {
+      el.style.textShadow = '';
+      el.style.color = '';
+      el.style.backgroundColor = '';
+    });
+  }
 }
 
 function resetCurrentLine() {
@@ -288,6 +328,8 @@ function handleKeyDown(e) {
 
   if (activeLineIndex.value === -1 || !['typing', 'waiting'].includes(gameStatus.value) || e.key.length > 1) return;
   e.preventDefault();
+  // play keystroke sound for printable keys
+  playKeySound();
   
   const currentLine = lines.value[activeLineIndex.value];
   if (!currentLine || currentLine.isCompleted) return;

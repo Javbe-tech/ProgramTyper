@@ -116,6 +116,10 @@ function startAnimation() {
       const theme = document.documentElement.getAttribute('data-theme');
       if (theme === 'matrix') {
         const editorElement = document.querySelector('#editor-container');
+        const root = document.querySelector('#app') || document.body;
+        if (root) {
+          root.style.textShadow = '0 0 6px #00ff00, 0 0 12px #00ff00';
+        }
         if (editorElement) {
           editorElement.querySelectorAll('.code-line').forEach(el => {
             el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
