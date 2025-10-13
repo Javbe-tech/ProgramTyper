@@ -173,6 +173,37 @@ onMounted(() => {
           </div>
         </div>
 
+        <!-- Sound Settings -->
+        <div class="settings-section">
+          <h3>🔊 Sound Settings</h3>
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label class="setting-label">
+                <span class="setting-text">Typing sound</span>
+              </label>
+              <select v-model.number="settings.typingSoundId" class="setting-select">
+                <option v-for="n in 10" :key="n" :value="n">Option {{ n }}</option>
+              </select>
+              <div class="setting-description">Choose the sound played on each correct key.</div>
+            </div>
+            <div class="setting-item">
+              <label class="setting-label">
+                <span class="setting-text">Error sound</span>
+              </label>
+              <select v-model.number="settings.errorSoundId" class="setting-select">
+                <option v-for="n in 10" :key="n" :value="n">Option {{ n }}</option>
+              </select>
+              <div class="setting-description">Choose the sound played on incorrect keys.</div>
+            </div>
+            <div class="setting-item">
+              <label class="setting-label">
+                <span class="setting-text">Volume</span>
+              </label>
+              <input type="range" min="0" max="1" step="0.05" v-model.number="settings.soundVolume" class="brightness-slider" />
+            </div>
+          </div>
+        </div>
+
         <!-- Preview Section -->
         <div class="settings-section">
           <h3>👀 Preview</h3>
@@ -380,6 +411,14 @@ onMounted(() => {
   font-size: 0.9rem;
   margin-left: 28px;
   line-height: 1.4;
+}
+.setting-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--sidebar-bg);
+  color: var(--font-color);
 }
 
 .brightness-control {

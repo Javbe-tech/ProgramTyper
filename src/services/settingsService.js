@@ -6,7 +6,10 @@ class SettingsService {
       enablePeriods: false,
       enableWordCapitals: false,
       enableSpecialChars: false,
-      fadedWordsBrightness: 0.5
+      fadedWordsBrightness: 0.5,
+      typingSoundId: 1,
+      errorSoundId: 2,
+      soundVolume: 0.5
     };
     this.settings = { ...this.defaultSettings };
     this.loadSettings();

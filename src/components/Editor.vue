@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from
 import { emit } from '../eventBus.js';
 import { generateCodeForFile, generateTypingLine } from '../codeGenerator.js';
 import { userStatsService } from '../services/userStatsService.js';
+import { settingsService } from '../services/settingsService.js';
 
 const props = defineProps({
   openTabs: Array,
@@ -44,22 +45,30 @@ function initAudio() {
     if (Ctx) audioCtx.value = new Ctx();
   }
 }
-function playKeySound() {
+function playKeySound(isError = false) {
   try {
     initAudio();
     const ctx = audioCtx.value;
     if (!ctx) return;
+    const settings = settingsService.getSettings();
+    const toneId = isError ? settings.errorSoundId : settings.typingSoundId;
+    const vol = Math.max(0.0, Math.min(1.0, settings.soundVolume ?? 0.5));
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(210, ctx.currentTime);
+    const base = isError ? 140 : 200;
+    const table = [0,2,4,5,7,9,11,12,14,16];
+    const semis = table[(toneId-1) % table.length];
+    const freq = base * Math.pow(2, semis/12);
+    osc.type = isError ? 'sawtooth' : 'square';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.07);
+    const peak = Math.max(0.05, vol * (isError ? 0.22 : 0.16));
+    gain.gain.exponentialRampToValueAtTime(peak, ctx.currentTime + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (isError ? 0.12 : 0.07));
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.08);
+    osc.stop(ctx.currentTime + (isError ? 0.13 : 0.08));
   } catch {}
 }
 
@@ -328,8 +337,7 @@ function handleKeyDown(e) {
 
   if (activeLineIndex.value === -1 || !['typing', 'waiting'].includes(gameStatus.value) || e.key.length > 1) return;
   e.preventDefault();
-  // play keystroke sound for printable keys
-  playKeySound();
+  // play keystroke sound for printable keys (decide later if correct)
   
   const currentLine = lines.value[activeLineIndex.value];
   if (!currentLine || currentLine.isCompleted) return;
@@ -340,6 +348,8 @@ function handleKeyDown(e) {
   }
   const expectedChar = currentLine.text[currentCharacterIndex.value];
   const isCorrect = e.key === expectedChar;
+  // play sound based on correctness
+  playKeySound(!isCorrect);
   
   // Record character statistics (do not attribute to an entire line as a word)
   userStatsService.recordCharacter(expectedChar, isCorrect);
