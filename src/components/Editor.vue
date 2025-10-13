@@ -365,18 +365,27 @@ function completeLine() {
     }
   } else {
     // All challenges completed!
+    console.log('=== ALL CHALLENGES COMPLETED! ===');
+    console.log('Total typable lines:', totalTypableLines);
+    console.log('Completed count:', completedCount);
+    console.log('Active tab:', props.activeTab);
+    
     gameStatus.value = 'finished';
     // End statistics session when all challenges are completed
     userStatsService.endSession();
     
     // Emit file completion event
-    emitEvent('file-completed', props.activeTab, {
+    const completionStats = {
       totalLines: totalTypableLines,
       completedLines: completedCount,
       averageWpm: Math.floor(Math.random() * 50) + 30,
       accuracy: Math.floor(Math.random() * 20) + 80,
       time: Math.floor(Math.random() * 300) + 60
-    });
+    };
+    
+    console.log('Emitting file-completed event with:', props.activeTab, completionStats);
+    emitEvent('file-completed', props.activeTab, completionStats);
+    console.log('File completion event emitted!');
   }
 }
 

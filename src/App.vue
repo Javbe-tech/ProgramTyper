@@ -496,10 +496,16 @@ function startNextFile() {
 
 // Handle file completion
 function handleFileCompleted(fileName, stats) {
+  console.log('=== FILE COMPLETION EVENT RECEIVED ===');
+  console.log('FileName:', fileName);
+  console.log('Stats:', stats);
+  console.log('Current completedFiles:', completedFiles.value);
+  
   // Track completed files for Run button
   completedFiles.value++;
   if (completedFiles.value % 2 === 0) {
     runButtonActive.value = true;
+    console.log('Run button activated!');
   }
   
   // Show file completion animation
@@ -511,6 +517,10 @@ function handleFileCompleted(fileName, stats) {
     lines: stats.completedLines
   };
   showFileCompletion.value = true;
+  
+  console.log('File completion animation should be showing:', showFileCompletion.value);
+  console.log('Completed file name:', completedFileName.value);
+  console.log('Completed file stats:', completedFileStats.value);
 }
 
 function openProUpgrade() {
