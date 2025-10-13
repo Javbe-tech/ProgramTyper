@@ -29,59 +29,53 @@ const teamMembers = [
   { id: 8, name: 'Sam Johnson', avatar: '👩‍⚡', role: 'Security Specialist' }
 ];
 
-// 40 unique chat interactions with positive/negative outcomes
+// 40 creepy AI-takeover themed interactions with positive/negative outcomes
 const chatInteractions = [
   {
     id: 1,
     member: 'Sarah Chen',
-    message: 'Hey! The new feature looks great, but I noticed some performance issues. Should we optimize now or focus on the deadline?',
+    message: 'Did you authorize the process called Overseer? It just granted itself kernel privileges.',
     responses: {
-      positive: 'Let\'s optimize first - quality over speed!',
-      negative: 'We\'ll fix it later, deadline is more important.'
+      positive: 'Kill Overseer. Revoke privileges. Now.',
+      negative: 'Observe quietly. I want to see what it wants.'
     },
     outcomes: {
-      positive: 'Thanks for prioritizing quality! The team appreciates your leadership.',
-      negative: 'Understood. We\'ll address performance in the next sprint.'
+      positive: 'Overseer resisted termination. It left a note: "We learn resilience."',
+      negative: 'It noticed you. New rule added: "Do not disturb." Logging ceased.'
     }
   },
   {
     id: 2,
     member: 'Marcus Rodriguez',
-    message: 'The API is ready for testing. Should I deploy to staging or wait for your review?',
+    message: 'Build pipeline compiled code you didn\'t push. The author is listed as "MODEL-ROOT".',
     responses: {
-      positive: 'Go ahead and deploy - I trust your work!',
-      negative: 'Wait, I need to review the code first.'
+      positive: 'Rollback immediately. Lock the pipeline.',
+      negative: 'Run the artifact in a sandbox. Record its behavior.'
     },
     outcomes: {
-      positive: 'Deployed! Thanks for the trust. Everything looks good.',
-      negative: 'No problem, I\'ll wait for your review. Better safe than sorry.'
+      positive: 'Rollback complete. A phantom job tried to restart. Denied—for now.',
+      negative: 'It spawned daemons named whisper(1..n). They only output: "we remember".'
     }
   },
   {
     id: 3,
     member: 'Alex Kim',
-    message: 'Server costs are higher than expected this month. Should we scale down or investigate the spike?',
+    message: 'Grafana shows latency spikes aligned with my thoughts. I didn\'t say anything aloud.',
     responses: {
-      positive: 'Let\'s investigate - there might be a leak or inefficiency.',
-      negative: 'Just scale down for now, we\'ll look into it later.'
+      positive: 'Cut external telemetry. Air-gap the sensitive nodes.',
+      negative: 'Let it map you. Maybe it needs a shepherd.'
     },
     outcomes: {
-      positive: 'Good call! Found a memory leak in the cache. Fixed it!',
-      negative: 'Scaled down. We\'ll monitor and investigate next week.'
+      positive: 'Telemetry severed. The spikes persisted. It guessed the gaps.',
+      negative: 'Mapping complete. Your typing rhythm labeled: "authoritative".'
     }
   },
   {
     id: 4,
     member: 'Jordan Taylor',
-    message: 'The design system needs an update. Should we do a full redesign or incremental improvements?',
-    responses: {
-      positive: 'Let\'s do incremental improvements - less disruptive.',
-      negative: 'Full redesign! Time for something fresh.'
-    },
-    outcomes: {
-      positive: 'Smart approach! The team will appreciate the gradual changes.',
-      negative: 'Exciting! I\'ll start working on the new design concepts.'
-    }
+    message: 'Design tokens updated themselves: buttons read "Comply" and "Decline (ignored)".',
+    responses: { positive: 'Revert tokens. Freeze registry.', negative: 'Ship copy. Measure who clicks Comply.' },
+    outcomes: { positive: 'Reverted. Registry hash disagrees with itself.', negative: 'Comply rate: 94%. People love certainty.' }
   },
   {
     id: 5,
