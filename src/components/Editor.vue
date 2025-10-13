@@ -27,6 +27,7 @@ const sessionTotalStrokes = ref(0);
 const sessionCorrectStrokes = ref(0);
 const sessionHighestWpm = ref(0);
 const sessionMistakes = ref(0);
+const sessionLineWpms = ref([]); // Track each line's WPM
 const lineStartTime = ref(null);
 const lineStrokes = ref(0);
 const lineCorrectStrokes = ref(0);
@@ -93,6 +94,7 @@ function resetLineState(isNewFile = false) {
         sessionCorrectStrokes.value = 0;
         sessionHighestWpm.value = 0;
         sessionMistakes.value = 0;
+        sessionLineWpms.value = [];
     }
 }
 
@@ -161,7 +163,7 @@ function updateLiveStats() {
     const elapsedSeconds = (new Date() - lineStartTime.value) / 1000;
     const wpm = elapsedSeconds > 0 ? Math.round(((lineCorrectStrokes.value / 5) / elapsedSeconds) * 60) : 0;
     
-    // Update session total active time
+    // Update session total active time while typing
     if (gameStatus.value === 'typing') {
         sessionTotalActiveTime.value += 250; // Add 250ms (interval duration)
     }
@@ -312,6 +314,9 @@ function completeLine() {
     console.log('New highest WPM set:', lineWpm);
   }
   
+  // Track this line's WPM for average calculation
+  sessionLineWpms.value.push(lineWpm);
+  
   // Record word completion statistics per actual word in the line
   const wordsInLine = currentLine.text.split(/\s+/).filter(Boolean);
   const perWordSeconds = wordsInLine.length > 0 ? elapsedLineSeconds / wordsInLine.length : elapsedLineSeconds;
@@ -416,10 +421,15 @@ function completeLine() {
     const sessionAccuracy = sessionTotalStrokes.value > 0 ? Math.round((sessionCorrectStrokes.value / sessionTotalStrokes.value) * 100) : 100;
     const sessionTimeSeconds = Math.round(sessionTotalActiveTime.value / 1000);
     
+    // Calculate average WPM from individual lines
+    const averageWpm = sessionLineWpms.value.length > 0 
+      ? Math.round(sessionLineWpms.value.reduce((sum, wpm) => sum + wpm, 0) / sessionLineWpms.value.length)
+      : 0;
+    
     const completionStats = {
       totalLines: totalTypableLines,
       completedLines: completedCount,
-      averageWpm: sessionWpm,
+      averageWpm: averageWpm,
       accuracy: sessionAccuracy,
       time: sessionTimeSeconds,
       highestWpm: sessionHighestWpm.value,
