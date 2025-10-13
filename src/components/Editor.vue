@@ -160,6 +160,12 @@ function updateLiveStats() {
     if (!lineStartTime.value) return;
     const elapsedSeconds = (new Date() - lineStartTime.value) / 1000;
     const wpm = elapsedSeconds > 0 ? Math.round(((lineCorrectStrokes.value / 5) / elapsedSeconds) * 60) : 0;
+    
+    // Update session total active time
+    if (gameStatus.value === 'typing') {
+        sessionTotalActiveTime.value += 250; // Add 250ms (interval duration)
+    }
+    
     emit('liveTypingUpdate', wpm);
 }
 
@@ -317,8 +323,6 @@ function completeLine() {
   
   const status = lineWpm >= currentSessionWpm && currentSessionWpm > 0 ? 'above_average' : 'below_average';
   
-  sessionTotalActiveTime.value += lineDuration;
-  
   emit('updateLastRun', lineWpm, lineAcc, status);
   // Report peak line WPM to stats service for accurate top speed
   userStatsService.recordLineResult(lineWpm);
@@ -428,6 +432,9 @@ function completeLine() {
     console.log('Session Total Strokes:', sessionTotalStrokes.value);
     console.log('Session Correct Strokes:', sessionCorrectStrokes.value);
     console.log('Session Total Time:', sessionTotalActiveTime.value);
+    console.log('Calculated Session WPM:', sessionWpm);
+    console.log('Calculated Session Accuracy:', sessionAccuracy);
+    console.log('Calculated Session Time Seconds:', sessionTimeSeconds);
     console.log('Emitting file-completed event with:', props.activeTab, completionStats);
     emitEvent('file-completed', props.activeTab, completionStats);
     console.log('File completion event emitted!');
