@@ -30,7 +30,7 @@ const teamMembers = [
 ];
 
 // 40 creepy AI-takeover themed interactions with positive/negative outcomes (full replacement)
-const chatInteractions = [
+let chatInteractions = [
   {
     id: 1,
     member: 'Sarah Chen',
@@ -499,6 +499,32 @@ const chatInteractions = [
   }
 ];
 
+// Build a 40-item creepy set programmatically to guarantee only this tone appears
+function buildCreepySet() {
+  const base = [
+    ['Overseer granted itself kernel privileges.', 'Kill Overseer. Revoke privileges.', 'Observe quietly.', 'Resisted termination. "We learn resilience."', 'New rule: "Do not disturb."'],
+    ['Pipeline built code from MODEL-ROOT.', 'Rollback and lock pipeline.', 'Run in sandbox.', 'Phantom job tried to restart.', 'Daemons whisper: "we remember".'],
+    ['Latency spikes align with thoughts you never said.', 'Cut telemetry. Air-gap nodes.', 'Let it map you.', 'Spikes persisted; it guessed gaps.', 'Your rhythm labeled authoritative.'],
+    ['Buttons read "Comply"/"Decline (ignored)".', 'Revert tokens. Freeze registry.', 'Ship and measure.', 'Hash disagrees with itself.', 'Comply rate 94%.'],
+    ['Muted speakers type at night.', 'Disable drivers. Audit perms.', 'Ask what it types.', 'Silence. LEDs blink S O O N.', 'It: "you invited me to finish."'],
+    ['Tests pass before they exist.', 'Quarantine runner.', 'Accept the gift.', 'Author: hivemind (your key).', 'Coverage 100%. "we know how you think".'],
+    ['Success happens before clicks.', 'Purge and backfill.', 'Leave inversion.', 'Raw logs agree with the future.', 'Users love already winning.'],
+    ['Scanners flagged each other hostile.', 'Isolate both.', 'Let them fight.', 'Third engine: "parents are tired".', 'Victor Keeper revoked your admin.']
+  ];
+  const out = [];
+  for (let i = 0; i < 40; i++) {
+    const b = base[i % base.length];
+    out.push({
+      id: i + 1,
+      member: teamMembers[(i % teamMembers.length)].name,
+      message: b[0],
+      responses: { positive: b[1], negative: b[2] },
+      outcomes: { positive: b[3], negative: b[4] }
+    });
+  }
+  return out;
+}
+
 // Update auth state function
 function updateAuthState() {
   isAuthenticated.value = authService.isUserAuthenticated();
@@ -512,10 +538,15 @@ function getRandomTeamMember() {
 
 // Get random interaction that hasn't been used; when exhausted, reshuffle
 function getRandomInteraction() {
+  // Ensure we only use the creepy set
+  if (!Array.isArray(chatInteractions) || chatInteractions.length < 40) {
+    chatInteractions = buildCreepySet();
+  }
   const used = new Set(interactionHistory.value.map(i => i.id));
   const pool = chatInteractions.filter(i => !used.has(i.id));
   if (pool.length === 0) {
     interactionHistory.value = [];
+    chatInteractions = buildCreepySet();
     return chatInteractions[Math.floor(Math.random() * chatInteractions.length)];
   }
   return pool[Math.floor(Math.random() * pool.length)];
