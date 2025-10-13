@@ -25,6 +25,8 @@ const currentCharacterIndex = ref(0);
 const sessionTotalActiveTime = ref(0);
 const sessionTotalStrokes = ref(0);
 const sessionCorrectStrokes = ref(0);
+const sessionHighestWpm = ref(0);
+const sessionMistakes = ref(0);
 const lineStartTime = ref(null);
 const lineStrokes = ref(0);
 const lineCorrectStrokes = ref(0);
@@ -255,6 +257,7 @@ function handleKeyDown(e) {
     currentCharacterIndex.value++;
   } else {
     currentLine.statuses[currentCharacterIndex.value] = 'incorrect';
+    sessionMistakes.value++;
   }
   if (currentCharacterIndex.value >= currentLine.text.length) {
     completeLine();
@@ -282,6 +285,11 @@ function completeLine() {
   const elapsedLineSeconds = lineDuration / 1000;
   const lineWpm = elapsedLineSeconds > 0 ? Math.round(((lineCorrectStrokes.value / 5) / elapsedLineSeconds) * 60) : 0;
   const lineAcc = lineStrokes.value > 0 ? Math.round((lineCorrectStrokes.value / lineStrokes.value) * 100) : 100;
+  
+  // Track highest line WPM for this session
+  if (lineWpm > sessionHighestWpm.value) {
+    sessionHighestWpm.value = lineWpm;
+  }
   
   // Record word completion statistics per actual word in the line
   const wordsInLine = currentLine.text.split(/\s+/).filter(Boolean);
@@ -394,7 +402,9 @@ function completeLine() {
       completedLines: completedCount,
       averageWpm: sessionWpm,
       accuracy: sessionAccuracy,
-      time: sessionTimeSeconds
+      time: sessionTimeSeconds,
+      highestWpm: sessionHighestWpm.value,
+      mistakes: sessionMistakes.value
     };
     
     console.log('Emitting file-completed event with:', props.activeTab, completionStats);

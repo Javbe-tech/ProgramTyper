@@ -257,8 +257,16 @@ onUnmounted(() => {
               <span class="stat-value">{{ stats.averageWpm || 0 }}</span>
             </div>
             <div class="stat-item">
+              <span class="stat-label">Top Speed</span>
+              <span class="stat-value">{{ stats.highestWpm || 0 }}</span>
+            </div>
+            <div class="stat-item">
               <span class="stat-label">Accuracy</span>
               <span class="stat-value">{{ stats.accuracy || 0 }}%</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Mistakes</span>
+              <span class="stat-value">{{ stats.mistakes || 0 }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Time</span>
@@ -376,8 +384,8 @@ onUnmounted(() => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   margin-bottom: 15px;
 }
 
