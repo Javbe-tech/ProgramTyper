@@ -782,6 +782,7 @@ onMounted(() => {
   height: 100vh;
   max-height: 100vh; /* prevent overflow */
   transition: all 0.3s ease;
+  overflow: hidden; /* prevent content from overflowing */
 }
 
 .team-chat.minimized {
@@ -897,7 +898,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  max-height: calc(100vh - 300px);
+  max-height: calc(100vh - 400px);
 }
 
 /* Custom scrollbar styling */
@@ -1002,6 +1003,9 @@ onMounted(() => {
   border-top: 1px solid var(--border-color);
   background: var(--bg-color);
   flex: 0 0 auto; /* pin controls */
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .response-prompt {
@@ -1073,6 +1077,9 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   flex: 0 0 auto; /* pin input */
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .message-input {
