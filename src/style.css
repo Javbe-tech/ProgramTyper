@@ -185,7 +185,7 @@ body[data-theme="cyberpunk"]::after, [data-theme="cyberpunk"] body::after {
   mix-blend-mode: overlay;
 }
 
-/* Neon grid glow background */
+/* Neon grid glow background - more visible */
 body[data-theme="cyberpunk"]::before, [data-theme="cyberpunk"] body::before {
   content: '';
   position: fixed;
@@ -193,11 +193,12 @@ body[data-theme="cyberpunk"]::before, [data-theme="cyberpunk"] body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60% 100% at 50% 110%, rgba(255,43,214,0.25), transparent 60%),
-    radial-gradient(60% 100% at 50% -10%, rgba(43,240,255,0.22), transparent 60%),
-    linear-gradient(135deg, rgba(255,43,214,0.15), rgba(43,240,255,0.12));
-  animation: cyberGlow 12s ease-in-out infinite alternate;
-  filter: blur(10px) saturate(1.1);
+    radial-gradient(80% 120% at 50% 120%, rgba(255,43,214,0.4), transparent 70%),
+    radial-gradient(80% 120% at 50% -20%, rgba(43,240,255,0.35), transparent 70%),
+    linear-gradient(135deg, rgba(255,43,214,0.25), rgba(43,240,255,0.2));
+  animation: cyberGlow 8s ease-in-out infinite alternate;
+  filter: blur(8px) saturate(1.3);
+  opacity: 0.8;
 }
 
 @keyframes cyberGlow {
@@ -205,11 +206,18 @@ body[data-theme="cyberpunk"]::before, [data-theme="cyberpunk"] body::before {
   100% { opacity: 0.65; transform: translateY(-8px); }
 }
 
-/* Panel edge glow */
+/* Panel edge glow - more visible */
 [data-theme="cyberpunk"] #top-bar,
 [data-theme="cyberpunk"] .team-chat,
-[data-theme="cyberpunk"] .settings-content {
-  box-shadow: 0 0 0 1px rgba(43,240,255,0.18), 0 0 18px rgba(255,43,214,0.15);
+[data-theme="cyberpunk"] .settings-content,
+[data-theme="cyberpunk"] #app-container {
+  box-shadow: 0 0 0 1px rgba(43,240,255,0.3), 0 0 20px rgba(255,43,214,0.25);
+}
+
+/* Add glow to sidebar and editor */
+[data-theme="cyberpunk"] #sidebar,
+[data-theme="cyberpunk"] #main-panel {
+  box-shadow: 0 0 0 1px rgba(255,43,214,0.2), 0 0 15px rgba(43,240,255,0.15);
 }
 
 /* Glitchy app title */
@@ -236,6 +244,22 @@ body[data-theme="cyberpunk"]::before, [data-theme="cyberpunk"] body::before {
 [data-theme="cyberpunk"] .message .message-content:hover {
   box-shadow: 0 0 12px rgba(43,240,255,0.25), 0 0 18px rgba(255,43,214,0.18);
   transform: translateZ(0); /* trigger GPU */
+}
+
+/* Pulsing neon effect on buttons */
+[data-theme="cyberpunk"] .send-button:not(:disabled),
+[data-theme="cyberpunk"] .upgrade-btn {
+  animation: neonPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+  0% { box-shadow: 0 0 12px rgba(255, 43, 214, 0.45), 0 0 24px rgba(43, 240, 255, 0.25); }
+  100% { box-shadow: 0 0 20px rgba(255, 43, 214, 0.7), 0 0 35px rgba(43, 240, 255, 0.4); }
+}
+
+/* Terminal glow effect */
+[data-theme="cyberpunk"] .terminal {
+  box-shadow: 0 0 0 1px rgba(43,240,255,0.3), 0 0 25px rgba(255,43,214,0.2);
 }
 
 /* Full-screen animated gradient backdrop for psychedelic theme */
