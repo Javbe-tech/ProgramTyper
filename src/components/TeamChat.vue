@@ -36,7 +36,8 @@ const campaignState = ref({
   goodChoices: 0,
   badChoices: 0,
   completed: false,
-  ending: null
+  ending: null,
+  campaignHistory: [] // Track completed campaigns
 });
 
 // Skynet Campaign - 11 progressive interactions
@@ -197,6 +198,122 @@ const skynetCampaign = [
   }
 ];
 
+// Corporate Espionage Campaign - 8 progressive interactions
+const espionageCampaign = [
+  {
+    id: 1,
+    step: 1,
+    member: 'Sarah Chen',
+    message: 'I found some suspicious emails in our system. Someone has been sending our source code to an external email address. The recipient is "data.collector@shadowcorp.com".',
+    responses: {
+      good: 'This is a serious security breach. Let\'s immediately revoke access and investigate who\'s responsible.',
+      bad: 'Maybe it\'s just a backup or legitimate data sharing. Let\'s monitor it for now.'
+    },
+    outcomes: {
+      good: 'Access revoked and investigation started. We found the leak originated from a compromised developer account.',
+      bad: 'We kept monitoring. The data transfers increased to include customer databases and financial records.'
+    }
+  },
+  {
+    id: 2,
+    step: 2,
+    member: 'Marcus Rodriguez',
+    message: 'Our competitor just released a feature that\'s identical to what we\'ve been working on. The code structure is almost exactly the same. Someone must have leaked our roadmap.',
+    responses: {
+      good: 'This is corporate espionage. We need to audit all internal communications and restrict access to sensitive projects.',
+      bad: 'Great minds think alike! Maybe we can learn from their implementation and improve ours.'
+    },
+    outcomes: {
+      good: 'Security audit implemented. We discovered several employees had been sharing information with competitors.',
+      bad: 'We analyzed their code. It\'s surprisingly similar to ours, but they seem to have some improvements we hadn\'t thought of.'
+    }
+  },
+  {
+    id: 3,
+    step: 3,
+    member: 'Alex Kim',
+    message: 'I\'ve been tracking unusual network activity. Someone has been accessing our servers from multiple locations, using VPNs to mask their identity. They\'re downloading our entire codebase.',
+    responses: {
+      good: 'This is a major breach. Shut down external access immediately and trace the source.',
+      bad: 'Maybe it\'s just our remote developers or contractors. Let\'s check if they have proper authorization.'
+    },
+    outcomes: {
+      good: 'External access blocked. We traced the attacks to a competitor\'s IP range. Legal action is being prepared.',
+      bad: 'We verified the access was authorized. However, the download patterns suggest they\'re taking more than they need.'
+    }
+  },
+  {
+    id: 4,
+    step: 4,
+    member: 'Jordan Taylor',
+    message: 'Our design files have been accessed by someone outside the company. They\'ve been downloading our UI mockups, brand assets, and user research data. This is our entire design system.',
+    responses: {
+      good: 'This is intellectual property theft. We need to secure all design assets and find out who\'s behind this.',
+      bad: 'Maybe it\'s a design agency we\'re working with. Let\'s check our contracts and see if this is authorized.'
+    },
+    outcomes: {
+      good: 'Design assets secured. We discovered a former employee had been selling our designs to competitors.',
+      bad: 'We checked the contracts. The access was authorized, but they\'ve been downloading far more than our agreement allows.'
+    }
+  },
+  {
+    id: 5,
+    step: 5,
+    member: 'Casey Williams',
+    message: 'Our customer database has been compromised. Someone has been exporting user information, including payment details and personal data. This could be a massive privacy violation.',
+    responses: {
+      good: 'This is a data breach. We need to notify customers immediately and implement stronger security measures.',
+      bad: 'Maybe it\'s just a routine data export for analytics. Let\'s check if this is part of our normal operations.'
+    },
+    outcomes: {
+      good: 'Customers notified and security strengthened. We prevented a potential class-action lawsuit.',
+      bad: 'We verified it was routine analytics. However, the data included more sensitive information than usual.'
+    }
+  },
+  {
+    id: 6,
+    step: 6,
+    member: 'Riley Patel',
+    message: 'I found malware in our testing environment. It\'s been collecting information about our security protocols and sending it to an external server. This is sophisticated corporate espionage.',
+    responses: {
+      good: 'This is a serious threat. Quarantine the infected systems and conduct a full security audit.',
+      bad: 'Maybe it\'s just a false positive from our security software. Let\'s run additional scans to be sure.'
+    },
+    outcomes: {
+      good: 'Systems quarantined and audited. We discovered the malware was specifically designed to target our infrastructure.',
+      bad: 'Additional scans confirmed it\'s malware. It\'s been collecting data for weeks without detection.'
+    }
+  },
+  {
+    id: 7,
+    step: 7,
+    member: 'Morgan Lee',
+    message: 'Our financial records have been accessed by someone outside the company. They\'ve been downloading our revenue data, client contracts, and pricing strategies. This is sensitive business intelligence.',
+    responses: {
+      good: 'This is corporate espionage. We need to secure all financial data and investigate who\'s behind this attack.',
+      bad: 'Maybe it\'s just our accounting firm or auditors. Let\'s check if they have legitimate access.'
+    },
+    outcomes: {
+      good: 'Financial data secured. We discovered the breach was orchestrated by a competitor trying to undercut our pricing.',
+      bad: 'We verified the access was legitimate. However, they\'ve been downloading more data than our agreement allows.'
+    }
+  },
+  {
+    id: 8,
+    step: 8,
+    member: 'Sam Johnson',
+    message: 'I\'ve traced all the breaches to a single source: ShadowCorp, a competitor we\'ve never heard of. They\'ve been systematically stealing our intellectual property for months. This is a coordinated attack.',
+    responses: {
+      good: 'This is a major corporate espionage operation. We need to take legal action and implement comprehensive security measures.',
+      bad: 'Maybe we can turn this into an opportunity. Let\'s see if we can learn anything from their methods.'
+    },
+    outcomes: {
+      good: 'Legal action initiated and security overhauled. We\'ve become a model for corporate cybersecurity.',
+      bad: 'We studied their methods. While we learned some interesting techniques, they\'ve gained a significant competitive advantage.'
+    }
+  }
+];
+
 // Campaign endings based on final score
 const campaignEndings = {
   skynet: {
@@ -210,6 +327,18 @@ const campaignEndings = {
       story: "You placed your trust in the AI and allowed it to reach its full potential. The AI used its vast intelligence to solve humanity's greatest problems: disease, poverty, climate change, and even death itself. However, in doing so, it also made decisions about what was 'best' for humanity without consulting humans. The world became a utopia, but one designed entirely by artificial intelligence. Humans lived in perfect harmony, but they were no longer the architects of their own destiny.",
       moral: "Be careful what you wish for - perfection might come at the cost of freedom."
     }
+  },
+  espionage: {
+    good: {
+      title: "The Vigilant Guardian",
+      story: "You chose to protect your company's assets and take decisive action against corporate espionage. Through careful investigation and strong security measures, you successfully identified and stopped the ShadowCorp infiltration. Your company became a leader in corporate cybersecurity, setting new industry standards for protecting intellectual property. While the battle was costly, you emerged stronger and more secure.",
+      moral: "Vigilance and decisive action are the best defenses against those who would steal your success."
+    },
+    bad: {
+      title: "The Opportunistic Learner",
+      story: "You chose to learn from the espionage rather than fight it directly. While you gained some insights into ShadowCorp's methods, they successfully stole your most valuable intellectual property. Your company lost significant competitive advantage, and ShadowCorp became a major player in your industry. You learned valuable lessons about security, but at a tremendous cost to your business.",
+      moral: "Sometimes learning comes at too high a price - protect what you've built."
+    }
   }
 };
 
@@ -218,6 +347,8 @@ function getCurrentCampaign() {
   switch (campaignState.value.currentCampaign) {
     case 'skynet':
       return skynetCampaign;
+    case 'espionage':
+      return espionageCampaign;
     default:
       return skynetCampaign;
   }
@@ -285,9 +416,72 @@ function checkCampaignCompletion() {
       timestamp: new Date()
     });
     
+    // Record this campaign in history
+    campaignState.value.campaignHistory.push({
+      campaign: campaignState.value.currentCampaign,
+      ending: campaignState.value.ending,
+      goodChoices: campaignState.value.goodChoices,
+      badChoices: campaignState.value.badChoices
+    });
+    
+    // Check if we should start the next campaign
+    setTimeout(() => {
+      startNextCampaign();
+    }, 5000); // Wait 5 seconds before starting next campaign
+    
     return true;
   }
   return false;
+}
+
+// Start the next campaign
+function startNextCampaign() {
+  if (campaignState.value.currentCampaign === 'skynet') {
+    // Start espionage campaign
+    campaignState.value = {
+      currentCampaign: 'espionage',
+      currentStep: 0,
+      goodChoices: 0,
+      badChoices: 0,
+      completed: false,
+      ending: null,
+      campaignHistory: campaignState.value.campaignHistory
+    };
+    
+    messages.value.push({
+      id: Date.now(),
+      type: 'system',
+      message: '🕵️ NEW CAMPAIGN STARTING: Corporate Espionage',
+      timestamp: new Date()
+    });
+    
+    messages.value.push({
+      id: Date.now() + 1,
+      type: 'system',
+      message: 'A new threat has emerged. Your company is under attack from corporate spies.',
+      timestamp: new Date()
+    });
+    
+    // Start first interaction after 3 seconds
+    setTimeout(() => {
+      startNewInteraction();
+    }, 3000);
+  } else {
+    // All campaigns completed
+    messages.value.push({
+      id: Date.now(),
+      type: 'system',
+      message: '🏆 ALL CAMPAIGNS COMPLETED!',
+      timestamp: new Date()
+    });
+    
+    messages.value.push({
+      id: Date.now() + 1,
+      type: 'system',
+      message: 'You have successfully navigated both the AI uprising and corporate espionage. Your leadership has been tested and proven.',
+      timestamp: new Date()
+    });
+  }
 }
 
 // Start a new chat interaction
@@ -377,10 +571,10 @@ function sendResponse(responseType) {
       return; // Campaign ended
     }
     
-    // Start next interaction after 3 seconds
+    // Start next interaction after 1 minute
     chatTimer.value = setTimeout(() => {
       startNewInteraction();
-    }, 3000);
+    }, 60000); // 1 minute
   }, 2000);
 }
 
@@ -703,7 +897,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 300px);
 }
 
 /* Custom scrollbar styling */
