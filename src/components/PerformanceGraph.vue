@@ -27,51 +27,16 @@ function drawGraph() {
   const borderColor = computedStyle.getPropertyValue('--border-color').trim() || '#2a2a2a';
   const textColor = computedStyle.getPropertyValue('--gray').trim() || '#808080';
   const lineColor = computedStyle.getPropertyValue('--completed-green').trim() || '#4d8d4d';
-  const accentColor = computedStyle.getPropertyValue('--keyword').trim() || '#8b5cf6';
+
+  // If no data yet, just clear the canvas and return
+  if (props.wpmHistory.length === 0) {
+    ctx.clearRect(0, 0, width, height);
+    return;
+  }
 
   // Draw themed background
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
-  
-  // If no data yet, show a nice placeholder
-  if (props.wpmHistory.length === 0) {
-    // Draw subtle grid pattern
-    ctx.strokeStyle = borderColor;
-    ctx.globalAlpha = 0.2;
-    ctx.lineWidth = 0.5;
-    
-    // Vertical lines
-    for (let x = padding; x < width; x += 30) {
-      ctx.beginPath();
-      ctx.moveTo(x, padding);
-      ctx.lineTo(x, height - padding);
-      ctx.stroke();
-    }
-    
-    // Horizontal lines
-    for (let y = padding; y < height - padding; y += 20) {
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-    
-    ctx.globalAlpha = 1;
-    
-    // Add placeholder text with better contrast
-    ctx.fillStyle = textColor;
-    ctx.font = 'bold 14px Consolas';
-    ctx.textAlign = 'center';
-    ctx.fillText('WPM Chart', width / 2, height / 2 - 20);
-    
-    ctx.font = '11px Consolas';
-    ctx.fillStyle = accentColor;
-    ctx.fillText('Start typing to see your progress!', width / 2, height / 2 + 10);
-    
-    // Reset text alignment
-    ctx.textAlign = 'left';
-    return;
-  }
   
   // --- Draw Axis Labels and Grid ---
   const maxWpm = Math.max(...props.wpmHistory, 100);
@@ -98,7 +63,7 @@ function drawGraph() {
     ctx.textAlign = 'center';
     ctx.fillText('First run completed!', width / 2, height / 2 - 10);
     ctx.font = '10px Consolas';
-    ctx.fillStyle = accentColor;
+    ctx.fillStyle = lineColor;
     ctx.fillText('Complete more runs to see the chart', width / 2, height / 2 + 10);
     ctx.textAlign = 'left';
     return;
