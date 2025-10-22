@@ -185,6 +185,59 @@ body[data-theme="cyberpunk"]::after, [data-theme="cyberpunk"] body::after {
   mix-blend-mode: overlay;
 }
 
+/* Neon grid glow background */
+body[data-theme="cyberpunk"]::before, [data-theme="cyberpunk"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 100% at 50% 110%, rgba(255,43,214,0.25), transparent 60%),
+    radial-gradient(60% 100% at 50% -10%, rgba(43,240,255,0.22), transparent 60%),
+    linear-gradient(135deg, rgba(255,43,214,0.15), rgba(43,240,255,0.12));
+  animation: cyberGlow 12s ease-in-out infinite alternate;
+  filter: blur(10px) saturate(1.1);
+}
+
+@keyframes cyberGlow {
+  0%   { opacity: 0.45; transform: translateY(0px); }
+  100% { opacity: 0.65; transform: translateY(-8px); }
+}
+
+/* Panel edge glow */
+[data-theme="cyberpunk"] #top-bar,
+[data-theme="cyberpunk"] .team-chat,
+[data-theme="cyberpunk"] .settings-content {
+  box-shadow: 0 0 0 1px rgba(43,240,255,0.18), 0 0 18px rgba(255,43,214,0.15);
+}
+
+/* Glitchy app title */
+[data-theme="cyberpunk"] .app-title {
+  text-shadow: 0 0 8px #ff2bd6, 0 0 14px #2bf0ff;
+  position: relative;
+  animation: glitchShift 3s infinite ease-in-out;
+}
+
+@keyframes glitchShift {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(0.5px, -0.5px); }
+  20% { transform: translate(-0.6px, 0.4px); }
+  30% { transform: translate(0.4px, 0.6px); }
+  40% { transform: translate(-0.4px, -0.4px); }
+  50% { transform: translate(0.3px, 0.3px); }
+  60% { transform: translate(-0.2px, 0.2px); }
+  70% { transform: translate(0.2px, -0.2px); }
+  80% { transform: translate(-0.1px, 0.1px); }
+  90% { transform: translate(0,0); }
+}
+
+/* Chromatic hover on chat bubbles */
+[data-theme="cyberpunk"] .message .message-content:hover {
+  box-shadow: 0 0 12px rgba(43,240,255,0.25), 0 0 18px rgba(255,43,214,0.18);
+  transform: translateZ(0); /* trigger GPU */
+}
+
 /* Full-screen animated gradient backdrop for psychedelic theme */
 body[data-theme="psychedelic"], [data-theme="psychedelic"] body { background: transparent; }
 body::before {
