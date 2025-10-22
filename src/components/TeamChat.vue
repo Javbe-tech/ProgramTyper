@@ -782,7 +782,6 @@ onMounted(() => {
   height: 100vh;
   max-height: 100vh; /* prevent overflow */
   transition: all 0.3s ease;
-  overflow: hidden; /* prevent content from overflowing */
 }
 
 .team-chat.minimized {
@@ -813,6 +812,14 @@ onMounted(() => {
   color: var(--font-color);
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+/* Chat content uses flex so only messages scroll, footer stays visible */
+.chat-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* allow messages panel to shrink */
 }
 
 .status-indicator {
@@ -891,14 +898,13 @@ onMounted(() => {
 }
 
 .chat-messages {
-  flex: 1 1 auto;
+  flex: 1 1 auto; /* take remaining space above footer */
   overflow-y: auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 0;
-  max-height: calc(100vh - 400px);
+  min-height: 0; /* critical for flex scrolling */
 }
 
 /* Custom scrollbar styling */
@@ -1002,10 +1008,7 @@ onMounted(() => {
   padding: 16px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-color);
-  flex: 0 0 auto; /* pin controls */
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  flex: 0 0 auto; /* footer does not scroll */
 }
 
 .response-prompt {
@@ -1076,10 +1079,7 @@ onMounted(() => {
   background: var(--bg-color);
   display: flex;
   gap: 8px;
-  flex: 0 0 auto; /* pin input */
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  flex: 0 0 auto; /* footer does not scroll */
 }
 
 .message-input {

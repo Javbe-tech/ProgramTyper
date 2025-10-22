@@ -129,6 +129,62 @@
   --completed-green: #22c55e;
 }
 
+/* THEME: Cyberpunk (neon magenta/cyan on deep purple with glow) */
+[data-theme="cyberpunk"] {
+  --bg-color: #0b0a12;           /* deep near-black purple */
+  --font-color: #e6e6ff;         /* soft white with blue tint */
+  --border-color: #2a1b4a;       /* muted purple border */
+  --sidebar-bg: #120f1e;         /* panel background */
+  --terminal-bg: #120f1e;
+  --menu-bar-bg: #1a1430;
+  --active-line-bg: #1f1840;     /* subtle highlight */
+  --keyword: #ff2bd6;            /* neon magenta */
+  --function: #2bf0ff;           /* neon cyan */
+  --string: #7cffd9;             /* mint */
+  --parameter: #b892ff;          /* lavender */
+  --number: #36e4ff;             /* sky cyan */
+  --operator: #f8f7ff;           /* bright */
+  --variable: #ffa24c;           /* warm accent */
+  --gray: #9aa0b4;               /* neutral */
+  --red: #ff3b5c;                /* alert red */
+  --completed-green: #38f27d;    /* neon green */
+}
+
+/* Cyberpunk glow accents */
+[data-theme="cyberpunk"] .send-button,
+[data-theme="cyberpunk"] .minimize-btn:hover,
+[data-theme="cyberpunk"] .upgrade-btn,
+[data-theme="cyberpunk"] .preview-btn {
+  box-shadow: 0 0 12px rgba(255, 43, 214, 0.45), 0 0 24px rgba(43, 240, 255, 0.25);
+}
+
+[data-theme="cyberpunk"] .message.user .message-content {
+  background: linear-gradient(135deg, #ff2bd6 0%, #2bf0ff 100%);
+  color: #0b0a12;
+}
+
+[data-theme="cyberpunk"] .message.system .message-content {
+  background: linear-gradient(135deg, #2bf0ff 0%, #7cffd9 100%);
+  color: #0b0a12;
+  border: 1px solid #2bf0ff;
+}
+
+/* Subtle scanline overlay for flavor */
+body[data-theme="cyberpunk"]::after, [data-theme="cyberpunk"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+
 /* Full-screen animated gradient backdrop for psychedelic theme */
 body[data-theme="psychedelic"], [data-theme="psychedelic"] body { background: transparent; }
 body::before {
