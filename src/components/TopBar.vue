@@ -108,6 +108,7 @@ onMounted(() => {
             <button @click="applyTheme('black-red')">Black & Red</button>
             <button @click="applyTheme('white')">White</button>
             <button @click="applyTheme('psychedelic')">Psychedelic</button>
+            <button @click="applyTheme('cyberpunk')">Cyberpunk</button>
           </div>
         </li>
         <li @click="handleRunButton" class="menu-run" :class="{ 'active': runButtonActive }">
