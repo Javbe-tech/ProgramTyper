@@ -292,15 +292,19 @@ function checkCampaignCompletion() {
 
 // Start a new chat interaction
 function startNewInteraction() {
+  console.log('startNewInteraction called, authenticated:', isAuthenticated.value, 'completed:', campaignState.value.completed);
   if (!isAuthenticated.value || campaignState.value.completed) return;
   
   const interaction = getNextCampaignInteraction();
+  console.log('Next interaction:', interaction);
   if (!interaction) {
+    console.log('No more interactions, checking completion...');
     checkCampaignCompletion();
     return;
   }
   
   const member = getTeamMemberByName(interaction.member);
+  console.log('Team member:', member);
   
   currentInteraction.value = {
     ...interaction,
@@ -320,6 +324,7 @@ function startNewInteraction() {
     timestamp: new Date()
   });
   
+  console.log('Message added, showing response options');
   // Show response options
   isTyping.value = true;
 }
@@ -381,6 +386,7 @@ function sendResponse(responseType) {
 
 // Start chat system
 function startChatSystem() {
+  console.log('Starting chat system, authenticated:', isAuthenticated.value);
   if (!isAuthenticated.value) return;
   
   // Reset campaign state for new session
@@ -393,8 +399,11 @@ function startChatSystem() {
     ending: null
   };
   
+  console.log('Campaign state reset, starting first interaction in 3 seconds...');
+  
   // Start first interaction after a short delay
   setTimeout(() => {
+    console.log('Starting first interaction...');
     startNewInteraction();
   }, 3000); // 3 seconds after login
 }
@@ -443,12 +452,15 @@ watch(messages, () => {
 }, { deep: true });
 
 onMounted(() => {
+  console.log('TeamChat mounted');
   updateAuthState();
+  console.log('Initial auth state:', isAuthenticated.value);
   
   // Check for auth changes periodically
   const authInterval = setInterval(() => {
     const newAuthState = authService.isUserAuthenticated();
     if (newAuthState !== isAuthenticated.value) {
+      console.log('Auth state changed from', isAuthenticated.value, 'to', newAuthState);
       updateAuthState();
       if (newAuthState) {
         startChatSystem();
@@ -458,10 +470,12 @@ onMounted(() => {
     }
   }, 1000);
   
-  // Start chat if already authenticated with creepy set enforced
+  // Start chat if already authenticated
   if (isAuthenticated.value) {
-    chatInteractions = buildCreepySet();
+    console.log('Already authenticated, starting chat system');
     startChatSystem();
+  } else {
+    console.log('Not authenticated, waiting for auth...');
   }
   
   // Cleanup
