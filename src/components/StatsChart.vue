@@ -22,6 +22,7 @@ const props = defineProps({
 
 const canvasRef = ref(null);
 let chartInstance = null;
+let updateTimeout = null;
 
 // Create chart
 function createChart() {
@@ -81,11 +82,15 @@ function createChart() {
   chartInstance = new Chart(ctx, config);
 }
 
-// Watch for data changes
+// Watch for data changes (with debouncing to prevent excessive updates)
 watch(() => props.data, () => {
   if (chartInstance) {
-    chartInstance.data = props.data;
-    chartInstance.update();
+    // Debounce updates to prevent excessive chart redraws
+    clearTimeout(updateTimeout);
+    updateTimeout = setTimeout(() => {
+      chartInstance.data = props.data;
+      chartInstance.update('none'); // Use 'none' animation to prevent visual jumping
+    }, 100);
   }
 }, { deep: true });
 
@@ -101,6 +106,9 @@ onMounted(() => {
 onUnmounted(() => {
   if (chartInstance) {
     chartInstance.destroy();
+  }
+  if (updateTimeout) {
+    clearTimeout(updateTimeout);
   }
 });
 </script>

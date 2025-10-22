@@ -491,9 +491,9 @@ class UserStatsService {
         total: stats.total,
         mistakes: stats.mistakes
       }))
-      .filter(item => item.total >= 5) // Only include characters typed at least 5 times
-      .sort((a, b) => b.mistakeRate - a.mistakeRate);
-      // Removed .slice(0, 10) to show all characters
+      .filter(item => item.total >= 5 && item.mistakeRate > 0) // Only show characters with actual mistakes
+      .sort((a, b) => b.mistakeRate - a.mistakeRate)
+      .slice(0, 15); // Limit to top 15 problematic characters
   }
 
   getWeakestWords() {
@@ -505,7 +505,7 @@ class UserStatsService {
         mistakes: stats.mistakes,
         averageTime: stats.averageTime || 0
       }))
-      .filter(item => item.total >= 3) // Only include words typed at least 3 times
+      .filter(item => item.total >= 3 && item.mistakeRate > 0) // Only show words with actual mistakes
       .sort((a, b) => b.mistakeRate - a.mistakeRate)
       .slice(0, 10);
   }
