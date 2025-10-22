@@ -39,7 +39,6 @@ const weakestChars = computed(() => stats.value.weakestCharacters || []);
 const weakestWords = computed(() => stats.value.weakestWords || []);
 const sessionHistory = computed(() => (stats.value.lifetime?.sessionHistory) || []);
 const lessonHistory = computed(() => (stats.value.lifetime?.lessonHistory) || []);
-const wordlistCount = ref(538); // Actual count from wordlist file
 
 // Chart data
 const wpmChartData = computed(() => ({
@@ -284,10 +283,6 @@ function toggleDashboard() {
               <div class="stat-card">
                 <div class="stat-value">{{ (lifetimeStats.lessonHistory?.length) || 0 }}</div>
                 <div class="stat-label">Total Lessons</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value">{{ wordlistCount }}</div>
-                <div class="stat-label">Words in Library</div>
               </div>
             </div>
           </div>
