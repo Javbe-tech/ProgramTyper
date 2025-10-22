@@ -20,7 +20,10 @@ function checkProAccess() {
 }
 
 function applyTheme(value, showUpgradePrompt = true) {
-  if (!checkProAccess()) {
+  // Always allow theme changes, but check Pro access for premium themes
+  const premiumThemes = ['matrix', 'psychedelic', 'cyberpunk'];
+  
+  if (premiumThemes.includes(value) && !checkProAccess()) {
     if (showUpgradePrompt) {
       emit('open-pro-upgrade');
     }
@@ -83,7 +86,18 @@ function getUserInitials() {
 }
 
 onMounted(() => {
-  applyTheme(theme.value, false); // Don't show upgrade prompt on initial load
+  // Apply saved theme immediately on load
+  const savedTheme = localStorage.getItem('pt_theme') || 'default';
+  theme.value = savedTheme;
+  
+  // Apply theme without upgrade prompt on initial load
+  const root = document.documentElement;
+  if (savedTheme === 'default') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', savedTheme);
+  }
+  
   updateAuthState();
   
   // Check for auth changes periodically
