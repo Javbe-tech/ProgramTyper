@@ -29,7 +29,7 @@ function drawGraph() {
   const lineColor = computedStyle.getPropertyValue('--completed-green').trim() || '#4d8d4d';
   const accentColor = computedStyle.getPropertyValue('--keyword').trim() || '#8b5cf6';
 
-  // Clear canvas
+  // Draw themed background
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
   
@@ -37,7 +37,7 @@ function drawGraph() {
   if (props.wpmHistory.length === 0) {
     // Draw subtle grid pattern
     ctx.strokeStyle = borderColor;
-    ctx.globalAlpha = 0.3;
+    ctx.globalAlpha = 0.2;
     ctx.lineWidth = 0.5;
     
     // Vertical lines
@@ -58,7 +58,7 @@ function drawGraph() {
     
     ctx.globalAlpha = 1;
     
-    // Add placeholder text
+    // Add placeholder text with better contrast
     ctx.fillStyle = textColor;
     ctx.font = 'bold 14px Consolas';
     ctx.textAlign = 'center';
