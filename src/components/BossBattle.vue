@@ -366,7 +366,7 @@ onUnmounted(() => {
     <div class="terminal-window" :class="{ 'defeat-mode': battleState.isDefeat }">
       <!-- Terminal header -->
       <div class="terminal-header">
-        <div class="terminal-title">SYSTEM TERMINAL</div>
+        <div class="terminal-title">MATRIX TERMINAL v2.0</div>
         <div class="terminal-status" :class="{ 'active': battleState.isActive, 'defeat': battleState.isDefeat }">
           {{ battleState.isDefeat ? 'SYSTEM FAILURE' : battleState.isActive ? 'ACTIVE' : 'STANDBY' }}
         </div>
