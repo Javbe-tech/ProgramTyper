@@ -305,7 +305,9 @@ const isTimeRunningOut = computed(() => {
 
 // Start battle when component shows
 watch(() => props.show, (newValue) => {
+  console.log('BossBattle show prop changed:', newValue);
   if (newValue) {
+    console.log('Starting Matrix Terminal Boss Battle!');
     startBossBattle();
   }
 });
