@@ -24,7 +24,7 @@ const battleState = reactive({
   backgroundIntensity: 0,
   isVictory: false,
   isDefeat: false,
-  matrixRain: [],
+  backgroundText: [],
   glitchEffects: []
 });
 
@@ -104,8 +104,7 @@ const bossDialogues = {
   }
 };
 
-// Matrix rain characters
-const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+// Background text will be generated dynamically
 
 // Get current boss data
 const currentBoss = computed(() => {
@@ -122,8 +121,8 @@ function startBossBattle() {
   battleState.isDefeat = false;
   battleState.lines = [...currentBoss.value.codeLines];
   
-  // Start matrix rain
-  startMatrixRain();
+  // Initialize background text
+  initializeBackgroundText();
   
   // Start first line after dialogue
   setTimeout(() => {
@@ -131,32 +130,16 @@ function startBossBattle() {
   }, 3000);
 }
 
-// Start matrix rain effect
-function startMatrixRain() {
-  const rainInterval = setInterval(() => {
-    if (!battleState.isActive) {
-      clearInterval(rainInterval);
-      return;
-    }
-    
-    // Add new rain drops
-    for (let i = 0; i < 3; i++) {
-      battleState.matrixRain.push({
-        id: Date.now() + Math.random(),
-        x: Math.random() * 100,
-        y: -10,
-        speed: 0.5 + Math.random() * 1,
-        chars: Array.from({ length: 15 }, () => matrixChars[Math.floor(Math.random() * matrixChars.length)]),
-        opacity: 0.1 + Math.random() * 0.3
-      });
-    }
-    
-    // Update existing rain drops
-    battleState.matrixRain = battleState.matrixRain.filter(drop => {
-      drop.y += drop.speed;
-      return drop.y < 110; // Remove when off screen
-    });
-  }, 100);
+// Initialize background text
+function initializeBackgroundText() {
+  const codeWords = ['function', 'variable', 'array', 'object', 'string', 'number', 'boolean', 'null', 'undefined', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export', 'async', 'await', 'promise', 'callback', 'event', 'listener', 'handler', 'method', 'property', 'prototype'];
+  
+  battleState.backgroundText = Array.from({ length: 50 }, () => {
+    const word1 = codeWords[Math.floor(Math.random() * codeWords.length)];
+    const word2 = codeWords[Math.floor(Math.random() * codeWords.length)];
+    const number = Math.floor(Math.random() * 1000);
+    return `${word1} ${word2} ${number}`;
+  });
 }
 
 // Start the next line of code
@@ -233,17 +216,30 @@ function startGlitchEffects() {
 function handleInput(event) {
   if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) return;
   
-  // Stop any event propagation to prevent conflicts
+  // Stop event propagation to prevent conflicts with main site
   event.stopPropagation();
-  event.preventDefault();
   
   const input = event.target.value;
   battleState.userInput = input;
+  
+  // Update background text based on typing
+  updateBackgroundText(input);
   
   // Check if line is completed (case insensitive and trim whitespace)
   if (input.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
     completeLine();
   }
+}
+
+// Update background text based on user input
+function updateBackgroundText(input) {
+  battleState.backgroundText = battleState.backgroundText.map(line => {
+    if (Math.random() < 0.3) { // 30% chance to change each line
+      const randomWords = ['function', 'variable', 'array', 'object', 'string', 'number', 'boolean', 'null', 'undefined', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export'];
+      return randomWords[Math.floor(Math.random() * randomWords.length)] + ' ' + Math.random().toString(36).substring(7);
+    }
+    return line;
+  });
 }
 
 // Complete current line
@@ -322,21 +318,20 @@ onUnmounted(() => {
 
 <template>
   <div v-if="show" class="boss-terminal-overlay">
-    <!-- Matrix rain background -->
-    <div class="matrix-rain">
+    <!-- Background text overlay -->
+    <div class="background-text-overlay">
       <div 
-        v-for="drop in battleState.matrixRain" 
-        :key="drop.id"
-        class="rain-drop"
+        v-for="(line, index) in battleState.backgroundText" 
+        :key="index"
+        class="background-text-line"
         :style="{
-          left: drop.x + '%',
-          top: drop.y + '%',
-          opacity: drop.opacity
+          left: Math.random() * 100 + '%',
+          top: Math.random() * 100 + '%',
+          opacity: 0.05 + Math.random() * 0.1,
+          transform: `rotate(${Math.random() * 10 - 5}deg)`
         }"
       >
-        <div v-for="(char, index) in drop.chars" :key="index" class="rain-char">
-          {{ char }}
-        </div>
+        {{ line }}
       </div>
     </div>
 
@@ -473,8 +468,8 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* Matrix rain effect */
-.matrix-rain {
+/* Background text overlay */
+.background-text-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -482,19 +477,16 @@ onUnmounted(() => {
   height: 100%;
   pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 
-.rain-drop {
+.background-text-line {
   position: absolute;
-  color: #00ff00;
-  font-size: 12px;
-  line-height: 1;
+  color: var(--gray);
+  font-size: 10px;
   font-family: 'Courier New', monospace;
-}
-
-.rain-char {
-  display: block;
-  opacity: 0.7;
+  white-space: nowrap;
+  user-select: none;
 }
 
 /* Glitch effects */
@@ -538,7 +530,7 @@ onUnmounted(() => {
 /* Terminal window */
 .terminal-window {
   background: rgba(0, 0, 0, 0.9);
-  border: 2px solid #00ff00;
+  border: 2px solid var(--keyword);
   border-radius: 8px;
   padding: 20px;
   max-width: 900px;
@@ -546,7 +538,7 @@ onUnmounted(() => {
   min-height: 600px;
   position: relative;
   z-index: 3;
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 20px var(--keyword);
   backdrop-filter: blur(10px);
 }
 
@@ -582,14 +574,14 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #00ff00;
+  border-bottom: 1px solid var(--keyword);
 }
 
 .terminal-title {
-  color: #00ff00;
+  color: var(--keyword);
   font-size: 14px;
   font-weight: bold;
-  text-shadow: 0 0 5px #00ff00;
+  text-shadow: 0 0 5px var(--keyword);
 }
 
 .terminal-status {
@@ -601,9 +593,9 @@ onUnmounted(() => {
 }
 
 .terminal-status.active {
-  color: #00ff00;
-  border-color: #00ff00;
-  text-shadow: 0 0 5px #00ff00;
+  color: var(--keyword);
+  border-color: var(--keyword);
+  text-shadow: 0 0 5px var(--keyword);
 }
 
 .terminal-status.defeat {
@@ -620,7 +612,7 @@ onUnmounted(() => {
 
 /* Terminal elements */
 .terminal-prompt {
-  color: #00ff00;
+  color: var(--keyword);
   font-size: 12px;
   margin-bottom: 5px;
 }
