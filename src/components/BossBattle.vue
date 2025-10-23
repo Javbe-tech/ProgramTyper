@@ -29,7 +29,9 @@ const battleState = reactive({
   terminateInput: '',
   terminateRequired: false,
   inputFocused: false,
-  terminateFocused: false
+  terminateFocused: false,
+  bootSequence: [],
+  bootStep: 0
 });
 
 // Boss dialogues based on campaign
@@ -141,10 +143,36 @@ function startBossBattle() {
   // Initialize background text
   initializeBackgroundText();
   
-  // Start first line after dialogue
-  setTimeout(() => {
-    startNextLine();
-  }, 3000);
+  // Start boot sequence
+  startBootSequence();
+}
+
+// Start cool boot sequence
+function startBootSequence() {
+  const bootMessages = [
+    'INITIALIZING TERMINAL...',
+    'LOADING SECURITY PROTOCOLS...',
+    'SCANNING FOR THREATS...',
+    'THREAT DETECTED: ' + currentBoss.value.name,
+    'ACTIVATING COUNTERMEASURES...',
+    'PREPARING BATTLE INTERFACE...',
+    'SYSTEM READY'
+  ];
+  
+  battleState.bootSequence = bootMessages;
+  battleState.bootStep = 0;
+  
+  const bootInterval = setInterval(() => {
+    if (battleState.bootStep < bootMessages.length) {
+      battleState.bootStep++;
+    } else {
+      clearInterval(bootInterval);
+      // Start first line after boot sequence
+      setTimeout(() => {
+        startNextLine();
+      }, 1000);
+    }
+  }, 800);
 }
 
 // Initialize background text
@@ -269,46 +297,51 @@ function focusTerminateInput() {
   battleState.inputFocused = false;
 }
 
-// Handle keyboard input like the existing typing game
+// Handle keyboard input - EXACT COPY from App.vue handleRunTyping
 function handleKeyDown(event) {
   console.log('Key pressed:', event.key);
   
   // Handle TERMINATE input during defeat
   if (battleState.isDefeat && battleState.terminateRequired && battleState.terminateFocused) {
-    if (event.key === 'Backspace') {
-      battleState.terminateInput = battleState.terminateInput.slice(0, -1);
+    if (event.key === 'Enter') {
+      if (battleState.terminateInput.trim().toUpperCase() === 'TERMINATE') {
+        console.log('TERMINATE confirmed!');
+        emit('defeat');
+        closeBattle();
+      } else {
+        console.log('Wrong TERMINATE input');
+        battleState.terminateInput = '';
+      }
+    } else if (event.key === 'Backspace') {
+      if (battleState.terminateInput.length > 0) {
+        battleState.terminateInput = battleState.terminateInput.slice(0, -1);
+      }
     } else if (event.key.length === 1) {
       battleState.terminateInput += event.key;
-    }
-    
-    console.log('TERMINATE input:', battleState.terminateInput);
-    
-    if (battleState.terminateInput.trim().toUpperCase() === 'TERMINATE') {
-      console.log('TERMINATE confirmed!');
-      emit('defeat');
-      closeBattle();
     }
     return;
   }
   
-  // Handle battle input
+  // Handle battle input - EXACT COPY from App.vue
   if (battleState.isTyping && battleState.inputFocused && !battleState.isDefeat && !battleState.isVictory) {
-    if (event.key === 'Backspace') {
-      battleState.userInput = battleState.userInput.slice(0, -1);
+    if (event.key === 'Enter') {
+      if (battleState.userInput.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
+        console.log('Line completed!');
+        completeLine();
+      } else {
+        console.log('Wrong input, try again');
+        battleState.userInput = '';
+      }
+    } else if (event.key === 'Backspace') {
+      if (battleState.userInput.length > 0) {
+        battleState.userInput = battleState.userInput.slice(0, -1);
+      }
     } else if (event.key.length === 1) {
       battleState.userInput += event.key;
     }
     
-    console.log('Battle input:', battleState.userInput);
-    
     // Update background text based on typing
     updateBackgroundText(battleState.userInput);
-    
-    // Check if line is completed (case insensitive and trim whitespace)
-    if (battleState.userInput.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
-      console.log('Line completed!');
-      completeLine();
-    }
   }
 }
 
@@ -454,8 +487,24 @@ onUnmounted(() => {
         </div>
       </div>
 
+      <!-- Boot sequence -->
+      <div v-if="battleState.bootStep < battleState.bootSequence.length" class="boot-sequence">
+        <div class="terminal-prompt">root@system:~$ system_boot</div>
+        <div class="boot-messages">
+          <div 
+            v-for="(message, index) in battleState.bootSequence.slice(0, battleState.bootStep + 1)" 
+            :key="index"
+            class="boot-message"
+            :class="{ 'current': index === battleState.bootStep }"
+          >
+            {{ message }}
+          </div>
+        </div>
+        <div class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
+      </div>
+
       <!-- Boss dialogue -->
-      <div v-if="!battleState.isActive" class="boss-terminal-dialogue">
+      <div v-else-if="!battleState.isActive" class="boss-terminal-dialogue">
         <div class="terminal-prompt">root@system:~$</div>
         <div class="boss-name">{{ currentBoss.name }}</div>
         <div class="boss-message">{{ currentBoss.dialogue }}</div>
@@ -754,6 +803,42 @@ onUnmounted(() => {
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+/* Boot sequence */
+.boot-sequence {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.boot-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.boot-message {
+  color: var(--keyword);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.boot-message.current {
+  opacity: 1;
+  color: var(--font-color);
+  text-shadow: 0 0 5px var(--keyword);
+  animation: bootPulse 0.5s ease-in-out;
+}
+
+@keyframes bootPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 /* Boss dialogue */
