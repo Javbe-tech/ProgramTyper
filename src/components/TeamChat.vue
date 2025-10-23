@@ -681,6 +681,11 @@ function handleKeyPress(event) {
   if (event.key.toLowerCase() === 'b' && event.ctrlKey) {
     event.preventDefault();
     console.log('Cheat key pressed - triggering boss battle');
+    // Ensure we have a valid campaign state for testing
+    if (!campaignState.value.currentCampaign) {
+      campaignState.value.currentCampaign = 'skynet';
+      campaignState.value.ending = 'bad';
+    }
     triggerBossBattle();
   }
 }
