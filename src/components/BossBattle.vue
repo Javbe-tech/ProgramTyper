@@ -275,15 +275,19 @@ function animateSelfCompletingCode() {
 
 // Get dynamic terminal name based on campaign
 function getTerminalName() {
-  if (!currentBoss.value) return "MATRIX TERMINAL v2.0";
-  
   const campaignNames = {
     skynet: "SKYNET TERMINAL v3.1",
-    espionage: "SHADOW TERMINAL v2.7",
+    espionage: "SHADOW TERMINAL v2.7", 
     infiltration: "INFILTRATION TERMINAL v1.9"
   };
   
-  return campaignNames[currentBoss.value.campaignType] || "MATRIX TERMINAL v2.0";
+  const terminalName = campaignNames[props.campaignType] || "MATRIX TERMINAL v2.0";
+  console.log('Terminal name calculation:', {
+    campaignType: props.campaignType,
+    terminalName: terminalName
+  });
+  
+  return terminalName;
 }
 
 // Start victory celebration
