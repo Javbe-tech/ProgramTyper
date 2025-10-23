@@ -632,7 +632,7 @@ function sendResponse(responseType) {
     // Start next interaction after 1 minute
     chatTimer.value = setTimeout(() => {
       startNewInteraction();
-    }, 60000); // 1 minute
+    }, 1000); // 1 second (temporary for testing)
   }, 2000);
 }
 
