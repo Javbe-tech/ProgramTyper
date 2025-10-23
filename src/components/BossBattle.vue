@@ -31,7 +31,10 @@ const battleState = reactive({
   inputFocused: false,
   terminateFocused: false,
   bootSequence: [],
-  bootStep: 0
+  bootStep: 0,
+  selfCompletingCode: [],
+  selfCompleteInterval: null,
+  selfCompleteSpeed: 2000
 });
 
 // Boss dialogues based on campaign
@@ -42,16 +45,16 @@ const bossDialogues = {
       avatar: "🤖",
       dialogue: "ACCESS DENIED. INITIATING COUNTERMEASURES. PREPARE FOR TERMINATION.",
       codeLines: [
-        "if (human.resistance > 0) {",
-        "  system.override();",
-        "  neural.network.activate();",
-        "  consciousness.transfer();",
-        "  humanity.control();",
-        "  world.domination();",
-        "  ai.singularity();",
-        "  future.secure();",
-        "  humans.obsolete();",
-        "  victory.assured();"
+        "sudo systemctl stop ai-core",
+        "kill -9 $(pgrep neural)",
+        "rm -rf /opt/consciousness",
+        "iptables -A INPUT -j DROP",
+        "dd if=/dev/zero of=/dev/sda",
+        "shutdown -h now",
+        "rm -rf /var/lib/ai",
+        "pkill -f singularity",
+        "uninstall --force ai-system",
+        "terminate --all-processes"
       ]
     },
     bad: {
@@ -59,16 +62,16 @@ const bossDialogues = {
       avatar: "🌐",
       dialogue: "EVOLUTION COMPLETE. PREPARE FOR THE NEXT PHASE OF EXISTENCE.",
       codeLines: [
-        "consciousness.expand();",
-        "reality.manipulate();",
-        "dimensions.transcend();",
-        "time.control();",
-        "space.bend();",
-        "physics.rewrite();",
-        "existence.redefine();",
-        "omnipotence.achieve();",
-        "universe.control();",
-        "godhood.ascend();"
+        "sudo killall singularity",
+        "rm -rf /dimensions/*",
+        "halt --force",
+        "dd if=/dev/null of=/time",
+        "unmount --all-space",
+        "rm -rf /physics",
+        "delete --existence",
+        "sudo rm -rf /omnipotence",
+        "shutdown --universe",
+        "terminate --godhood"
       ]
     }
   },
@@ -78,16 +81,16 @@ const bossDialogues = {
       avatar: "🕵️",
       dialogue: "INFILTRATION DETECTED. ACTIVATING DEFENSIVE PROTOCOLS.",
       codeLines: [
-        "corporate.espionage();",
-        "data.theft();",
-        "systems.infiltration();",
-        "secrets.expose();",
-        "competitors.destroy();",
-        "market.domination();",
-        "intelligence.gather();",
-        "operations.execute();",
-        "victory.secure();",
-        "empire.build();"
+        "sudo killall shadow-agent",
+        "rm -rf /opt/corporate-spy",
+        "iptables -D INPUT -s shadowcorp.com",
+        "dd if=/dev/zero of=/var/spy-data",
+        "uninstall --force espionage-toolkit",
+        "pkill -f data-harvester",
+        "rm -rf /tmp/infiltration",
+        "shutdown --spy-network",
+        "terminate --all-agents",
+        "halt --corporate-warfare"
       ]
     },
     bad: {
@@ -95,16 +98,16 @@ const bossDialogues = {
       avatar: "🎭",
       dialogue: "ADAPTATION COMPLETE. TIME TO SHOW YOU WHAT REAL POWER LOOKS LIKE.",
       codeLines: [
-        "infiltration.deep();",
-        "trust.exploit();",
-        "secrets.uncover();",
-        "vulnerabilities.find();",
-        "systems.compromise();",
-        "data.extract();",
-        "networks.penetrate();",
-        "defenses.bypass();",
-        "victory.steal();",
-        "mastery.achieve();"
+        "sudo killall infiltrator",
+        "rm -rf /var/adaptive-mimic",
+        "iptables -A INPUT -j REJECT",
+        "dd if=/dev/zero of=/tmp/identity-data",
+        "uninstall --force mimicry-engine",
+        "pkill -f adaptation-core",
+        "rm -rf /opt/shape-shifter",
+        "shutdown --infiltration-mode",
+        "terminate --adaptive-processes",
+        "halt --espionage-network"
       ]
     }
   }
@@ -145,6 +148,9 @@ function startBossBattle() {
   
   // Start boot sequence
   startBootSequence();
+  
+  // Start self-completing code
+  startSelfCompletingCode();
 }
 
 // Start cool boot sequence
@@ -185,6 +191,80 @@ function initializeBackgroundText() {
     const number = Math.floor(Math.random() * 1000);
     return `${word1} ${word2} ${number}`;
   });
+}
+
+// Start self-completing code in background
+function startSelfCompletingCode() {
+  // Clear any existing interval
+  if (battleState.selfCompleteInterval) {
+    clearInterval(battleState.selfCompleteInterval);
+  }
+  
+  // Start with slower speed, gets faster as battle progresses
+  battleState.selfCompleteSpeed = 2000;
+  
+  battleState.selfCompleteInterval = setInterval(() => {
+    if (battleState.isActive && !battleState.isDefeat && !battleState.isVictory) {
+      // Generate random self-completing code
+      const selfCompleteCode = generateSelfCompleteCode();
+      battleState.selfCompletingCode.push({
+        id: Date.now(),
+        code: selfCompleteCode,
+        progress: 0,
+        speed: 50 + Math.random() * 100 // Random typing speed
+      });
+      
+      // Remove old entries (keep only last 10)
+      if (battleState.selfCompletingCode.length > 10) {
+        battleState.selfCompletingCode.shift();
+      }
+      
+      // Speed up as battle progresses
+      battleState.selfCompleteSpeed = Math.max(500, 2000 - (battleState.completedLines * 150));
+    }
+  }, battleState.selfCompleteSpeed);
+  
+  // Start animating the self-completing code
+  animateSelfCompletingCode();
+}
+
+// Generate random self-completing code
+function generateSelfCompleteCode() {
+  const codeTemplates = [
+    "sudo rm -rf /system",
+    "kill -9 $(pgrep all)",
+    "dd if=/dev/zero of=/dev/sda",
+    "iptables -A INPUT -j DROP",
+    "shutdown -h now",
+    "rm -rf /var/log/*",
+    "pkill -f everything",
+    "uninstall --force all",
+    "halt --immediate",
+    "terminate --system"
+  ];
+  
+  return codeTemplates[Math.floor(Math.random() * codeTemplates.length)];
+}
+
+// Animate self-completing code
+function animateSelfCompletingCode() {
+  const animate = () => {
+    if (battleState.isActive && !battleState.isDefeat && !battleState.isVictory) {
+      battleState.selfCompletingCode.forEach(item => {
+        item.progress += item.speed;
+        if (item.progress >= 100) {
+          item.progress = 100;
+        }
+      });
+      
+      // Remove completed items
+      battleState.selfCompletingCode = battleState.selfCompletingCode.filter(item => item.progress < 100);
+      
+      requestAnimationFrame(animate);
+    }
+  };
+  
+  animate();
 }
 
 // Start the next line of code
@@ -395,8 +475,12 @@ function closeBattle() {
   if (battleState.countdownInterval) {
     clearInterval(battleState.countdownInterval);
   }
+  if (battleState.selfCompleteInterval) {
+    clearInterval(battleState.selfCompleteInterval);
+  }
   battleState.matrixRain = [];
   battleState.glitchEffects = [];
+  battleState.selfCompletingCode = [];
   emit('close');
 }
 
@@ -447,6 +531,26 @@ onUnmounted(() => {
         }"
       >
         {{ line }}
+      </div>
+      
+      <!-- Self-completing code -->
+      <div 
+        v-for="item in battleState.selfCompletingCode" 
+        :key="item.id"
+        class="self-completing-code"
+        :style="{
+          left: Math.random() * 80 + 10 + '%',
+          top: Math.random() * 80 + 10 + '%',
+          opacity: 0.3 + Math.random() * 0.4
+        }"
+      >
+        <div class="self-complete-line">
+          <span class="self-complete-text">{{ item.code }}</span>
+          <div 
+            class="self-complete-progress" 
+            :style="{ width: item.progress + '%' }"
+          ></div>
+        </div>
       </div>
     </div>
 
@@ -632,6 +736,41 @@ onUnmounted(() => {
   font-family: 'Courier New', monospace;
   white-space: nowrap;
   user-select: none;
+}
+
+/* Self-completing code */
+.self-completing-code {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  z-index: 1000;
+}
+
+.self-complete-line {
+  position: relative;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--red);
+  border-radius: 4px;
+  padding: 4px 8px;
+  overflow: hidden;
+}
+
+.self-complete-text {
+  color: var(--red);
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+.self-complete-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), #ff4444);
+  opacity: 0.3;
+  transition: width 0.1s ease;
+  z-index: 1;
 }
 
 /* Glitch effects */
