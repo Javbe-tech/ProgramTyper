@@ -104,7 +104,20 @@ const bossDialogues = {
   }
 };
 
-// Background text will be generated dynamically
+// Generate random code for scrolling effects
+function generateRandomCode() {
+  const codeWords = ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export', 'async', 'await', 'promise', 'array', 'object', 'string', 'number', 'boolean'];
+  const operators = ['=', '+', '-', '*', '/', '&&', '||', '!', '==', '===', '!=', '!==', '<', '>', '<=', '>='];
+  const brackets = ['(', ')', '[', ']', '{', '}', '<', '>'];
+  
+  const word1 = codeWords[Math.floor(Math.random() * codeWords.length)];
+  const word2 = codeWords[Math.floor(Math.random() * codeWords.length)];
+  const operator = operators[Math.floor(Math.random() * operators.length)];
+  const bracket = brackets[Math.floor(Math.random() * brackets.length)];
+  const number = Math.floor(Math.random() * 1000);
+  
+  return `${word1} ${operator} ${word2}${bracket} ${number}`;
+}
 
 // Get current boss data
 const currentBoss = computed(() => {
@@ -178,18 +191,32 @@ function startNextLine() {
   // Store interval for cleanup
   battleState.countdownInterval = countdown;
   
-  // Auto-focus the input
+  // Auto-focus the input with debugging
   setTimeout(() => {
     const input = document.querySelector('.terminal-input');
+    console.log('Input element found:', input);
     if (input) {
+      console.log('Input disabled state:', input.disabled);
+      console.log('Input readonly state:', input.readOnly);
       input.focus();
       input.select();
+      console.log('Input focused and selected');
+      
+      // Test if we can type
+      input.addEventListener('keydown', (e) => {
+        console.log('Key pressed:', e.key);
+      });
+    } else {
+      console.error('Input element not found!');
     }
   }, 200);
 }
 
 // Start glitch effects on defeat
 function startGlitchEffects() {
+  // Start crazy code scrolling
+  startCrazyCodeScroll();
+  
   const glitchInterval = setInterval(() => {
     if (!battleState.isDefeat) {
       clearInterval(glitchInterval);
@@ -212,9 +239,51 @@ function startGlitchEffects() {
   }, 200);
 }
 
+// Start crazy fast code scrolling on defeat
+function startCrazyCodeScroll() {
+  const codeScrollInterval = setInterval(() => {
+    if (!battleState.isDefeat) {
+      clearInterval(codeScrollInterval);
+      return;
+    }
+    
+    // Add multiple fast-scrolling code lines
+    for (let i = 0; i < 5; i++) {
+      battleState.glitchEffects.push({
+        id: Date.now() + Math.random(),
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        type: 'code-scroll',
+        duration: 1000 + Math.random() * 2000,
+        speed: 2 + Math.random() * 3,
+        direction: Math.random() > 0.5 ? 'left' : 'right'
+      });
+    }
+    
+    // Remove old scrolling effects
+    battleState.glitchEffects = battleState.glitchEffects.filter(effect => {
+      if (effect.type === 'code-scroll') {
+        effect.duration -= 50; // Faster removal
+        return effect.duration > 0;
+      }
+      return true;
+    });
+  }, 100); // Very fast interval
+}
+
 // Handle user typing - prevent conflicts with main site
 function handleInput(event) {
-  if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) return;
+  console.log('Input event triggered:', event.type, 'Value:', event.target.value);
+  console.log('Battle state:', {
+    isTyping: battleState.isTyping,
+    isDefeat: battleState.isDefeat,
+    isVictory: battleState.isVictory
+  });
+  
+  if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) {
+    console.log('Input blocked due to battle state');
+    return;
+  }
   
   // Stop event propagation to prevent conflicts with main site
   event.stopPropagation();
@@ -222,11 +291,14 @@ function handleInput(event) {
   const input = event.target.value;
   battleState.userInput = input;
   
+  console.log('Input processed:', input);
+  
   // Update background text based on typing
   updateBackgroundText(input);
   
   // Check if line is completed (case insensitive and trim whitespace)
   if (input.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
+    console.log('Line completed!');
     completeLine();
   }
 }
@@ -355,6 +427,9 @@ onUnmounted(() => {
         </div>
         <div v-else-if="effect.type === 'success'" class="success-text">
           ACCESS GRANTED
+        </div>
+        <div v-else-if="effect.type === 'code-scroll'" class="code-scroll-text" :class="effect.direction">
+          {{ generateRandomCode() }}
         </div>
       </div>
     </div>
@@ -520,6 +595,40 @@ onUnmounted(() => {
 .success-text {
   color: #00ff00;
   text-shadow: 0 0 5px #00ff00;
+}
+
+.code-scroll-text {
+  color: var(--keyword);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 0 8px var(--keyword);
+  animation: crazyScroll 0.5s linear infinite;
+  white-space: nowrap;
+}
+
+.code-scroll-text.left {
+  animation: scrollLeft 0.3s linear infinite;
+}
+
+.code-scroll-text.right {
+  animation: scrollRight 0.3s linear infinite;
+}
+
+@keyframes crazyScroll {
+  0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  50% { transform: translateX(50px) rotate(180deg); opacity: 0.7; }
+  100% { transform: translateX(100px) rotate(360deg); opacity: 0.3; }
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(100px); opacity: 1; }
+  100% { transform: translateX(-100px); opacity: 0; }
+}
+
+@keyframes scrollRight {
+  0% { transform: translateX(-100px); opacity: 1; }
+  100% { transform: translateX(100px); opacity: 0; }
 }
 
 @keyframes glitchFlicker {
