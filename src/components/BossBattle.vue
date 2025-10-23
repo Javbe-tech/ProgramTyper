@@ -18,7 +18,7 @@ const battleState = reactive({
   currentLine: null,
   lines: [],
   timeRemaining: 0,
-  maxTime: 5000, // 5 seconds per line
+  maxTime: 15000, // 15 seconds per line - much slower
   isTyping: false,
   userInput: '',
   backgroundIntensity: 0,
@@ -144,23 +144,32 @@ function startNextLine() {
   battleState.userInput = '';
   battleState.isTyping = true;
   
-  // Start countdown
+  // Start countdown - slower updates
   const countdown = setInterval(() => {
-    battleState.timeRemaining -= 50;
+    battleState.timeRemaining -= 100; // Update every 100ms instead of 50ms
     
     if (battleState.timeRemaining <= 0) {
       clearInterval(countdown);
       // Time's up - battle lost
       battleState.isDefeat = true;
+      // Longer defeat sequence with glitch effects
       setTimeout(() => {
         emit('defeat');
         closeBattle();
-      }, 2000);
+      }, 5000); // 5 seconds of glitch effects
     }
-  }, 50);
+  }, 100);
   
   // Store interval for cleanup
   battleState.countdownInterval = countdown;
+  
+  // Auto-focus the input after a short delay
+  setTimeout(() => {
+    const input = document.querySelector('.code-input');
+    if (input) {
+      input.focus();
+    }
+  }, 100);
 }
 
 // Handle user typing
@@ -170,9 +179,22 @@ function handleInput(event) {
   const input = event.target.value;
   battleState.userInput = input;
   
-  // Check if line is completed
-  if (input === battleState.currentLine) {
+  // Check if line is completed (case insensitive and trim whitespace)
+  if (input.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
     completeLine();
+  }
+}
+
+// Handle keydown for better responsiveness
+function handleKeyDown(event) {
+  if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) return;
+  
+  // Auto-focus the input when typing starts
+  if (event.target !== document.querySelector('.code-input')) {
+    const input = document.querySelector('.code-input');
+    if (input) {
+      input.focus();
+    }
   }
 }
 
@@ -322,7 +344,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Main battle window -->
-    <div class="boss-battle-window" :class="{ 'intense': battleState.backgroundIntensity > 50 }">
+    <div class="boss-battle-window" :class="{ 'intense': battleState.backgroundIntensity > 50, 'defeat-mode': battleState.isDefeat }">
       <!-- Boss dialogue -->
       <div v-if="!battleState.isActive" class="boss-dialogue">
         <div class="boss-avatar">{{ currentBoss.avatar }}</div>
@@ -350,28 +372,23 @@ onUnmounted(() => {
         <div v-if="battleState.currentLine" class="code-section">
           <div class="code-label">Type this code:</div>
           <div class="code-line" :class="{ 'time-running-out': isTimeRunningOut }">
-            <span 
-              class="code-text"
-              :style="{ 
-                background: `linear-gradient(to right, #22c55e 0%, #22c55e ${timePercentage}%, #ef4444 ${timePercentage}%, #ef4444 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }"
-            >
-              {{ battleState.currentLine }}
-            </span>
+            <span class="code-text">{{ battleState.currentLine }}</span>
+            <div class="progress-overlay" :style="{ width: (100 - timePercentage) + '%' }"></div>
           </div>
           
           <!-- User input -->
           <div class="input-section">
             <input
+              ref="codeInput"
               v-model="battleState.userInput"
               @input="handleInput"
+              @keydown="handleKeyDown"
               class="code-input"
               :class="{ 'time-running-out': isTimeRunningOut }"
               placeholder="Type the code above..."
               autocomplete="off"
               spellcheck="false"
+              :disabled="!battleState.isTyping"
             />
           </div>
         </div>
@@ -510,15 +527,16 @@ onUnmounted(() => {
 
 .boss-battle-window {
   background: var(--bg-color);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 30px;
-  max-width: 600px;
-  width: 90%;
+  border: 3px solid var(--border-color);
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 800px;
+  width: 95%;
   text-align: center;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
   transition: all 0.3s ease;
+  min-height: 500px;
 }
 
 .boss-battle-window.intense {
@@ -527,9 +545,54 @@ onUnmounted(() => {
   animation: intenseGlow 2s ease-in-out infinite alternate;
 }
 
+.boss-battle-window.defeat-mode {
+  border-color: var(--red);
+  box-shadow: 0 0 50px var(--red), 0 25px 50px rgba(0, 0, 0, 0.7);
+  animation: systemCrash 0.5s infinite, glitchShake 0.1s infinite;
+  background: linear-gradient(45deg, 
+    var(--bg-color) 0%, 
+    rgba(239, 68, 68, 0.1) 25%, 
+    var(--bg-color) 50%, 
+    rgba(239, 68, 68, 0.1) 75%, 
+    var(--bg-color) 100%);
+  background-size: 20px 20px;
+}
+
 @keyframes intenseGlow {
   0% { box-shadow: 0 0 30px var(--keyword), 0 20px 40px rgba(0, 0, 0, 0.5); }
   100% { box-shadow: 0 0 50px var(--keyword), 0 20px 40px rgba(0, 0, 0, 0.5); }
+}
+
+@keyframes systemCrash {
+  0%, 100% { 
+    filter: hue-rotate(0deg) saturate(1);
+    transform: scale(1);
+  }
+  25% { 
+    filter: hue-rotate(90deg) saturate(2);
+    transform: scale(1.02);
+  }
+  50% { 
+    filter: hue-rotate(180deg) saturate(0.5);
+    transform: scale(0.98);
+  }
+  75% { 
+    filter: hue-rotate(270deg) saturate(3);
+    transform: scale(1.01);
+  }
+}
+
+@keyframes glitchShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2px, -1px); }
+  20% { transform: translate(2px, 1px); }
+  30% { transform: translate(-1px, 2px); }
+  40% { transform: translate(1px, -2px); }
+  50% { transform: translate(-2px, 1px); }
+  60% { transform: translate(2px, -1px); }
+  70% { transform: translate(-1px, -2px); }
+  80% { transform: translate(1px, 2px); }
+  90% { transform: translate(-2px, -1px); }
 }
 
 .boss-dialogue {
@@ -629,6 +692,36 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
+.code-line {
+  background: var(--sidebar-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 15px;
+  font-family: 'Consolas', monospace;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(34, 197, 94, 0.3) 50%, rgba(239, 68, 68, 0.8) 100%);
+  transition: width 0.1s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.code-text {
+  position: relative;
+  z-index: 2;
+  color: var(--font-color);
+  font-weight: 500;
+}
+
 .code-line.time-running-out {
   border-color: var(--red);
   animation: urgentPulse 0.5s ease-in-out infinite alternate;
@@ -637,11 +730,6 @@ onUnmounted(() => {
 @keyframes urgentPulse {
   0% { box-shadow: 0 0 0 var(--red); }
   100% { box-shadow: 0 0 20px var(--red); }
-}
-
-.code-text {
-  color: var(--font-color);
-  font-weight: 500;
 }
 
 .input-section {
