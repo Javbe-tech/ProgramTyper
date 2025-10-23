@@ -27,7 +27,9 @@ const battleState = reactive({
   backgroundText: [],
   glitchEffects: [],
   terminateInput: '',
-  terminateRequired: false
+  terminateRequired: false,
+  inputFocused: false,
+  terminateFocused: false
 });
 
 // Boss dialogues based on campaign
@@ -191,25 +193,8 @@ function startNextLine() {
   // Store interval for cleanup
   battleState.countdownInterval = countdown;
   
-  // Auto-focus the input with debugging
-  setTimeout(() => {
-    const input = document.querySelector('.terminal-input');
-    console.log('Input element found:', input);
-    if (input) {
-      console.log('Input disabled state:', input.disabled);
-      console.log('Input readonly state:', input.readOnly);
-      input.focus();
-      input.select();
-      console.log('Input focused and selected');
-      
-      // Test if we can type
-      input.addEventListener('keydown', (e) => {
-        console.log('Key pressed:', e.key);
-      });
-    } else {
-      console.error('Input element not found!');
-    }
-  }, 200);
+  // Add global keydown listener
+  document.addEventListener('keydown', handleKeyDown);
 }
 
 // Start glitch effects on defeat
@@ -271,27 +256,34 @@ function startCrazyCodeScroll() {
   }, 100); // Very fast interval
 }
 
-// Handle user typing - prevent conflicts with main site
-function handleInput(event) {
-  console.log('Input event triggered:', event.type, 'Value:', event.target.value);
-  console.log('Battle state:', {
-    isTyping: battleState.isTyping,
-    isDefeat: battleState.isDefeat,
-    isVictory: battleState.isVictory,
-    terminateRequired: battleState.terminateRequired
-  });
-  
-  // Stop event propagation to prevent conflicts with main site
-  event.stopPropagation();
-  
-  const input = event.target.value;
+// Focus functions for clickable inputs
+function focusInput() {
+  console.log('Focusing battle input');
+  battleState.inputFocused = true;
+  battleState.terminateFocused = false;
+}
+
+function focusTerminateInput() {
+  console.log('Focusing terminate input');
+  battleState.terminateFocused = true;
+  battleState.inputFocused = false;
+}
+
+// Handle keyboard input like the existing typing game
+function handleKeyDown(event) {
+  console.log('Key pressed:', event.key);
   
   // Handle TERMINATE input during defeat
-  if (battleState.isDefeat && battleState.terminateRequired) {
-    battleState.terminateInput = input;
-    console.log('TERMINATE input:', input);
+  if (battleState.isDefeat && battleState.terminateRequired && battleState.terminateFocused) {
+    if (event.key === 'Backspace') {
+      battleState.terminateInput = battleState.terminateInput.slice(0, -1);
+    } else if (event.key.length === 1) {
+      battleState.terminateInput += event.key;
+    }
     
-    if (input.trim().toUpperCase() === 'TERMINATE') {
+    console.log('TERMINATE input:', battleState.terminateInput);
+    
+    if (battleState.terminateInput.trim().toUpperCase() === 'TERMINATE') {
       console.log('TERMINATE confirmed!');
       emit('defeat');
       closeBattle();
@@ -299,22 +291,24 @@ function handleInput(event) {
     return;
   }
   
-  if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) {
-    console.log('Input blocked due to battle state');
-    return;
-  }
-  
-  battleState.userInput = input;
-  
-  console.log('Input processed:', input);
-  
-  // Update background text based on typing
-  updateBackgroundText(input);
-  
-  // Check if line is completed (case insensitive and trim whitespace)
-  if (input.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
-    console.log('Line completed!');
-    completeLine();
+  // Handle battle input
+  if (battleState.isTyping && battleState.inputFocused && !battleState.isDefeat && !battleState.isVictory) {
+    if (event.key === 'Backspace') {
+      battleState.userInput = battleState.userInput.slice(0, -1);
+    } else if (event.key.length === 1) {
+      battleState.userInput += event.key;
+    }
+    
+    console.log('Battle input:', battleState.userInput);
+    
+    // Update background text based on typing
+    updateBackgroundText(battleState.userInput);
+    
+    // Check if line is completed (case insensitive and trim whitespace)
+    if (battleState.userInput.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
+      console.log('Line completed!');
+      completeLine();
+    }
   }
 }
 
@@ -400,6 +394,7 @@ onUnmounted(() => {
   if (battleState.countdownInterval) {
     clearInterval(battleState.countdownInterval);
   }
+  document.removeEventListener('keydown', handleKeyDown);
 });
 </script>
 
@@ -486,20 +481,15 @@ onUnmounted(() => {
           </div>
           
           <!-- Terminal input -->
-          <div class="terminal-input-section">
+          <div class="terminal-input-section" @click="focusInput">
             <span class="terminal-prompt">root@system:~$</span>
-            <input
-              ref="terminalInput"
-              v-model="battleState.userInput"
-              @input="handleInput"
-              class="terminal-input"
-              :class="{ 'time-critical': isTimeRunningOut }"
-              placeholder=""
-              autocomplete="off"
-              spellcheck="false"
-              :disabled="!battleState.isTyping"
-            />
-            <span class="cursor-blink">_</span>
+            <div 
+              class="terminal-input-display"
+              :class="{ 'time-critical': isTimeRunningOut, 'focused': battleState.inputFocused }"
+              @click="focusInput"
+            >
+              {{ battleState.userInput }}<span class="cursor-blink">_</span>
+            </div>
           </div>
         </div>
 
@@ -535,18 +525,15 @@ onUnmounted(() => {
         <div v-if="battleState.terminateRequired" class="terminate-section">
           <div class="terminal-prompt">root@system:~$ emergency_protocol</div>
           <div class="terminate-prompt">TYPE "TERMINATE" TO EXIT SYSTEM</div>
-          <div class="terminate-input-section">
+          <div class="terminate-input-section" @click="focusTerminateInput">
             <span class="terminal-prompt">root@system:~$</span>
-            <input
-              ref="terminateInput"
-              v-model="battleState.terminateInput"
-              @input="handleInput"
-              class="terminate-input"
-              placeholder=""
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <span class="cursor-blink">_</span>
+            <div 
+              class="terminate-input-display"
+              :class="{ 'focused': battleState.terminateFocused }"
+              @click="focusTerminateInput"
+            >
+              {{ battleState.terminateInput }}<span class="cursor-blink">_</span>
+            </div>
           </div>
         </div>
         
@@ -878,26 +865,31 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
+  cursor: pointer;
 }
 
-.terminal-input {
+.terminal-input-display {
   flex: 1;
   background: transparent;
-  border: none;
-  color: #ffffff;
+  border: 2px solid var(--keyword);
+  border-radius: 4px;
+  color: var(--font-color);
   font-family: 'Courier New', monospace;
   font-size: 14px;
-  outline: none;
-  padding: 5px;
+  padding: 8px;
+  min-height: 20px;
+  transition: all 0.3s ease;
 }
 
-.terminal-input.time-critical {
-  color: #ff0000;
-  text-shadow: 0 0 5px #ff0000;
+.terminal-input-display.time-critical {
+  border-color: var(--red);
+  color: var(--red);
+  text-shadow: 0 0 5px var(--red);
 }
 
-.terminal-input:focus {
+.terminal-input-display.focused {
   background: rgba(0, 255, 0, 0.1);
+  box-shadow: 0 0 10px var(--keyword);
 }
 
 /* Stats */
@@ -978,9 +970,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 5px;
   margin-top: 15px;
+  cursor: pointer;
 }
 
-.terminate-input {
+.terminate-input-display {
   flex: 1;
   background: transparent;
   border: 2px solid var(--red);
@@ -988,12 +981,13 @@ onUnmounted(() => {
   color: var(--red);
   font-family: 'Courier New', monospace;
   font-size: 14px;
-  outline: none;
   padding: 8px;
+  min-height: 20px;
   text-shadow: 0 0 5px var(--red);
+  transition: all 0.3s ease;
 }
 
-.terminate-input:focus {
+.terminate-input-display.focused {
   background: rgba(255, 0, 0, 0.1);
   box-shadow: 0 0 10px var(--red);
 }
