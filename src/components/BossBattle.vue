@@ -34,7 +34,9 @@ const battleState = reactive({
   bootStep: 0,
   selfCompletingCode: [],
   selfCompleteInterval: null,
-  selfCompleteSpeed: 2000
+  selfCompleteSpeed: 2000,
+  victoryEffects: [],
+  victoryInterval: null
 });
 
 // Boss dialogues based on campaign
@@ -130,7 +132,16 @@ function generateRandomCode() {
 
 // Get current boss data
 const currentBoss = computed(() => {
-  return bossDialogues[props.campaignType]?.[props.campaignEnding] || bossDialogues.skynet.bad;
+  console.log('Current boss calculation:', {
+    campaignType: props.campaignType,
+    campaignEnding: props.campaignEnding,
+    availableTypes: Object.keys(bossDialogues)
+  });
+  
+  const boss = bossDialogues[props.campaignType]?.[props.campaignEnding] || bossDialogues.skynet.bad;
+  console.log('Selected boss:', boss);
+  
+  return boss;
 });
 
 // Start the boss battle
@@ -205,22 +216,26 @@ function startSelfCompletingCode() {
   
   battleState.selfCompleteInterval = setInterval(() => {
     if (battleState.isActive && !battleState.isDefeat && !battleState.isVictory) {
-      // Generate random self-completing code
-      const selfCompleteCode = generateSelfCompleteCode();
-      battleState.selfCompletingCode.push({
-        id: Date.now(),
-        code: selfCompleteCode,
-        progress: 0,
-        speed: 2 + Math.random() * 3 // Much faster animation (2-5 per frame)
-      });
+      // Generate more self-completing code as intensity increases
+      const spawnCount = Math.min(3, Math.floor(battleState.backgroundIntensity / 30) + 1);
+      
+      for (let i = 0; i < spawnCount; i++) {
+        const selfCompleteCode = generateSelfCompleteCode();
+        battleState.selfCompletingCode.push({
+          id: Date.now() + i,
+          code: selfCompleteCode,
+          progress: 0,
+          speed: 2 + Math.random() * 3 + (battleState.backgroundIntensity / 20) // Faster as intensity increases
+        });
+      }
       
       // Remove old entries (keep only last 15)
       if (battleState.selfCompletingCode.length > 15) {
         battleState.selfCompletingCode.shift();
       }
       
-      // Speed up as battle progresses
-      battleState.selfCompleteSpeed = Math.max(300, 1500 - (battleState.completedLines * 100));
+      // Speed up as battle progresses based on background intensity
+      battleState.selfCompleteSpeed = Math.max(200, 1500 - (battleState.backgroundIntensity * 10));
     }
   }, battleState.selfCompleteSpeed);
   
@@ -267,15 +282,97 @@ function animateSelfCompletingCode() {
   animate();
 }
 
+// Get dynamic terminal name based on campaign
+function getTerminalName() {
+  if (!currentBoss.value) return "MATRIX TERMINAL v2.0";
+  
+  const campaignNames = {
+    skynet: "SKYNET TERMINAL v3.1",
+    espionage: "SHADOW TERMINAL v2.7",
+    infiltration: "INFILTRATION TERMINAL v1.9"
+  };
+  
+  return campaignNames[currentBoss.value.campaignType] || "MATRIX TERMINAL v2.0";
+}
+
+// Start victory celebration
+function startVictoryCelebration() {
+  console.log('Starting victory celebration!');
+  
+  // Clear all negative effects
+  battleState.selfCompletingCode = [];
+  battleState.glitchEffects = [];
+  
+  // Add victory effects
+  battleState.victoryEffects = [];
+  
+  // Generate victory messages
+  const victoryMessages = [
+    "SYSTEM OVERRIDE SUCCESSFUL",
+    "THREAT NEUTRALIZED",
+    "MISSION COMPLETE",
+    "VICTORY ACHIEVED",
+    "BOSS DEFEATED",
+    "SYSTEM SECURED"
+  ];
+  
+  // Create victory celebration interval
+  battleState.victoryInterval = setInterval(() => {
+    if (battleState.isVictory) {
+      const message = victoryMessages[Math.floor(Math.random() * victoryMessages.length)];
+      battleState.victoryEffects.push({
+        id: Date.now(),
+        message: message,
+        x: Math.random() * 80 + 10,
+        y: Math.random() * 80 + 10,
+        opacity: 1,
+        scale: 1
+      });
+      
+      // Remove old effects
+      if (battleState.victoryEffects.length > 20) {
+        battleState.victoryEffects.shift();
+      }
+    }
+  }, 300);
+  
+  // Animate victory effects
+  animateVictoryEffects();
+}
+
+// Animate victory effects
+function animateVictoryEffects() {
+  const animate = () => {
+    if (battleState.isVictory) {
+      battleState.victoryEffects.forEach(effect => {
+        effect.opacity -= 0.02;
+        effect.scale += 0.01;
+        effect.y -= 1;
+      });
+      
+      // Remove faded effects
+      battleState.victoryEffects = battleState.victoryEffects.filter(effect => effect.opacity > 0);
+      
+      requestAnimationFrame(animate);
+    }
+  };
+  
+  animate();
+}
+
 // Start the next line of code
 function startNextLine() {
   if (battleState.currentPhase >= battleState.totalPhases) {
     // Battle won!
     battleState.isVictory = true;
+    
+    // Start victory celebration effects
+    startVictoryCelebration();
+    
     setTimeout(() => {
       emit('victory');
       closeBattle();
-    }, 2000);
+    }, 8000); // Much longer victory screen
     return;
   }
   
@@ -483,12 +580,17 @@ function closeBattle() {
     clearInterval(battleState.selfCompleteInterval);
     battleState.selfCompleteInterval = null;
   }
+  if (battleState.victoryInterval) {
+    clearInterval(battleState.victoryInterval);
+    battleState.victoryInterval = null;
+  }
   
   // Clear all animation arrays
   battleState.matrixRain = [];
   battleState.glitchEffects = [];
   battleState.selfCompletingCode = [];
   battleState.backgroundText = [];
+  battleState.victoryEffects = [];
   
   // Reset all battle state
   battleState.isVictory = false;
@@ -604,11 +706,28 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- Victory effects -->
+    <div class="victory-effects">
+      <div 
+        v-for="effect in battleState.victoryEffects" 
+        :key="effect.id"
+        class="victory-effect"
+        :style="{
+          left: effect.x + '%',
+          top: effect.y + '%',
+          opacity: effect.opacity,
+          transform: `scale(${effect.scale})`
+        }"
+      >
+        {{ effect.message }}
+      </div>
+    </div>
+
     <!-- Main terminal window -->
     <div class="terminal-window" :class="{ 'defeat-mode': battleState.isDefeat }">
       <!-- Terminal header -->
       <div class="terminal-header">
-        <div class="terminal-title">MATRIX TERMINAL v2.0</div>
+        <div class="terminal-title">{{ getTerminalName() }}</div>
         <div class="terminal-status" :class="{ 'active': battleState.isActive, 'defeat': battleState.isDefeat }">
           {{ battleState.isDefeat ? 'SYSTEM FAILURE' : battleState.isActive ? 'ACTIVE' : 'STANDBY' }}
         </div>
@@ -869,6 +988,33 @@ onUnmounted(() => {
 @keyframes glitchFlicker {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
+}
+
+/* Victory effects */
+.victory-effects {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.victory-effect {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--keyword);
+  text-shadow: 0 0 10px var(--keyword);
+  animation: victoryPulse 2s ease-in-out;
+}
+
+@keyframes victoryPulse {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.5); }
 }
 
 /* Terminal window */
