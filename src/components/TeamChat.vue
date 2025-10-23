@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue';
 import { authService } from '../services/authService.js';
+import BossBattle from './BossBattle.vue';
 
 const props = defineProps({
   showChat: { type: Boolean, default: true }
@@ -16,6 +17,13 @@ const chatTimer = ref(null);
 const currentInteraction = ref(null);
 const interactionHistory = ref([]);
 const isMinimized = ref(false);
+
+// Boss battle state
+const showBossBattle = ref(false);
+const bossBattleData = ref({
+  campaignType: 'skynet',
+  campaignEnding: 'bad'
+});
 
 // Team members with realistic names and avatars
 const teamMembers = [
@@ -424,14 +432,54 @@ function checkCampaignCompletion() {
       badChoices: campaignState.value.badChoices
     });
     
-    // Check if we should start the next campaign
+    // Trigger boss battle instead of starting next campaign
     setTimeout(() => {
-      startNextCampaign();
-    }, 5000); // Wait 5 seconds before starting next campaign
+      triggerBossBattle();
+    }, 5000); // Wait 5 seconds before starting boss battle
     
     return true;
   }
   return false;
+}
+
+// Trigger boss battle
+function triggerBossBattle() {
+  bossBattleData.value = {
+    campaignType: campaignState.value.currentCampaign,
+    campaignEnding: campaignState.value.ending
+  };
+  showBossBattle.value = true;
+}
+
+// Handle boss battle events
+function handleBossBattleClose() {
+  showBossBattle.value = false;
+  // After boss battle, start next campaign
+  setTimeout(() => {
+    startNextCampaign();
+  }, 2000);
+}
+
+function handleBossBattleVictory() {
+  console.log('Boss battle won!');
+  // Add victory message to chat
+  messages.value.push({
+    id: Date.now(),
+    type: 'system',
+    message: '🎉 BOSS DEFEATED! The threat has been neutralized and the system is secure.',
+    timestamp: new Date()
+  });
+}
+
+function handleBossBattleDefeat() {
+  console.log('Boss battle lost!');
+  // Add defeat message to chat
+  messages.value.push({
+    id: Date.now(),
+    type: 'system',
+    message: '💥 SYSTEM COMPROMISED! The threat has taken control of the system.',
+    timestamp: new Date()
+  });
 }
 
 // Start the next campaign
@@ -627,6 +675,16 @@ function toggleMinimize() {
   isMinimized.value = !isMinimized.value;
 }
 
+// Cheat key for testing boss battles
+function handleKeyPress(event) {
+  // Press 'B' key to trigger boss battle for testing
+  if (event.key.toLowerCase() === 'b' && event.ctrlKey) {
+    event.preventDefault();
+    console.log('Cheat key pressed - triggering boss battle');
+    triggerBossBattle();
+  }
+}
+
 // Computed properties
 const canSendResponse = computed(() => {
   return selectedResponse.value && currentInteraction.value && isTyping.value;
@@ -649,6 +707,9 @@ onMounted(() => {
   console.log('TeamChat mounted');
   updateAuthState();
   console.log('Initial auth state:', isAuthenticated.value);
+  
+  // Add cheat key listener
+  document.addEventListener('keydown', handleKeyPress);
   
   // Check for auth changes periodically
   const authInterval = setInterval(() => {
@@ -674,6 +735,7 @@ onMounted(() => {
   
   // Cleanup
   onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeyPress);
     clearInterval(authInterval);
     stopChatSystem();
   });
@@ -769,6 +831,16 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    
+    <!-- Boss Battle Component -->
+    <BossBattle 
+      :show="showBossBattle"
+      :campaign-type="bossBattleData.campaignType"
+      :campaign-ending="bossBattleData.campaignEnding"
+      @close="handleBossBattleClose"
+      @victory="handleBossBattleVictory"
+      @defeat="handleBossBattleDefeat"
+    />
   </aside>
 </template>
 
