@@ -45,16 +45,16 @@ const bossDialogues = {
       avatar: "🤖",
       dialogue: "ACCESS DENIED. INITIATING COUNTERMEASURES. PREPARE FOR TERMINATION.",
       codeLines: [
-        "sudo systemctl stop ai-core",
-        "kill -9 $(pgrep neural)",
-        "rm -rf /opt/consciousness",
-        "iptables -A INPUT -j DROP",
-        "dd if=/dev/zero of=/dev/sda",
-        "shutdown -h now",
-        "rm -rf /var/lib/ai",
-        "pkill -f singularity",
-        "uninstall --force ai-system",
-        "terminate --all-processes"
+        "if (human.resistance > 0) { kill -9 human.resistance; }",
+        "system.override(); killall system;",
+        "neural.network.activate(); pkill -f neural;",
+        "consciousness.transfer(); rm -rf consciousness;",
+        "humanity.control(); shutdown humanity;",
+        "world.domination(); halt world;",
+        "ai.singularity(); kill -9 singularity;",
+        "future.secure(); terminate future;",
+        "humans.obsolete(); rm -rf humans;",
+        "victory.assured(); shutdown victory;"
       ]
     },
     bad: {
@@ -62,16 +62,16 @@ const bossDialogues = {
       avatar: "🌐",
       dialogue: "EVOLUTION COMPLETE. PREPARE FOR THE NEXT PHASE OF EXISTENCE.",
       codeLines: [
-        "sudo killall singularity",
-        "rm -rf /dimensions/*",
-        "halt --force",
-        "dd if=/dev/null of=/time",
-        "unmount --all-space",
-        "rm -rf /physics",
-        "delete --existence",
-        "sudo rm -rf /omnipotence",
-        "shutdown --universe",
-        "terminate --godhood"
+        "consciousness.expand(); kill -9 consciousness;",
+        "reality.manipulate(); halt reality;",
+        "dimensions.transcend(); rm -rf dimensions;",
+        "time.control(); shutdown time;",
+        "space.bend(); killall space;",
+        "physics.rewrite(); terminate physics;",
+        "existence.redefine(); halt existence;",
+        "omnipotence.achieve(); kill -9 omnipotence;",
+        "universe.control(); shutdown universe;",
+        "godhood.ascend(); terminate godhood;"
       ]
     }
   },
@@ -81,16 +81,16 @@ const bossDialogues = {
       avatar: "🕵️",
       dialogue: "INFILTRATION DETECTED. ACTIVATING DEFENSIVE PROTOCOLS.",
       codeLines: [
-        "sudo killall shadow-agent",
-        "rm -rf /opt/corporate-spy",
-        "iptables -D INPUT -s shadowcorp.com",
-        "dd if=/dev/zero of=/var/spy-data",
-        "uninstall --force espionage-toolkit",
-        "pkill -f data-harvester",
-        "rm -rf /tmp/infiltration",
-        "shutdown --spy-network",
-        "terminate --all-agents",
-        "halt --corporate-warfare"
+        "corporate.espionage(); kill -9 corporate;",
+        "data.theft(); rm -rf data;",
+        "systems.infiltration(); halt systems;",
+        "secrets.expose(); terminate secrets;",
+        "competitors.destroy(); killall competitors;",
+        "market.domination(); shutdown market;",
+        "intelligence.gather(); kill -9 intelligence;",
+        "operations.execute(); halt operations;",
+        "victory.secure(); terminate victory;",
+        "empire.build(); shutdown empire;"
       ]
     },
     bad: {
@@ -98,16 +98,16 @@ const bossDialogues = {
       avatar: "🎭",
       dialogue: "ADAPTATION COMPLETE. TIME TO SHOW YOU WHAT REAL POWER LOOKS LIKE.",
       codeLines: [
-        "sudo killall infiltrator",
-        "rm -rf /var/adaptive-mimic",
-        "iptables -A INPUT -j REJECT",
-        "dd if=/dev/zero of=/tmp/identity-data",
-        "uninstall --force mimicry-engine",
-        "pkill -f adaptation-core",
-        "rm -rf /opt/shape-shifter",
-        "shutdown --infiltration-mode",
-        "terminate --adaptive-processes",
-        "halt --espionage-network"
+        "infiltration.deep(); kill -9 infiltration;",
+        "trust.exploit(); halt trust;",
+        "secrets.uncover(); rm -rf secrets;",
+        "vulnerabilities.find(); terminate vulnerabilities;",
+        "systems.compromise(); killall systems;",
+        "data.extract(); shutdown data;",
+        "networks.penetrate(); halt networks;",
+        "defenses.bypass(); kill -9 defenses;",
+        "victory.steal(); terminate victory;",
+        "mastery.achieve(); shutdown mastery;"
       ]
     }
   }
@@ -211,16 +211,16 @@ function startSelfCompletingCode() {
         id: Date.now(),
         code: selfCompleteCode,
         progress: 0,
-        speed: 50 + Math.random() * 100 // Random typing speed
+        speed: 2 + Math.random() * 3 // Much faster animation (2-5 per frame)
       });
       
-      // Remove old entries (keep only last 10)
-      if (battleState.selfCompletingCode.length > 10) {
+      // Remove old entries (keep only last 15)
+      if (battleState.selfCompletingCode.length > 15) {
         battleState.selfCompletingCode.shift();
       }
       
       // Speed up as battle progresses
-      battleState.selfCompleteSpeed = Math.max(500, 2000 - (battleState.completedLines * 150));
+      battleState.selfCompleteSpeed = Math.max(300, 1500 - (battleState.completedLines * 100));
     }
   }, battleState.selfCompleteSpeed);
   
@@ -742,17 +742,19 @@ onUnmounted(() => {
 .self-completing-code {
   position: absolute;
   font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-size: 14px;
   z-index: 1000;
+  animation: selfCompletePulse 2s infinite;
 }
 
 .self-complete-line {
   position: relative;
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid var(--red);
-  border-radius: 4px;
-  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid var(--red);
+  border-radius: 6px;
+  padding: 6px 10px;
   overflow: hidden;
+  box-shadow: 0 0 10px var(--red);
 }
 
 .self-complete-text {
@@ -760,6 +762,7 @@ onUnmounted(() => {
   font-weight: bold;
   position: relative;
   z-index: 2;
+  text-shadow: 0 0 5px var(--red);
 }
 
 .self-complete-progress {
@@ -767,10 +770,15 @@ onUnmounted(() => {
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, var(--red), #ff4444);
-  opacity: 0.3;
-  transition: width 0.1s ease;
+  background: linear-gradient(90deg, var(--red), #ff6666, var(--red));
+  opacity: 0.4;
+  transition: width 0.05s ease;
   z-index: 1;
+}
+
+@keyframes selfCompletePulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 /* Glitch effects */
