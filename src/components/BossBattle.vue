@@ -45,16 +45,16 @@ const bossDialogues = {
       avatar: "🤖",
       dialogue: "ACCESS DENIED. INITIATING COUNTERMEASURES. PREPARE FOR TERMINATION.",
       codeLines: [
-        "if (human.resistance > 0) { kill -9 human.resistance; }",
-        "system.override(); killall system;",
-        "neural.network.activate(); pkill -f neural;",
-        "consciousness.transfer(); rm -rf consciousness;",
-        "humanity.control(); shutdown humanity;",
-        "world.domination(); halt world;",
-        "ai.singularity(); kill -9 singularity;",
-        "future.secure(); terminate future;",
-        "humans.obsolete(); rm -rf humans;",
-        "victory.assured(); shutdown victory;"
+        "if (human.resistance > 0) { kill -9; }",
+        "system.override(); killall;",
+        "neural.network.activate(); pkill -f;",
+        "consciousness.transfer(); rm -rf;",
+        "humanity.control(); shutdown;",
+        "world.domination(); halt;",
+        "ai.singularity(); kill -9;",
+        "future.secure(); terminate;",
+        "humans.obsolete(); rm -rf;",
+        "victory.assured(); shutdown;"
       ]
     },
     bad: {
@@ -62,16 +62,16 @@ const bossDialogues = {
       avatar: "🌐",
       dialogue: "EVOLUTION COMPLETE. PREPARE FOR THE NEXT PHASE OF EXISTENCE.",
       codeLines: [
-        "consciousness.expand(); kill -9 consciousness;",
-        "reality.manipulate(); halt reality;",
-        "dimensions.transcend(); rm -rf dimensions;",
-        "time.control(); shutdown time;",
-        "space.bend(); killall space;",
-        "physics.rewrite(); terminate physics;",
-        "existence.redefine(); halt existence;",
-        "omnipotence.achieve(); kill -9 omnipotence;",
-        "universe.control(); shutdown universe;",
-        "godhood.ascend(); terminate godhood;"
+        "consciousness.expand(); kill -9;",
+        "reality.manipulate(); halt;",
+        "dimensions.transcend(); rm -rf;",
+        "time.control(); shutdown;",
+        "space.bend(); killall;",
+        "physics.rewrite(); terminate;",
+        "existence.redefine(); halt;",
+        "omnipotence.achieve(); kill -9;",
+        "universe.control(); shutdown;",
+        "godhood.ascend(); terminate;"
       ]
     }
   },
@@ -81,16 +81,16 @@ const bossDialogues = {
       avatar: "🕵️",
       dialogue: "INFILTRATION DETECTED. ACTIVATING DEFENSIVE PROTOCOLS.",
       codeLines: [
-        "corporate.espionage(); kill -9 corporate;",
-        "data.theft(); rm -rf data;",
-        "systems.infiltration(); halt systems;",
-        "secrets.expose(); terminate secrets;",
-        "competitors.destroy(); killall competitors;",
-        "market.domination(); shutdown market;",
-        "intelligence.gather(); kill -9 intelligence;",
-        "operations.execute(); halt operations;",
-        "victory.secure(); terminate victory;",
-        "empire.build(); shutdown empire;"
+        "corporate.espionage(); kill -9;",
+        "data.theft(); rm -rf;",
+        "systems.infiltration(); halt;",
+        "secrets.expose(); terminate;",
+        "competitors.destroy(); killall;",
+        "market.domination(); shutdown;",
+        "intelligence.gather(); kill -9;",
+        "operations.execute(); halt;",
+        "victory.secure(); terminate;",
+        "empire.build(); shutdown;"
       ]
     },
     bad: {
@@ -98,16 +98,16 @@ const bossDialogues = {
       avatar: "🎭",
       dialogue: "ADAPTATION COMPLETE. TIME TO SHOW YOU WHAT REAL POWER LOOKS LIKE.",
       codeLines: [
-        "infiltration.deep(); kill -9 infiltration;",
-        "trust.exploit(); halt trust;",
-        "secrets.uncover(); rm -rf secrets;",
-        "vulnerabilities.find(); terminate vulnerabilities;",
-        "systems.compromise(); killall systems;",
-        "data.extract(); shutdown data;",
-        "networks.penetrate(); halt networks;",
-        "defenses.bypass(); kill -9 defenses;",
-        "victory.steal(); terminate victory;",
-        "mastery.achieve(); shutdown mastery;"
+        "infiltration.deep(); kill -9;",
+        "trust.exploit(); halt;",
+        "secrets.uncover(); rm -rf;",
+        "vulnerabilities.find(); terminate;",
+        "systems.compromise(); killall;",
+        "data.extract(); shutdown;",
+        "networks.penetrate(); halt;",
+        "defenses.bypass(); kill -9;",
+        "victory.steal(); terminate;",
+        "mastery.achieve(); shutdown;"
       ]
     }
   }
