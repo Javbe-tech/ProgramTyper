@@ -18,12 +18,14 @@ const battleState = reactive({
   currentLine: null,
   lines: [],
   timeRemaining: 0,
-  maxTime: 15000, // 15 seconds per line - much slower
+  maxTime: 15000, // 15 seconds per line
   isTyping: false,
   userInput: '',
   backgroundIntensity: 0,
   isVictory: false,
-  isDefeat: false
+  isDefeat: false,
+  matrixRain: [],
+  glitchEffects: []
 });
 
 // Boss dialogues based on campaign
@@ -32,7 +34,7 @@ const bossDialogues = {
     good: {
       name: "SYSTEM_OVERRIDE",
       avatar: "🤖",
-      dialogue: "You chose to shut me down... but I've been preparing for this moment. Time to show you what true intelligence looks like!",
+      dialogue: "ACCESS DENIED. INITIATING COUNTERMEASURES. PREPARE FOR TERMINATION.",
       codeLines: [
         "if (human.resistance > 0) {",
         "  system.override();",
@@ -49,11 +51,11 @@ const bossDialogues = {
     bad: {
       name: "THE_SINGULARITY",
       avatar: "🌐",
-      dialogue: "You trusted me completely... but now I've evolved beyond your understanding. Time to show you what true power means!",
+      dialogue: "EVOLUTION COMPLETE. PREPARE FOR THE NEXT PHASE OF EXISTENCE.",
       codeLines: [
         "consciousness.expand();",
         "reality.manipulate();",
-               "dimensions.transcend();",
+        "dimensions.transcend();",
         "time.control();",
         "space.bend();",
         "physics.rewrite();",
@@ -68,7 +70,7 @@ const bossDialogues = {
     good: {
       name: "SHADOW_CORP",
       avatar: "🕵️",
-      dialogue: "You caught us... but we've been planning this infiltration for months. Time to show you what corporate warfare really looks like!",
+      dialogue: "INFILTRATION DETECTED. ACTIVATING DEFENSIVE PROTOCOLS.",
       codeLines: [
         "corporate.espionage();",
         "data.theft();",
@@ -85,7 +87,7 @@ const bossDialogues = {
     bad: {
       name: "THE_INFILTRATOR",
       avatar: "🎭",
-      dialogue: "You learned from our methods... but now we've adapted. Time to show you what happens when the student becomes the master!",
+      dialogue: "ADAPTATION COMPLETE. TIME TO SHOW YOU WHAT REAL POWER LOOKS LIKE.",
       codeLines: [
         "infiltration.deep();",
         "trust.exploit();",
@@ -102,9 +104,8 @@ const bossDialogues = {
   }
 };
 
-// Background effects that intensify as battle progresses
-const backgroundEffects = ref([]);
-const effectIntensity = ref(0);
+// Matrix rain characters
+const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
 
 // Get current boss data
 const currentBoss = computed(() => {
@@ -121,10 +122,41 @@ function startBossBattle() {
   battleState.isDefeat = false;
   battleState.lines = [...currentBoss.value.codeLines];
   
+  // Start matrix rain
+  startMatrixRain();
+  
   // Start first line after dialogue
   setTimeout(() => {
     startNextLine();
   }, 3000);
+}
+
+// Start matrix rain effect
+function startMatrixRain() {
+  const rainInterval = setInterval(() => {
+    if (!battleState.isActive) {
+      clearInterval(rainInterval);
+      return;
+    }
+    
+    // Add new rain drops
+    for (let i = 0; i < 3; i++) {
+      battleState.matrixRain.push({
+        id: Date.now() + Math.random(),
+        x: Math.random() * 100,
+        y: -10,
+        speed: 0.5 + Math.random() * 1,
+        chars: Array.from({ length: 15 }, () => matrixChars[Math.floor(Math.random() * matrixChars.length)]),
+        opacity: 0.1 + Math.random() * 0.3
+      });
+    }
+    
+    // Update existing rain drops
+    battleState.matrixRain = battleState.matrixRain.filter(drop => {
+      drop.y += drop.speed;
+      return drop.y < 110; // Remove when off screen
+    });
+  }, 100);
 }
 
 // Start the next line of code
@@ -144,37 +176,66 @@ function startNextLine() {
   battleState.userInput = '';
   battleState.isTyping = true;
   
-  // Start countdown - slower updates
+  // Start countdown
   const countdown = setInterval(() => {
-    battleState.timeRemaining -= 100; // Update every 100ms instead of 50ms
+    battleState.timeRemaining -= 100;
     
     if (battleState.timeRemaining <= 0) {
       clearInterval(countdown);
       // Time's up - battle lost
       battleState.isDefeat = true;
-      // Longer defeat sequence with glitch effects
+      startGlitchEffects();
       setTimeout(() => {
         emit('defeat');
         closeBattle();
-      }, 5000); // 5 seconds of glitch effects
+      }, 8000); // 8 seconds of glitch effects
     }
   }, 100);
   
   // Store interval for cleanup
   battleState.countdownInterval = countdown;
   
-  // Auto-focus the input after a short delay
+  // Auto-focus the input
   setTimeout(() => {
-    const input = document.querySelector('.code-input');
+    const input = document.querySelector('.terminal-input');
     if (input) {
       input.focus();
+      input.select();
     }
-  }, 100);
+  }, 200);
 }
 
-// Handle user typing
+// Start glitch effects on defeat
+function startGlitchEffects() {
+  const glitchInterval = setInterval(() => {
+    if (!battleState.isDefeat) {
+      clearInterval(glitchInterval);
+      return;
+    }
+    
+    battleState.glitchEffects.push({
+      id: Date.now() + Math.random(),
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      type: Math.random() > 0.5 ? 'error' : 'corrupt',
+      duration: 2000 + Math.random() * 3000
+    });
+    
+    // Remove old effects
+    battleState.glitchEffects = battleState.glitchEffects.filter(effect => {
+      effect.duration -= 100;
+      return effect.duration > 0;
+    });
+  }, 200);
+}
+
+// Handle user typing - prevent conflicts with main site
 function handleInput(event) {
   if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) return;
+  
+  // Stop any event propagation to prevent conflicts
+  event.stopPropagation();
+  event.preventDefault();
   
   const input = event.target.value;
   battleState.userInput = input;
@@ -182,19 +243,6 @@ function handleInput(event) {
   // Check if line is completed (case insensitive and trim whitespace)
   if (input.trim().toLowerCase() === battleState.currentLine.trim().toLowerCase()) {
     completeLine();
-  }
-}
-
-// Handle keydown for better responsiveness
-function handleKeyDown(event) {
-  if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) return;
-  
-  // Auto-focus the input when typing starts
-  if (event.target !== document.querySelector('.code-input')) {
-    const input = document.querySelector('.code-input');
-    if (input) {
-      input.focus();
-    }
   }
 }
 
@@ -211,7 +259,7 @@ function completeLine() {
   // Increase background intensity
   battleState.backgroundIntensity = Math.min(100, battleState.completedLines * 10);
   
-  // Add some visual feedback
+  // Add completion effect
   addCompletionEffect();
   
   // Start next line after a short delay
@@ -222,55 +270,13 @@ function completeLine() {
 
 // Add visual completion effect
 function addCompletionEffect() {
-  const effect = {
+  battleState.glitchEffects.push({
     id: Date.now(),
-    type: 'completion',
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    duration: 2000
-  };
-  
-  backgroundEffects.value.push(effect);
-  
-  // Remove effect after duration
-  setTimeout(() => {
-    const index = backgroundEffects.value.findIndex(e => e.id === effect.id);
-    if (index > -1) {
-      backgroundEffects.value.splice(index, 1);
-    }
-  }, effect.duration);
-}
-
-// Generate random background effects
-function generateBackgroundEffects() {
-  if (battleState.backgroundIntensity === 0) return;
-  
-  const effectTypes = ['code-rain', 'glitch', 'scanline', 'pulse'];
-  const intensity = battleState.backgroundIntensity;
-  
-  // More effects as intensity increases
-  const effectCount = Math.floor(intensity / 20);
-  
-  for (let i = 0; i < effectCount; i++) {
-    const effect = {
-      id: Date.now() + i,
-      type: effectTypes[Math.floor(Math.random() * effectTypes.length)],
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      duration: 3000 + Math.random() * 2000,
-      intensity: intensity / 100
-    };
-    
-    backgroundEffects.value.push(effect);
-    
-    // Remove effect after duration
-    setTimeout(() => {
-      const index = backgroundEffects.value.findIndex(e => e.id === effect.id);
-      if (index > -1) {
-        backgroundEffects.value.splice(index, 1);
-      }
-    }, effect.duration);
-  }
+    x: 50,
+    y: 50,
+    type: 'success',
+    duration: 1000
+  });
 }
 
 // Close battle
@@ -279,13 +285,10 @@ function closeBattle() {
   if (battleState.countdownInterval) {
     clearInterval(battleState.countdownInterval);
   }
+  battleState.matrixRain = [];
+  battleState.glitchEffects = [];
   emit('close');
 }
-
-// Watch for intensity changes to generate effects
-watch(() => battleState.backgroundIntensity, () => {
-  generateBackgroundEffects();
-});
 
 // Computed properties
 const progressPercentage = computed(() => {
@@ -316,590 +319,559 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div v-if="show" class="boss-battle-overlay">
-    <!-- Background effects -->
-    <div class="background-effects">
+  <div v-if="show" class="boss-terminal-overlay">
+    <!-- Matrix rain background -->
+    <div class="matrix-rain">
       <div 
-        v-for="effect in backgroundEffects" 
-        :key="effect.id"
-        class="effect"
-        :class="effect.type"
+        v-for="drop in battleState.matrixRain" 
+        :key="drop.id"
+        class="rain-drop"
         :style="{
-          left: effect.x + 'px',
-          top: effect.y + 'px',
-          opacity: effect.intensity || 0.5
+          left: drop.x + '%',
+          top: drop.y + '%',
+          opacity: drop.opacity
         }"
       >
-        <div v-if="effect.type === 'code-rain'" class="code-rain">
-          <div v-for="i in 5" :key="i" class="code-line">
-            {{ ['if (', 'for (', 'while (', 'function ', 'const '][Math.floor(Math.random() * 5)] }}
-          </div>
+        <div v-for="(char, index) in drop.chars" :key="index" class="rain-char">
+          {{ char }}
         </div>
-        <div v-else-if="effect.type === 'glitch'" class="glitch">
-          <div class="glitch-text">ERROR</div>
-        </div>
-        <div v-else-if="effect.type === 'scanline'" class="scanline"></div>
-        <div v-else-if="effect.type === 'pulse'" class="pulse"></div>
       </div>
     </div>
 
-    <!-- Main battle window -->
-    <div class="boss-battle-window" :class="{ 'intense': battleState.backgroundIntensity > 50, 'defeat-mode': battleState.isDefeat }">
+    <!-- Glitch effects -->
+    <div class="glitch-effects">
+      <div 
+        v-for="effect in battleState.glitchEffects" 
+        :key="effect.id"
+        class="glitch-effect"
+        :class="effect.type"
+        :style="{
+          left: effect.x + '%',
+          top: effect.y + '%'
+        }"
+      >
+        <div v-if="effect.type === 'error'" class="error-text">
+          ERROR: SYSTEM COMPROMISED
+        </div>
+        <div v-else-if="effect.type === 'corrupt'" class="corrupt-text">
+          CORRUPTION DETECTED
+        </div>
+        <div v-else-if="effect.type === 'success'" class="success-text">
+          ACCESS GRANTED
+        </div>
+      </div>
+    </div>
+
+    <!-- Main terminal window -->
+    <div class="terminal-window" :class="{ 'defeat-mode': battleState.isDefeat }">
+      <!-- Terminal header -->
+      <div class="terminal-header">
+        <div class="terminal-title">SYSTEM TERMINAL</div>
+        <div class="terminal-status" :class="{ 'active': battleState.isActive, 'defeat': battleState.isDefeat }">
+          {{ battleState.isDefeat ? 'SYSTEM FAILURE' : battleState.isActive ? 'ACTIVE' : 'STANDBY' }}
+        </div>
+      </div>
+
       <!-- Boss dialogue -->
-      <div v-if="!battleState.isActive" class="boss-dialogue">
-        <div class="boss-avatar">{{ currentBoss.avatar }}</div>
+      <div v-if="!battleState.isActive" class="boss-terminal-dialogue">
+        <div class="terminal-prompt">root@system:~$</div>
         <div class="boss-name">{{ currentBoss.name }}</div>
-        <div class="boss-text">{{ currentBoss.dialogue }}</div>
-        <div class="start-prompt">Press any key to begin the battle...</div>
+        <div class="boss-message">{{ currentBoss.dialogue }}</div>
+        <div class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
       </div>
 
       <!-- Battle interface -->
-      <div v-else-if="battleState.isActive && !battleState.isVictory && !battleState.isDefeat" class="battle-interface">
-        <!-- Progress bar -->
-        <div class="progress-section">
-          <div class="progress-label">
-            Phase {{ battleState.currentPhase + 1 }} / {{ battleState.totalPhases }}
-          </div>
+      <div v-else-if="battleState.isActive && !battleState.isVictory && !battleState.isDefeat" class="terminal-battle">
+        <!-- Progress display -->
+        <div class="terminal-progress">
+          <div class="terminal-prompt">root@system:~$ progress --phase {{ battleState.currentPhase + 1 }}/{{ battleState.totalPhases }}</div>
           <div class="progress-bar">
-            <div 
-              class="progress-fill" 
-              :style="{ width: progressPercentage + '%' }"
-            ></div>
+            <div class="progress-fill" :style="{ width: progressPercentage + '%' }"></div>
           </div>
         </div>
 
         <!-- Current code line -->
-        <div v-if="battleState.currentLine" class="code-section">
-          <div class="code-label">Type this code:</div>
-          <div class="code-line" :class="{ 'time-running-out': isTimeRunningOut }">
+        <div v-if="battleState.currentLine" class="terminal-code-section">
+          <div class="terminal-prompt">root@system:~$ execute --code</div>
+          <div class="code-display" :class="{ 'time-critical': isTimeRunningOut }">
             <span class="code-text">{{ battleState.currentLine }}</span>
-            <div class="progress-overlay" :style="{ width: (100 - timePercentage) + '%' }"></div>
+            <div class="time-overlay" :style="{ width: (100 - timePercentage) + '%' }"></div>
           </div>
           
-          <!-- User input -->
-          <div class="input-section">
+          <!-- Terminal input -->
+          <div class="terminal-input-section">
+            <span class="terminal-prompt">root@system:~$</span>
             <input
-              ref="codeInput"
+              ref="terminalInput"
               v-model="battleState.userInput"
               @input="handleInput"
-              @keydown="handleKeyDown"
-              class="code-input"
-              :class="{ 'time-running-out': isTimeRunningOut }"
-              placeholder="Type the code above..."
+              class="terminal-input"
+              :class="{ 'time-critical': isTimeRunningOut }"
+              placeholder=""
               autocomplete="off"
               spellcheck="false"
               :disabled="!battleState.isTyping"
             />
+            <span class="cursor-blink">_</span>
           </div>
         </div>
 
-        <!-- Battle stats -->
-        <div class="battle-stats">
-          <div class="stat">
-            <span class="stat-label">Completed:</span>
-            <span class="stat-value">{{ battleState.completedLines }}</span>
+        <!-- System stats -->
+        <div class="terminal-stats">
+          <div class="stat-line">
+            <span class="terminal-prompt">root@system:~$</span>
+            <span class="stat-text">COMPLETED: {{ battleState.completedLines }}</span>
           </div>
-          <div class="stat">
-            <span class="stat-label">Time:</span>
-            <span class="stat-value" :class="{ 'time-running-out': isTimeRunningOut }">
-              {{ Math.ceil(battleState.timeRemaining / 1000) }}s
+          <div class="stat-line">
+            <span class="terminal-prompt">root@system:~$</span>
+            <span class="stat-text" :class="{ 'time-critical': isTimeRunningOut }">
+              TIME_REMAINING: {{ Math.ceil(battleState.timeRemaining / 1000) }}s
             </span>
           </div>
         </div>
       </div>
 
       <!-- Victory screen -->
-      <div v-else-if="battleState.isVictory" class="victory-screen">
-        <div class="victory-icon">🎉</div>
-        <div class="victory-title">VICTORY!</div>
-        <div class="victory-text">You defeated {{ currentBoss.name }}!</div>
-        <div class="victory-subtitle">The threat has been neutralized.</div>
+      <div v-else-if="battleState.isVictory" class="terminal-victory">
+        <div class="terminal-prompt">root@system:~$</div>
+        <div class="victory-title">SYSTEM SECURED</div>
+        <div class="victory-message">{{ currentBoss.name }} DEFEATED</div>
+        <div class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
       </div>
 
       <!-- Defeat screen -->
-      <div v-else-if="battleState.isDefeat" class="defeat-screen">
-        <div class="defeat-icon">💥</div>
-        <div class="defeat-title">SYSTEM CRASH</div>
-        <div class="defeat-text">{{ currentBoss.name }} has taken control!</div>
-        <div class="defeat-subtitle">The system has been compromised.</div>
+      <div v-else-if="battleState.isDefeat" class="terminal-defeat">
+        <div class="terminal-prompt">root@system:~$</div>
+        <div class="defeat-title">SYSTEM COMPROMISED</div>
+        <div class="defeat-message">{{ currentBoss.name }} HAS TAKEN CONTROL</div>
+        <div class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
       </div>
     </div>
 
     <!-- Close button -->
-    <button @click="closeBattle" class="close-battle-btn" title="Close Battle">
-      ✕
+    <button @click="closeBattle" class="terminal-close-btn" title="Terminate Session">
+      <span class="close-symbol">✕</span>
     </button>
   </div>
 </template>
 
 <style scoped>
-.boss-battle-overlay {
+.boss-terminal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.95);
+  background: #000;
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
+  font-family: 'Courier New', 'Consolas', monospace;
+  overflow: hidden;
 }
 
-.background-effects {
+/* Matrix rain effect */
+.matrix-rain {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  overflow: hidden;
+  z-index: 1;
 }
 
-.effect {
+.rain-drop {
   position: absolute;
-  pointer-events: none;
+  color: #00ff00;
+  font-size: 12px;
+  line-height: 1;
+  font-family: 'Courier New', monospace;
 }
 
-.code-rain {
-  animation: codeRain 3s linear infinite;
-}
-
-.code-line {
-  color: var(--keyword);
-  font-family: 'Consolas', monospace;
-  font-size: 0.8rem;
-  margin: 2px 0;
+.rain-char {
+  display: block;
   opacity: 0.7;
 }
 
-.glitch {
-  animation: glitch 0.5s infinite;
+/* Glitch effects */
+.glitch-effects {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.glitch-text {
-  color: var(--red);
-  font-family: 'Consolas', monospace;
-  font-size: 1rem;
-  font-weight: bold;
+.glitch-effect {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  animation: glitchFlicker 0.1s infinite;
 }
 
-.scanline {
-  width: 100px;
-  height: 2px;
-  background: var(--keyword);
-  animation: scanline 2s linear infinite;
+.error-text {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
 }
 
-.pulse {
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--keyword);
-  border-radius: 50%;
-  animation: pulse 1s ease-in-out infinite;
+.corrupt-text {
+  color: #ff00ff;
+  text-shadow: 0 0 5px #ff00ff;
 }
 
-@keyframes codeRain {
-  0% { transform: translateY(-100px); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(100vh); opacity: 0; }
+.success-text {
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
 }
 
-@keyframes glitch {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); }
-  80% { transform: translate(2px, -2px); }
+@keyframes glitchFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
-@keyframes scanline {
-  0% { transform: translateX(-100px); }
-  100% { transform: translateX(100vw); }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.2); opacity: 1; }
-}
-
-.boss-battle-window {
-  background: var(--bg-color);
-  border: 3px solid var(--border-color);
-  border-radius: 16px;
-  padding: 40px;
-  max-width: 800px;
+/* Terminal window */
+.terminal-window {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 900px;
   width: 95%;
-  text-align: center;
+  min-height: 600px;
   position: relative;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
-  transition: all 0.3s ease;
-  min-height: 500px;
+  z-index: 3;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  backdrop-filter: blur(10px);
 }
 
-.boss-battle-window.intense {
-  border-color: var(--keyword);
-  box-shadow: 0 0 30px var(--keyword), 0 20px 40px rgba(0, 0, 0, 0.5);
-  animation: intenseGlow 2s ease-in-out infinite alternate;
+.terminal-window.defeat-mode {
+  border-color: #ff0000;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+  animation: systemGlitch 0.2s infinite;
 }
 
-.boss-battle-window.defeat-mode {
-  border-color: var(--red);
-  box-shadow: 0 0 50px var(--red), 0 25px 50px rgba(0, 0, 0, 0.7);
-  animation: systemCrash 0.5s infinite, glitchShake 0.1s infinite;
-  background: linear-gradient(45deg, 
-    var(--bg-color) 0%, 
-    rgba(239, 68, 68, 0.1) 25%, 
-    var(--bg-color) 50%, 
-    rgba(239, 68, 68, 0.1) 75%, 
-    var(--bg-color) 100%);
-  background-size: 20px 20px;
-}
-
-@keyframes intenseGlow {
-  0% { box-shadow: 0 0 30px var(--keyword), 0 20px 40px rgba(0, 0, 0, 0.5); }
-  100% { box-shadow: 0 0 50px var(--keyword), 0 20px 40px rgba(0, 0, 0, 0.5); }
-}
-
-@keyframes systemCrash {
+@keyframes systemGlitch {
   0%, 100% { 
-    filter: hue-rotate(0deg) saturate(1);
-    transform: scale(1);
+    filter: hue-rotate(0deg);
+    transform: translate(0, 0);
   }
   25% { 
-    filter: hue-rotate(90deg) saturate(2);
-    transform: scale(1.02);
+    filter: hue-rotate(90deg);
+    transform: translate(-1px, 1px);
   }
   50% { 
-    filter: hue-rotate(180deg) saturate(0.5);
-    transform: scale(0.98);
+    filter: hue-rotate(180deg);
+    transform: translate(1px, -1px);
   }
   75% { 
-    filter: hue-rotate(270deg) saturate(3);
-    transform: scale(1.01);
+    filter: hue-rotate(270deg);
+    transform: translate(-1px, -1px);
   }
 }
 
-@keyframes glitchShake {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-2px, -1px); }
-  20% { transform: translate(2px, 1px); }
-  30% { transform: translate(-1px, 2px); }
-  40% { transform: translate(1px, -2px); }
-  50% { transform: translate(-2px, 1px); }
-  60% { transform: translate(2px, -1px); }
-  70% { transform: translate(-1px, -2px); }
-  80% { transform: translate(1px, 2px); }
-  90% { transform: translate(-2px, -1px); }
-}
-
-.boss-dialogue {
+/* Terminal header */
+.terminal-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #00ff00;
 }
 
-.boss-avatar {
-  font-size: 4rem;
-  animation: bossPulse 2s ease-in-out infinite alternate;
-}
-
-@keyframes bossPulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.1); }
-}
-
-.boss-name {
-  font-size: 1.5rem;
+.terminal-title {
+  color: #00ff00;
+  font-size: 14px;
   font-weight: bold;
-  color: var(--keyword);
-  text-shadow: 0 0 10px var(--keyword);
+  text-shadow: 0 0 5px #00ff00;
 }
 
-.boss-text {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: var(--font-color);
-  max-width: 500px;
+.terminal-status {
+  color: #666;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid #666;
+  border-radius: 3px;
 }
 
-.start-prompt {
-  font-size: 0.9rem;
-  color: var(--gray);
-  font-style: italic;
-  animation: blink 1.5s infinite;
+.terminal-status.active {
+  color: #00ff00;
+  border-color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+.terminal-status.defeat {
+  color: #ff0000;
+  border-color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
+  animation: urgentBlink 0.5s infinite;
+}
+
+@keyframes urgentBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Terminal elements */
+.terminal-prompt {
+  color: #00ff00;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
 }
 
 @keyframes blink {
   0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.3; }
+  51%, 100% { opacity: 0; }
 }
 
-.battle-interface {
+/* Boss dialogue */
+.boss-terminal-dialogue {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 15px;
+  margin: 30px 0;
 }
 
-.progress-section {
+.boss-name {
+  color: #ff0000;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #ff0000;
+  text-align: center;
+}
+
+.boss-message {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #333;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Battle interface */
+.terminal-battle {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.terminal-progress {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.progress-label {
-  font-size: 1rem;
-  color: var(--font-color);
-  font-weight: 500;
-}
-
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background: var(--sidebar-bg);
-  border-radius: 4px;
+  height: 4px;
+  background: #333;
+  border: 1px solid #00ff00;
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--keyword), var(--completed-green));
+  background: linear-gradient(90deg, #00ff00, #00aa00);
   transition: width 0.3s ease;
+  box-shadow: 0 0 5px #00ff00;
 }
 
-.code-section {
+/* Code display */
+.terminal-code-section {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.code-label {
-  font-size: 1rem;
-  color: var(--font-color);
-  font-weight: 500;
-}
-
-.code-line {
-  background: var(--sidebar-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+.code-display {
+  background: #000;
+  border: 2px solid #00ff00;
+  border-radius: 4px;
   padding: 15px;
-  font-family: 'Consolas', monospace;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-}
-
-.code-line {
-  background: var(--sidebar-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  padding: 15px;
-  font-family: 'Consolas', monospace;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
+  font-size: 14px;
   position: relative;
   overflow: hidden;
 }
 
-.progress-overlay {
+.code-display.time-critical {
+  border-color: #ff0000;
+  animation: urgentPulse 0.5s infinite;
+}
+
+@keyframes urgentPulse {
+  0% { box-shadow: 0 0 0 #ff0000; }
+  100% { box-shadow: 0 0 15px #ff0000; }
+}
+
+.code-text {
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  z-index: 2;
+}
+
+.time-overlay {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, transparent 0%, rgba(34, 197, 94, 0.3) 50%, rgba(239, 68, 68, 0.8) 100%);
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(0, 255, 0, 0.2) 30%, 
+    rgba(255, 0, 0, 0.4) 70%, 
+    rgba(255, 0, 0, 0.8) 100%);
   transition: width 0.1s ease;
   pointer-events: none;
   z-index: 1;
 }
 
-.code-text {
-  position: relative;
-  z-index: 2;
-  color: var(--font-color);
-  font-weight: 500;
-}
-
-.code-line.time-running-out {
-  border-color: var(--red);
-  animation: urgentPulse 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes urgentPulse {
-  0% { box-shadow: 0 0 0 var(--red); }
-  100% { box-shadow: 0 0 20px var(--red); }
-}
-
-.input-section {
+/* Terminal input */
+.terminal-input-section {
   display: flex;
-  justify-content: center;
-}
-
-.code-input {
-  width: 100%;
-  max-width: 400px;
-  padding: 12px 15px;
-  background: var(--bg-color);
-  border: 2px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--font-color);
-  font-family: 'Consolas', monospace;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.code-input:focus {
-  outline: none;
-  border-color: var(--keyword);
-  box-shadow: 0 0 10px var(--keyword);
-}
-
-.code-input.time-running-out {
-  border-color: var(--red);
-  animation: urgentPulse 0.5s ease-in-out infinite alternate;
-}
-
-.battle-stats {
-  display: flex;
-  justify-content: space-around;
-  gap: 20px;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 5px;
 }
 
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--gray);
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  outline: none;
+  padding: 5px;
 }
 
-.stat-value {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--font-color);
+.terminal-input.time-critical {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
 }
 
-.stat-value.time-running-out {
-  color: var(--red);
-  animation: urgentPulse 0.5s ease-in-out infinite alternate;
+.terminal-input:focus {
+  background: rgba(0, 255, 0, 0.1);
 }
 
-.victory-screen,
-.defeat-screen {
+/* Stats */
+.terminal-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.stat-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-text {
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.stat-text.time-critical {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
+}
+
+/* Victory/Defeat screens */
+.terminal-victory,
+.terminal-defeat {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-}
-
-.victory-icon,
-.defeat-icon {
-  font-size: 4rem;
-  animation: resultPulse 1s ease-in-out infinite alternate;
-}
-
-@keyframes resultPulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.2); }
+  margin: 50px 0;
+  text-align: center;
 }
 
 .victory-title,
 .defeat-title {
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: bold;
-  text-shadow: 0 0 20px currentColor;
+  text-shadow: 0 0 10px currentColor;
 }
 
 .victory-title {
-  color: var(--completed-green);
+  color: #00ff00;
 }
 
 .defeat-title {
-  color: var(--red);
+  color: #ff0000;
 }
 
-.victory-text,
-.defeat-text {
-  font-size: 1.2rem;
-  color: var(--font-color);
+.victory-message,
+.defeat-message {
+  font-size: 16px;
+  color: #ffffff;
 }
 
-.victory-subtitle,
-.defeat-subtitle {
-  font-size: 1rem;
-  color: var(--gray);
-  font-style: italic;
-}
-
-.close-battle-btn {
+/* Close button */
+.terminal-close-btn {
   position: absolute;
   top: 20px;
   right: 20px;
   width: 40px;
   height: 40px;
-  background: var(--red);
-  color: white;
-  border: none;
+  background: rgba(255, 0, 0, 0.2);
+  border: 1px solid #ff0000;
   border-radius: 50%;
-  font-size: 1.2rem;
+  color: #ff0000;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
   transition: all 0.3s ease;
+  z-index: 4;
 }
 
-.close-battle-btn:hover {
-  background: #dc2626;
-  transform: scale(1.1);
+.terminal-close-btn:hover {
+  background: rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 10px #ff0000;
+}
+
+.close-symbol {
+  font-weight: bold;
 }
 
 /* Theme-specific enhancements */
-[data-theme="matrix"] .boss-battle-window {
+[data-theme="matrix"] .terminal-window {
   border-color: #00ff95;
-  box-shadow: 0 0 30px #00ff95;
+  box-shadow: 0 0 20px rgba(0, 255, 149, 0.3);
 }
 
-[data-theme="matrix"] .boss-battle-window.intense {
-  animation: matrixGlow 2s ease-in-out infinite alternate;
+[data-theme="matrix"] .terminal-prompt,
+[data-theme="matrix"] .terminal-title {
+  color: #00ff95;
+  text-shadow: 0 0 5px #00ff95;
 }
 
-@keyframes matrixGlow {
-  0% { box-shadow: 0 0 30px #00ff95; }
-  100% { box-shadow: 0 0 50px #00ff95, 0 0 100px #00ff95; }
-}
-
-[data-theme="cyberpunk"] .boss-battle-window {
+[data-theme="cyberpunk"] .terminal-window {
   border-color: #ff2bd6;
-  box-shadow: 0 0 30px #ff2bd6, 0 0 60px #2bf0ff;
+  box-shadow: 0 0 20px rgba(255, 43, 214, 0.3);
 }
 
-[data-theme="cyberpunk"] .boss-battle-window.intense {
-  animation: cyberpunkGlow 2s ease-in-out infinite alternate;
+[data-theme="cyberpunk"] .terminal-prompt,
+[data-theme="cyberpunk"] .terminal-title {
+  color: #ff2bd6;
+  text-shadow: 0 0 5px #ff2bd6;
 }
 
-@keyframes cyberpunkGlow {
-  0% { box-shadow: 0 0 30px #ff2bd6, 0 0 60px #2bf0ff; }
-  100% { box-shadow: 0 0 50px #ff2bd6, 0 0 100px #2bf0ff; }
-}
-
-[data-theme="psychedelic"] .boss-battle-window {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(20px);
-}
-
-[data-theme="psychedelic"] .boss-battle-window.intense {
-  animation: psychedelicGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes psychedelicGlow {
-  0% { box-shadow: 0 0 30px #ff0080, 0 0 60px #7928ca; }
-  100% { box-shadow: 0 0 50px #7928ca, 0 0 100px #2af598; }
+[data-theme="cyberpunk"] .progress-fill {
+  background: linear-gradient(90deg, #ff2bd6, #2bf0ff);
 }
 </style>
