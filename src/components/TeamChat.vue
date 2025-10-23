@@ -690,6 +690,17 @@ function handleKeyPress(event) {
   }
 }
 
+// Global key handler to prevent background typing conflicts
+function handleGlobalKeyPress(event) {
+  // If boss battle is active, stop all other key handling
+  if (showBossBattle.value) {
+    console.log('Boss battle active - stopping global key handling');
+    event.stopPropagation();
+    event.preventDefault();
+    return false;
+  }
+}
+
 // Computed properties
 const canSendResponse = computed(() => {
   return selectedResponse.value && currentInteraction.value && isTyping.value;
@@ -716,6 +727,11 @@ onMounted(() => {
   // Add cheat key listener
   document.addEventListener('keydown', handleKeyPress);
   
+  // Add global key handler to prevent conflicts
+  document.addEventListener('keydown', handleGlobalKeyPress, true); // Use capture phase
+  document.addEventListener('keypress', handleGlobalKeyPress, true);
+  document.addEventListener('input', handleGlobalKeyPress, true);
+  
   // Check for auth changes periodically
   const authInterval = setInterval(() => {
     const newAuthState = authService.isUserAuthenticated();
@@ -741,6 +757,9 @@ onMounted(() => {
   // Cleanup
   onUnmounted(() => {
     document.removeEventListener('keydown', handleKeyPress);
+    document.removeEventListener('keydown', handleGlobalKeyPress, true);
+    document.removeEventListener('keypress', handleGlobalKeyPress, true);
+    document.removeEventListener('input', handleGlobalKeyPress, true);
     clearInterval(authInterval);
     stopChatSystem();
   });

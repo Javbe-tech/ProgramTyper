@@ -25,7 +25,9 @@ const battleState = reactive({
   isVictory: false,
   isDefeat: false,
   backgroundText: [],
-  glitchEffects: []
+  glitchEffects: [],
+  terminateInput: '',
+  terminateRequired: false
 });
 
 // Boss dialogues based on campaign
@@ -180,11 +182,9 @@ function startNextLine() {
       clearInterval(countdown);
       // Time's up - battle lost
       battleState.isDefeat = true;
+      battleState.terminateRequired = true;
+      battleState.terminateInput = '';
       startGlitchEffects();
-      setTimeout(() => {
-        emit('defeat');
-        closeBattle();
-      }, 8000); // 8 seconds of glitch effects
     }
   }, 100);
   
@@ -277,18 +277,33 @@ function handleInput(event) {
   console.log('Battle state:', {
     isTyping: battleState.isTyping,
     isDefeat: battleState.isDefeat,
-    isVictory: battleState.isVictory
+    isVictory: battleState.isVictory,
+    terminateRequired: battleState.terminateRequired
   });
+  
+  // Stop event propagation to prevent conflicts with main site
+  event.stopPropagation();
+  
+  const input = event.target.value;
+  
+  // Handle TERMINATE input during defeat
+  if (battleState.isDefeat && battleState.terminateRequired) {
+    battleState.terminateInput = input;
+    console.log('TERMINATE input:', input);
+    
+    if (input.trim().toUpperCase() === 'TERMINATE') {
+      console.log('TERMINATE confirmed!');
+      emit('defeat');
+      closeBattle();
+    }
+    return;
+  }
   
   if (!battleState.isTyping || battleState.isDefeat || battleState.isVictory) {
     console.log('Input blocked due to battle state');
     return;
   }
   
-  // Stop event propagation to prevent conflicts with main site
-  event.stopPropagation();
-  
-  const input = event.target.value;
   battleState.userInput = input;
   
   console.log('Input processed:', input);
@@ -516,7 +531,26 @@ onUnmounted(() => {
         <div class="terminal-prompt">root@system:~$</div>
         <div class="defeat-title">SYSTEM COMPROMISED</div>
         <div class="defeat-message">{{ currentBoss.name }} HAS TAKEN CONTROL</div>
-        <div class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
+        
+        <div v-if="battleState.terminateRequired" class="terminate-section">
+          <div class="terminal-prompt">root@system:~$ emergency_protocol</div>
+          <div class="terminate-prompt">TYPE "TERMINATE" TO EXIT SYSTEM</div>
+          <div class="terminate-input-section">
+            <span class="terminal-prompt">root@system:~$</span>
+            <input
+              ref="terminateInput"
+              v-model="battleState.terminateInput"
+              @input="handleInput"
+              class="terminate-input"
+              placeholder=""
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span class="cursor-blink">_</span>
+          </div>
+        </div>
+        
+        <div v-else class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
       </div>
     </div>
 
@@ -920,6 +954,48 @@ onUnmounted(() => {
 .defeat-message {
   font-size: 16px;
   color: #ffffff;
+}
+
+.terminate-section {
+  margin-top: 30px;
+  padding: 20px;
+  border: 2px solid var(--red);
+  border-radius: 8px;
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.terminate-prompt {
+  color: var(--red);
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 5px var(--red);
+  margin: 15px 0;
+  text-align: center;
+}
+
+.terminate-input-section {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 15px;
+}
+
+.terminate-input {
+  flex: 1;
+  background: transparent;
+  border: 2px solid var(--red);
+  border-radius: 4px;
+  color: var(--red);
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  outline: none;
+  padding: 8px;
+  text-shadow: 0 0 5px var(--red);
+}
+
+.terminate-input:focus {
+  background: rgba(255, 0, 0, 0.1);
+  box-shadow: 0 0 10px var(--red);
 }
 
 /* Close button */
