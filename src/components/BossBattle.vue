@@ -471,16 +471,39 @@ function addCompletionEffect() {
 
 // Close battle
 function closeBattle() {
+  console.log('Closing battle - clearing all animations');
+  
+  // Stop all intervals
   battleState.isActive = false;
   if (battleState.countdownInterval) {
     clearInterval(battleState.countdownInterval);
+    battleState.countdownInterval = null;
   }
   if (battleState.selfCompleteInterval) {
     clearInterval(battleState.selfCompleteInterval);
+    battleState.selfCompleteInterval = null;
   }
+  
+  // Clear all animation arrays
   battleState.matrixRain = [];
   battleState.glitchEffects = [];
   battleState.selfCompletingCode = [];
+  battleState.backgroundText = [];
+  
+  // Reset all battle state
+  battleState.isVictory = false;
+  battleState.isDefeat = false;
+  battleState.terminateRequired = false;
+  battleState.terminateInput = '';
+  battleState.userInput = '';
+  battleState.currentPhase = 0;
+  battleState.completedLines = 0;
+  battleState.backgroundIntensity = 0;
+  
+  // Remove global event listener
+  document.removeEventListener('keydown', handleKeyDown);
+  
+  console.log('Battle closed - all animations cleared');
   emit('close');
 }
 
@@ -693,11 +716,6 @@ onUnmounted(() => {
         <div v-else class="terminal-prompt">root@system:~$ <span class="cursor-blink">_</span></div>
       </div>
     </div>
-
-    <!-- Close button -->
-    <button @click="closeBattle" class="terminal-close-btn" title="Terminate Session">
-      <span class="close-symbol">✕</span>
-    </button>
   </div>
 </template>
 
