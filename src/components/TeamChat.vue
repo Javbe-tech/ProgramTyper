@@ -444,10 +444,20 @@ function checkCampaignCompletion() {
 
 // Trigger boss battle
 function triggerBossBattle() {
+  // Use 'bad' ending for cheat key since we're testing boss battles
+  const ending = campaignState.value.ending || 'bad';
+  
   bossBattleData.value = {
     campaignType: campaignState.value.currentCampaign,
-    campaignEnding: campaignState.value.ending
+    campaignEnding: ending
   };
+  
+  console.log('Cheat key boss battle data:', {
+    campaignType: campaignState.value.currentCampaign,
+    campaignEnding: ending,
+    originalEnding: campaignState.value.ending
+  });
+  
   showBossBattle.value = true;
 }
 

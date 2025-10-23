@@ -132,16 +132,7 @@ function generateRandomCode() {
 
 // Get current boss data
 const currentBoss = computed(() => {
-  console.log('Current boss calculation:', {
-    campaignType: props.campaignType,
-    campaignEnding: props.campaignEnding,
-    availableTypes: Object.keys(bossDialogues)
-  });
-  
-  const boss = bossDialogues[props.campaignType]?.[props.campaignEnding] || bossDialogues.skynet.bad;
-  console.log('Selected boss:', boss);
-  
-  return boss;
+  return bossDialogues[props.campaignType]?.[props.campaignEnding] || bossDialogues.skynet.bad;
 });
 
 // Start the boss battle
