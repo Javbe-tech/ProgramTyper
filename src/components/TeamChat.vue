@@ -18,6 +18,11 @@ const choiceHistory = ref([]);
 const chatVisible = ref(true);
 const currentCampaign = ref('chimera');
 
+// Chat input state
+const chatInput = ref('');
+const selectedChoice = ref(null);
+const isTyping = ref(false);
+
 // Show chat by default
 const shouldShowChat = computed(() => {
   return chatVisible.value && props.showChat;
@@ -141,7 +146,6 @@ function startConversation(trigger) {
 function showNextMessage(conversation) {
   if (currentMessageIndex.value >= conversation.messages.length) {
     // Show choices after all messages
-    console.log('Showing choices:', conversation.choices);
     showChoices.value = true;
     currentChoices.value = conversation.choices || [];
     return;
@@ -160,7 +164,18 @@ function showNextMessage(conversation) {
 }
 
 function makeChoice(choice) {
-  console.log('makeChoice called with:', choice);
+  // Set the selected choice and update input
+  selectedChoice.value = choice;
+  chatInput.value = choice.text;
+  
+  // Don't send yet - wait for user to click send
+}
+
+function sendMessage() {
+  if (!selectedChoice.value) return;
+  
+  const choice = selectedChoice.value;
+  
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
@@ -171,18 +186,21 @@ function makeChoice(choice) {
     messages.value.push({
     id: Date.now() + Math.random(),
     character: getUserName(),
-    text: choice.text,
+    text: chatInput.value,
     timestamp: new Date(),
     isUser: true
   });
 
+  // Clear input and choices
+  chatInput.value = '';
+  selectedChoice.value = null;
   showChoices.value = false;
   currentChoices.value = [];
   
   emit('choice-made', choice);
   
   // Show response based on choice
-  setTimeout(() => {
+    setTimeout(() => {
     const response = getChoiceResponse(choice);
     if (response) {
     messages.value.push({
@@ -197,10 +215,10 @@ function makeChoice(choice) {
     // Move to next step
     currentStep.value++;
     if (currentStep.value < stepTriggers.length) {
-    setTimeout(() => {
+      setTimeout(() => {
         startConversation(stepTriggers[currentStep.value]);
       }, 2000);
-  } else {
+    } else {
       // Campaign complete - trigger boss battle
       setTimeout(() => {
         triggerBossBattle();
@@ -346,17 +364,41 @@ defineExpose({
       </div>
     </div>
     
-    <div v-if="showChoices" class="chat-choices">
-      <div class="choices-header">Choose your response:</div>
+    <div v-if="showChoices" class="chat-input-section">
+      <div class="response-suggestions">
+        <div class="suggestions-header">Suggested responses:</div>
+        <div class="suggestion-buttons">
+          <button 
+            v-for="choice in currentChoices" 
+            :key="choice.id"
+            @click="makeChoice(choice)"
+            class="suggestion-btn"
+            :class="{ 'selected': selectedChoice?.id === choice.id }"
+          >
+            {{ choice.text }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="chat-input-container">
+        <div class="input-wrapper">
+          <input 
+            v-model="chatInput"
+            type="text"
+            placeholder="Type your response..."
+            class="chat-input"
+            :disabled="!selectedChoice"
+            @keydown.enter="sendMessage"
+          />
       <button 
-        v-for="choice in currentChoices" 
-        :key="choice.id"
-        @click="makeChoice(choice)"
-        class="choice-btn"
-        :class="{ 'good-karma': choice.karma > 0, 'bad-karma': choice.karma < 0 }"
+            @click="sendMessage"
+            class="send-btn"
+            :disabled="!selectedChoice || !chatInput.trim()"
       >
-        {{ choice.text }}
+        Send
       </button>
+    </div>
+      </div>
     </div>
     
       <div class="chat-footer">
@@ -517,47 +559,107 @@ defineExpose({
   word-wrap: break-word;
 }
 
-.chat-choices {
+.chat-input-section {
   padding: 15px;
   border-top: 1px solid var(--border-color);
   background: var(--terminal-bg);
 }
 
-.choices-header {
+.response-suggestions {
+  margin-bottom: 15px;
+}
+
+.suggestions-header {
   color: var(--font-color);
   font-size: 0.8rem;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-weight: 500;
 }
 
-.choice-btn {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 8px;
+.suggestion-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggestion-btn {
+  padding: 8px 12px;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
   color: var(--font-color);
   cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
   text-align: left;
   transition: all 0.2s;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-.choice-btn:hover {
+.suggestion-btn:hover {
   background: var(--active-line-bg);
   border-color: var(--keyword);
   opacity: 1;
 }
 
-.choice-btn.good-karma {
-  border-left: 3px solid var(--completed-green);
+.suggestion-btn.selected {
+  background: var(--keyword);
+  color: var(--bg-primary);
+  border-color: var(--keyword);
+  opacity: 1;
 }
 
-.choice-btn.bad-karma {
-  border-left: 3px solid var(--red);
+.chat-input-container {
+  border-top: 1px solid var(--border-color);
+  padding-top: 15px;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px 12px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--font-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: 'Consolas', monospace;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--keyword);
+}
+
+.chat-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-btn {
+  padding: 10px 16px;
+  background: var(--keyword);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--keyword);
+  opacity: 0.9;
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .chat-footer {
