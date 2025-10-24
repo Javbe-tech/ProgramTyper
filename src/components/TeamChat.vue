@@ -577,30 +577,28 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
 
 <template>
   <div class="team-chat-container">
-    <!-- Vertical Campaign Tabs -->
+    <!-- ACTUAL Vertical Tabs -->
     <div class="vertical-tabs">
       <div 
         v-for="(campaign, index) in campaignSelector.campaigns" 
         :key="campaign.id"
-        class="tab-set"
+        class="vertical-tab"
         :class="{ 
           'active': campaignState.currentCampaign === campaign.id,
           'locked': campaign.status === 'locked'
         }"
         @click="campaign.status !== 'locked' && switchCampaign(campaign.id)"
       >
-        <div class="primary-tab">
-          <div class="tab-number">{{ index + 1 }}</div>
+        <div class="tab-number">{{ index + 1 }}</div>
+        <div class="tab-content">
           <div class="tab-title">{{ campaign.name }}</div>
-        </div>
-        <div class="secondary-tab">
           <div class="tab-description">{{ getCampaignDescription(campaign.id) }}</div>
         </div>
         <div class="tab-indicator" v-if="campaignProgress[campaign.id]?.hasUnread">●</div>
       </div>
     </div>
 
-    <!-- Clean Chat Area -->
+    <!-- WORKING Team Chat Area -->
     <div class="chat-area">
       <div class="chat-messages" ref="chatMessages">
         <div 
@@ -649,99 +647,90 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   color: var(--text-primary);
 }
 
-/* Vertical Campaign Tabs - Like the image but vertical */
+/* ACTUAL Vertical Tabs */
 .vertical-tabs {
-  width: 250px;
+  width: 80px;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
-  padding: 20px 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  padding: 10px 0;
 }
 
-.tab-set {
-  position: relative;
+.vertical-tab {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 0 10px;
+  position: relative;
+  border-bottom: 1px solid var(--border-color);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
 }
 
-.tab-set:hover {
-  transform: translateX(5px);
+.vertical-tab:hover {
+  background: var(--bg-hover);
 }
 
-.tab-set.active .primary-tab {
+.vertical-tab.active {
   background: var(--keyword);
   color: var(--bg-primary);
 }
 
-.tab-set.active .secondary-tab {
-  background: var(--keyword);
-  opacity: 0.8;
-}
-
-.tab-set.locked {
+.vertical-tab.locked {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.primary-tab {
-  background: var(--bg-accent);
-  border-radius: 8px 0 0 8px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  border-right: none;
-  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
-}
-
-.secondary-tab {
-  background: var(--bg-hover);
-  border-radius: 0 8px 8px 0;
-  padding: 8px 16px 8px 36px;
-  margin-left: -20px;
-  position: relative;
-  z-index: -1;
-  clip-path: polygon(20px 0, 100% 0, 100% 100%, 20px 100%, 0 50%);
-}
-
 .tab-number {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   background: var(--red);
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .tab-title {
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 600;
-  flex: 1;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .tab-description {
-  font-size: 11px;
+  font-size: 8px;
   color: var(--text-secondary);
-  line-height: 1.3;
+  text-align: center;
+  line-height: 1.1;
+  max-width: 60px;
 }
 
 .tab-indicator {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 5px;
+  right: 5px;
   color: var(--red);
-  font-size: 12px;
+  font-size: 10px;
 }
 
-/* Clean Chat Area */
+/* WORKING Team Chat Area */
 .chat-area {
   flex: 1;
   display: flex;
