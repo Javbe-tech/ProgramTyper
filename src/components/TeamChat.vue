@@ -860,7 +860,7 @@ defineExpose({
   font-size: 0.85rem;
   line-height: 1.4;
   word-wrap: break-word;
-  white-space: pre-wrap; /* Preserve line breaks but collapse spaces */
+  white-space: pre-line; /* Preserve line breaks but collapse spaces */
   text-indent: 0; /* Remove any text indentation */
 }
 
@@ -883,7 +883,9 @@ defineExpose({
   color: var(--font-color);
   cursor: pointer;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.85rem; /* Match chat message font size */
+  font-family: inherit; /* Match chat message font family */
+  line-height: 1.4; /* Match chat message line height */
   text-align: left;
   transition: all 0.2s;
   opacity: 0.8;
