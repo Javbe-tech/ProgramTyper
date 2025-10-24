@@ -631,10 +631,10 @@ defineExpose({
 
 /* FIXED RESPONSE/INPUT BOX - SEPARATE WINDOW */
 .response-input-container {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: var(--terminal-bg);
   border: 2px solid var(--border-color);
   border-radius: 8px;
