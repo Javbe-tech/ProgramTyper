@@ -445,63 +445,66 @@ defineExpose({
     </div>
     
     <!-- Chat content when authenticated -->
-    <div v-else>
-    
-    <div class="chat-messages" ref="messagesContainer">
-      <div 
-        v-for="message in messages" 
-        :key="message.id"
-        class="message"
-        :class="{ 'response': message.isResponse, 'user-message': message.isUser }"
-      >
-        <div class="message-avatar" :style="{ backgroundColor: getCharacterColor(message.character) }">
-          {{ getCharacterAvatar(message.character) }}
-          </div>
-        <div class="message-content">
-          <div class="message-header">
-            <span class="character-name">{{ message.character }}</span>
-            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
-        </div>
-          <div class="message-text">{{ message.text }}</div>
-          </div>
-      </div>
-    </div>
-    
-    <!-- Always visible input section -->
-    <div class="chat-input-section">
-      <!-- Choice buttons - only show when there are choices -->
-      <div v-if="showChoices && currentChoices.length > 0" class="response-suggestions">
-        <div class="suggestion-buttons">
-          <button 
-            v-for="choice in currentChoices" 
-            :key="choice.id"
-            @click="makeChoice(choice)"
-            class="suggestion-btn"
-            :class="{ 'selected': selectedChoice?.id === choice.id }"
+    <div v-else class="chat-layout">
+      <!-- FIXED CHAT MESSAGES BOX -->
+      <div class="chat-messages-container">
+        <div class="chat-messages" ref="messagesContainer">
+          <div 
+            v-for="message in messages" 
+            :key="message.id"
+            class="message"
+            :class="{ 'response': message.isResponse, 'user-message': message.isUser }"
           >
-            {{ choice.text }}
-          </button>
+            <div class="message-avatar" :style="{ backgroundColor: getCharacterColor(message.character) }">
+              {{ getCharacterAvatar(message.character) }}
+            </div>
+            <div class="message-content">
+              <div class="message-header">
+                <span class="character-name">{{ message.character }}</span>
+                <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+              </div>
+              <div class="message-text">{{ message.text }}</div>
+            </div>
+          </div>
         </div>
       </div>
       
-      <!-- Input field - always visible -->
-      <div class="chat-input-container">
-        <div class="input-wrapper">
-          <input 
-            v-model="chatInput"
-            type="text"
-            :placeholder="showChoices ? 'Type your response...' : 'Type a message...'"
-            class="chat-input"
-            :disabled="showChoices && !selectedChoice"
-            @keydown.enter="sendMessage"
-          />
-          <button 
-            @click="sendMessage"
-            class="send-btn"
-            :disabled="(showChoices && !selectedChoice) || !chatInput.trim()"
-          >
-            Send
-          </button>
+      <!-- FIXED RESPONSE/INPUT BOX -->
+      <div class="response-input-container">
+        <!-- Choice buttons - only show when there are choices -->
+        <div v-if="showChoices && currentChoices.length > 0" class="response-suggestions">
+          <div class="suggestion-buttons">
+            <button 
+              v-for="choice in currentChoices" 
+              :key="choice.id"
+              @click="makeChoice(choice)"
+              class="suggestion-btn"
+              :class="{ 'selected': selectedChoice?.id === choice.id }"
+            >
+              {{ choice.text }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- Input field - always visible -->
+        <div class="chat-input-container">
+          <div class="input-wrapper">
+            <input 
+              v-model="chatInput"
+              type="text"
+              :placeholder="showChoices ? 'Type your response...' : 'Type a message...'"
+              class="chat-input"
+              :disabled="showChoices && !selectedChoice"
+              @keydown.enter="sendMessage"
+            />
+            <button 
+              @click="sendMessage"
+              class="send-btn"
+              :disabled="(showChoices && !selectedChoice) || !chatInput.trim()"
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -509,8 +512,7 @@ defineExpose({
     <div v-show="!shouldShowChat" class="chat-minimized">
       <button @click="toggleChat" class="toggle-chat-btn">💬</button>
     </div>
-    </div> <!-- Close authenticated div -->
-  </div>
+  </div> <!-- Close authenticated div -->
   
   <!-- Boss Battle Component -->
   <BossBattle 
@@ -595,21 +597,49 @@ defineExpose({
   background: var(--bg-color);
 }
 
-.chat-messages {
+/* NEW LAYOUT - SEPARATE FIXED BOXES */
+.chat-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 65px); /* Account for header */
+  position: relative;
+}
+
+/* FIXED CHAT MESSAGES BOX */
+.chat-messages-container {
   flex: 1;
-  overflow-y: scroll; /* Force scrollbar to always show */
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-messages {
+  height: 100%;
+  overflow-y: scroll;
   overflow-x: hidden;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   scroll-behavior: smooth;
-  min-height: 0; /* Important for flexbox scrolling */
-  max-height: calc(100vh - 200px); /* Force height constraint to enable scrolling */
-  padding-bottom: 150px; /* Increased padding to account for elevated input section */
   scrollbar-width: thin;
   scrollbar-color: var(--gray) var(--bg-color);
 }
+
+/* FIXED RESPONSE/INPUT BOX */
+.response-input-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--terminal-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 15px;
+  z-index: 10;
+  max-height: 200px; /* Limit height */
+  overflow-y: auto;
+}
+
+/* Remove old chat-messages rule - now handled above */
 
 .message {
   display: flex;
@@ -629,15 +659,14 @@ defineExpose({
 }
 
 .message:not(.user-message) .message-text {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: var(--bg-color);
+  color: var(--font-color);
   padding: 10px 14px;
   border-radius: 18px;
   border-bottom-left-radius: 4px; /* Pointed corner like Android */
   display: inline-block;
   word-wrap: break-word;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
 }
 
 /* User messages - right aligned, no avatar */
@@ -652,8 +681,8 @@ defineExpose({
 }
 
 .message.user-message .message-text {
-  background: #7c3aed;
-  color: #ffffff;
+  background: var(--keyword);
+  color: var(--bg-primary);
   padding: 10px 14px;
   border-radius: 18px;
   border-bottom-right-radius: 4px; /* Pointed corner like Android */
@@ -707,37 +736,23 @@ defineExpose({
 
 .character-name {
   font-weight: 500;
-  color: #ffffff;
+  color: var(--font-color);
   font-size: 0.75rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .message-time {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--gray);
   font-size: 0.65rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .message-text {
-  color: #ffffff;
+  color: var(--font-color);
   font-size: 0.85rem;
   line-height: 1.4;
   word-wrap: break-word;
 }
 
-.chat-input-section {
-  padding: 15px 15px 20px 15px; /* Extra bottom padding to prevent cutoff */
-  border-top: 1px solid var(--border-color);
-  background: var(--terminal-bg);
-  position: absolute;
-  bottom: 10px; /* Add margin from bottom edge */
-  left: 0;
-  right: 0;
-  z-index: 10;
-  flex-shrink: 0;
-  margin: 0 10px; /* Add side margins */
-  border-radius: 8px; /* Round the input section */
-}
+/* Old chat-input-section removed - now using response-input-container */
 
 .response-suggestions {
   margin-bottom: 10px;
