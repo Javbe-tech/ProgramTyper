@@ -565,6 +565,26 @@ defineExpose({
   color: var(--font-color);
 }
 
+/* Custom scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+  width: 8px; /* Make it wider */
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--gray);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--font-color);
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -575,25 +595,9 @@ defineExpose({
   gap: 10px;
   scroll-behavior: smooth;
   min-height: 0; /* Important for flexbox scrolling */
-  padding-bottom: 130px; /* Increased padding to account for extra input section padding */
-}
-
-/* Custom scrollbar styling */
-.chat-messages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-  background: var(--bg-color);
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: var(--gray);
+  padding-bottom: 150px; /* Increased padding to account for elevated input section */
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) var(--bg-color);
 }
 
 .message {
@@ -711,11 +715,13 @@ defineExpose({
   border-top: 1px solid var(--border-color);
   background: var(--terminal-bg);
   position: absolute;
-  bottom: 0;
+  bottom: 10px; /* Add margin from bottom edge */
   left: 0;
   right: 0;
   z-index: 10;
   flex-shrink: 0;
+  margin: 0 10px; /* Add side margins */
+  border-radius: 8px; /* Round the input section */
 }
 
 .response-suggestions {
