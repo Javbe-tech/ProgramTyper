@@ -640,6 +640,14 @@ onUnmounted(() => {
 /* Psychedelic theme overrides */
 [data-theme="psychedelic"] .completion-popup {
   border-color: #f472b6;
+  background: linear-gradient(135deg, 
+    rgba(244, 114, 182, 0.9) 0%, 
+    rgba(96, 165, 250, 0.9) 25%, 
+    rgba(52, 211, 153, 0.9) 50%, 
+    rgba(251, 191, 36, 0.9) 75%, 
+    rgba(168, 139, 250, 0.9) 100%
+  );
+  backdrop-filter: blur(10px);
 }
 
 [data-theme="psychedelic"] .start-next-btn {
@@ -696,8 +704,8 @@ onUnmounted(() => {
 }
 
 [data-theme="white"] .scan-text {
-  color: #000000;
-  text-shadow: 0 0 10px #000000;
+  color: #ffffff;
+  text-shadow: 0 0 10px #ffffff;
 }
 
 [data-theme="white"] .funny-stat {
