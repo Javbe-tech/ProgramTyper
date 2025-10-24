@@ -432,4 +432,36 @@ onMounted(() => {
     box-shadow: 0 0 10px var(--completed-green), 0 0 20px var(--completed-green), 0 0 30px var(--completed-green);
   }
 }
+
+.menu-team-chat { position: relative; }
+.menu-team-chat .dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--menu-bar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px;
+  display: none;
+  z-index: 100;
+}
+.menu-team-chat:hover .dropdown { display: grid; grid-auto-rows: 1fr; gap: 6px; }
+.menu-team-chat .dropdown button {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+.menu-team-chat .dropdown button:hover {
+  background: var(--bg-hover);
+}
+.menu-team-chat .dropdown button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 </style>
