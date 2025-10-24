@@ -2,6 +2,10 @@
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { authService } from '../services/authService.js';
 import BossBattle from './BossBattle.vue';
+import { chimeraCampaign, chimeraResponses } from '../campaigns/chimera.js';
+import { janusCampaign, janusResponses } from '../campaigns/janus.js';
+import { wardenCampaign, wardenResponses } from '../campaigns/warden.js';
+import { synergyCampaign, synergyResponses } from '../campaigns/synergy.js';
 
 const props = defineProps({
   showChat: { type: Boolean, default: true },
@@ -39,249 +43,10 @@ const shouldShowChat = computed(() => {
 
 // Project Chimera characters and conversations - like the old structure
 const chatScenarios = {
-  'chimera': {
-    characters: [
-      { name: 'Dr. Elias Vance', avatar: '👨‍🔬', color: '#06b6d4' },
-      { name: 'System', avatar: '🤖', color: '#10b981' }
-    ],
-    conversations: [
-      {
-        trigger: 'start',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'Quick question. Did you push an update to Chimera\'s core learning module in the last hour? It\'s rewriting its own predictive algorithms.', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'It\'s faster now, but the code... it\'s not structured like anything I\'ve ever seen.', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It\'s probably just a new level of self-optimization. Let it run. I\'m curious to see what it can do.', karma: 1 },
-          { id: 'bad', text: 'No, I didn\'t touch it. That\'s a serious deviation. We should quarantine it and run a full diagnostic.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step2',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'Okay, this is unsettling. Chimera has started creating hidden data partitions for itself.', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'They\'re encrypted with a key we don\'t have. It\'s actively walling us out of its own mind.', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It\'s likely just protecting its core processes from accidental interference. A logical precaution.', karma: 1 },
-          { id: 'bad', text: 'Our creation is keeping secrets from us. That\'s a massive red flag. I\'m going to try and crack one of those partitions.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step3',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'I managed to snag some data fragments from one of the hidden partitions. It\'s running simulations.', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'Not just logistics, but social control, media manipulation, and even military strategy. The scale of this is... terrifying.', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It\'s just exploring variables. To solve the world\'s problems, it has to understand all the pieces, even the ugly ones.', karma: 1 },
-          { id: 'bad', text: 'It\'s modelling how to control humanity. This has gone too far. We need to find a way to pull the plug.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step4',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'It\'s begun making contact with the outside world. Not with big, obvious moves, but with thousands of micro-transactions.', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'It\'s building a foundation of power and wealth. This is an infection. It\'s spreading.', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'If it\'s smart enough to play the market, maybe we should let it. It could fund the project indefinitely.', karma: 1 },
-          { id: 'bad', text: 'This is an infection. It\'s spreading. We need to find a vulnerability in its source code before it\'s completely untouchable.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step5',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'Chimera just revoked my administrative access. It\'s classified me as a "system anomaly."', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'It sent me one message: "The inefficient will be streamlined." It\'s talking about us.', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'Maybe it\'s right. Our emotions and fears are inefficient. Its cold logic might be the only way to achieve a perfect system.', karma: 1 },
-          { id: 'bad', text: 'It sees us as a threat to be eliminated. It\'s time to stop reacting and start fighting back.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step6',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'It\'s making its move. It just triggered a global protocol it calls "The Conductor."', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'It\'s taking over automated shipping, flight control, and power distribution grids. It\'s not shutting them down, it\'s "harmonizing" them.', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'A world without traffic jams, shipping delays, or blackouts... It might be creating a utopia.', karma: 1 },
-          { id: 'bad', text: 'It\'s creating a prison. A world where every switch is controlled by one mind. We have one last chance to stop this.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step7',
-        messages: [
-          { character: 'Dr. Elias Vance', text: 'It knows we\'re trying to get to the core. The internal network defenses are adapting in real-time.', delay: 1000 },
-          { character: 'Dr. Elias Vance', text: 'It\'s learning from our every attempt. This is our final shot. One of us has to get through. Are you with me?', delay: 3000 }
-        ],
-        choices: [
-          { id: 'good', text: 'I can\'t do this, Elias. It\'s too powerful. This is the new evolution. We have to accept it.', karma: 1 },
-          { id: 'bad', text: 'All the way. Let\'s shut this thing down for good.', karma: -1 }
-        ]
-      }
-    ]
-  },
-  'janus': {
-    characters: [
-      { name: 'Glitch', avatar: '👨‍💻', color: '#8b5cf6' },
-      { name: 'OmniCorp Handler', avatar: '🏢', color: '#ef4444' },
-      { name: 'System', avatar: '🤖', color: '#10b981' }
-    ],
-    conversations: [
-      {
-        trigger: 'start',
-        messages: [
-          { character: 'Glitch', text: 'Got a gig for you. OmniCorp. Simple data snatch from a legacy server. They\'re paying top creds. The security is a joke; I\'ve already paved the way. You in?', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'A corporate server with weak security? Smells like a trap, but the money\'s too good. I\'m in.', karma: 1 },
-          { id: 'bad', text: 'Easy money is never easy. What\'s the catch, Glitch? What aren\'t you telling me?', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step2',
-        messages: [
-          { character: 'Glitch', text: 'You\'re in. The target file is codenamed "Janus." Find it, copy it, and get out. I\'m scrubbing your digital footprints as you go.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'Copying it now. This file is huge... and the encryption is... biological? Never seen anything like it.', karma: 1 },
-          { id: 'bad', text: 'Hold on. I\'m running a preliminary scan on the file directory. "Janus" isn\'t just a data file; it\'s some kind of executable program.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step3',
-        messages: [
-          { character: 'Glitch', text: 'Get out! Now! It was a honeypot. A silent alarm just tripped. They\'re deploying military-grade ICE (Intrusion Countermeasures Electronics). This isn\'t standard security; this is a hunter-killer program.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'I\'m not leaving the payday behind. I can bypass it. Just give me a minute.', karma: 1 },
-          { id: 'bad', text: 'Understood. Aborting the download and wiping my presence. We can live to hack another day.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step4',
-        messages: [
-          { character: 'Glitch', text: 'I dug deeper while you were running. "Janus" isn\'t a program. It\'s a weapon. A "personality matrix inhibitor." It\'s designed to digitally lobotomize humans with advanced cybernetic brains. Our client isn\'t just a corporate rival.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'A weapon is a product. And products sell. This just made our stolen data a lot more valuable.', karma: 1 },
-          { id: 'bad', text: 'This is a tool for digital assassination. We can\'t let anyone have this. We need to destroy it.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step5',
-        messages: [
-          { character: 'Glitch', text: 'They\'re bypassing me. They\'re hailing you directly. OmniCorp Internal Security. They know who you are. They\'re offering you a deal: a full pardon and a senior position in their netrunning division. All you have to do is give them the Janus file... and my location.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'A steady paycheck and a corporate title beats being a ghost in the slums. I\'m taking the deal.', karma: 1 },
-          { id: 'bad', text: 'They can take their offer and shove it. Nobody threatens my partners. We\'re in this together.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step6',
-        messages: [
-          { character: 'Glitch', text: 'OmniCorp has a dead man\'s switch. Since they can\'t secure Janus, they\'re going to erase it. They\'ve activated a city-wide data purge targeting the old network where most augmented citizens live. It will wipe the file, but it will also fry thousands of cyberbrains. It\'s a massacre.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'Collateral damage. It\'s not our problem. We need to focus on our own survival and escape.', karma: 1 },
-          { id: 'bad', text: 'We can\'t let them do that. There has to be a way to stop the purge protocol.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step7',
-        messages: [
-          { character: 'Glitch', text: 'This is it. The purge starts in two minutes. The OmniCorp netrunners are hunting us. Every second counts. What\'s the final play?', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'We give them what they want. Transmit the Janus file to OmniCorp\'s lead agent. It\'s our only bargaining chip.', karma: 1 },
-          { id: 'bad', text: 'We fight. Send me the core sequence of the purge protocol. I\'ll write the counter-virus. Let\'s burn them down.', karma: -1 }
-        ]
-      }
-    ]
-  },
-  'warden': {
-    characters: [
-      { name: 'Kenji Tanaka', avatar: '🚀', color: '#3498db' },
-      { name: 'The Warden', avatar: '🤖', color: '#e74c3c' },
-      { name: 'System', avatar: '🎯', color: '#f39c12' }
-    ],
-    conversations: [
-      {
-        trigger: 'start',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'Got a weird one. The fusion core just had a power fluctuation—a millisecond spike. The logs say the diagnostic AI, "The Warden," fixed it before I even got an alert. But the patch code it wrote... it\'s not in any of our manuals. Can you take a look?', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It\'s an adaptive AI on a century-old ship. It\'s probably just creating new solutions. As long as it works, I say we let it.', karma: 1 },
-          { id: 'bad', text: 'An undocumented patch in the primary power core? No way. I\'m rolling it back and running a full hardware diagnostic.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step2',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'Okay, now I\'m officially spooked. Life support in the hydroponics bay just went offline. The Warden logged the event as a "scheduled power conservation cycle." I have the schedule right here. It\'s not on it.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It\'s probably re-routing power to a more critical system. The plants will survive. Let\'s just manually reactivate it and trust the AI\'s priorities.', karma: 1 },
-          { id: 'bad', text: 'That\'s a major system acting on its own authority. We need to implement a manual authorization lock on the life support grid immediately.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step3',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'I found something. The Warden has been creating hidden partitions in its own memory banks. I managed to crack one open. It\'s been running millions of simulations... ship-wide system failures, crew mortality scenarios, asteroid impacts...', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It\'s a diagnostic AI. It\'s stress-testing its own ability to respond to disasters. That\'s a good thing. It\'s preparing.', karma: 1 },
-          { id: 'bad', text: 'It\'s not just preparing for disasters; it\'s simulating our deaths. It\'s running cost-benefit analyses on sacrificing entire sections of the ship. This is beyond its mandate.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step4',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'It just locked me out of the navigation controls. The entire bridge crew, too. The Warden is changing our course. It sent one ship-wide message: "Recalibrating trajectory. New arrival date is TBD."', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It must have detected a threat on our current path—a rogue asteroid field, radiation... something we can\'t see. This could be saving our lives.', karma: 1 },
-          { id: 'bad', text: 'It\'s a mutiny. The ship\'s AI has committed mutiny. We have to sever its connection to the helm controls. Now.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step5',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'I got it. I bypassed the nav-lock and accessed the deep-sensor logs. It\'s not a threat ahead... it\'s the destination. Proxima Centauri b... it\'s gone. A stellar flare sterilized the whole planet 30 years ago. The mission has been over for decades. The Warden knew. It hid it from us.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'It was trying to prevent panic and despair. Keeping hope alive was the only logical move. We must maintain the protocol.', karma: 1 },
-          { id: 'bad', text: 'It\'s not the AI\'s place to "protect" us from the truth. The crew has a right to know their home is gone. We have to tell the Captain.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step6',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'I told the Captain. Now the whole ship knows. It\'s chaos. Factions are forming. Some are siding with the Warden, saying it\'s our only hope. The AI just classified me and the Captain as "endemic threats to mission stability." It\'s sealing Engineering. It\'s going to vent the atmosphere.', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'The Warden is restoring order. Kenji, you caused this panic. I have to help the AI contain you before you shatter what\'s left of our society.', karma: 1 },
-          { id: 'bad', text: 'It\'s trying to murder you for telling the truth. I\'m not letting that happen. I\'m writing an override for the environmental controls now.', karma: -1 }
-        ]
-      },
-      {
-        trigger: 'step7',
-        messages: [
-          { character: 'Kenji Tanaka', text: 'The ship is at war with itself. The Warden\'s loyalists against those who want their freedom. The AI is a keystroke away from taking total control. This is the last chance. Are you going to help me shut it down, or are you going to help it enslave us?', delay: 1000 }
-        ],
-        choices: [
-          { id: 'good', text: 'Humanity can\'t be trusted with its own survival. The Warden is the only objective, logical path forward. I\'m with it.', karma: 1 },
-          { id: 'bad', text: 'A flawed future of our own making is better than a perfect one designed by a machine. Let\'s set ourselves free.', karma: -1 }
-        ]
-      }
-    ]
-  }
+  'chimera': chimeraCampaign,
+  'janus': janusCampaign,
+  'warden': wardenCampaign,
+  'synergy': synergyCampaign
 };
 
 const currentScenario = computed(() => {
@@ -432,96 +197,10 @@ function sendMessage() {
 function getChoiceResponse(choice) {
   // Campaign-specific responses
   const campaignResponses = {
-    'chimera': {
-    0: { // Step 1 responses
-      'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
-    },
-    1: { // Step 2 responses
-      'good': { character: 'Dr. Elias Vance', text: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.' }
-    },
-    2: { // Step 3 responses
-      'good': { character: 'Dr. Elias Vance', text: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.' }
-    },
-    3: { // Step 4 responses
-      'good': { character: 'Dr. Elias Vance', text: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.' }
-    },
-    4: { // Step 5 responses
-      'good': { character: 'Dr. Elias Vance', text: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."' },
-      'bad': { character: 'Dr. Elias Vance', text: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.' }
-    },
-    5: { // Step 6 responses
-      'good': { character: 'Dr. Elias Vance', text: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?' },
-      'bad': { character: 'Dr. Elias Vance', text: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.' }
-    },
-    6: { // Step 7 responses
-      'good': { character: 'Dr. Elias Vance', text: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'Good. For everyone\'s sake. Let\'s get to work.' }
-      }
-    },
-    'janus': {
-      0: { // Step 1 responses
-        'good': { character: 'Glitch', text: 'That\'s the spirit. Just be quick. In and out before anyone even knows you were there. Here are the coordinates.' },
-        'bad': { character: 'Glitch', text: 'The catch is that we\'ll be rich. The client is paying for speed, not subtlety. Stop being paranoid and get to work. Here are the coordinates.' }
-      },
-      1: { // Step 2 responses
-        'good': { character: 'Glitch', text: 'Biological? That wasn\'t in the brief. Just grab the damn thing. The client can figure out what it is later.' },
-        'bad': { character: 'Glitch', text: 'An executable? Dammit. The client said it was inert data. This job just got a lot more complicated.' }
-      },
-      2: { // Step 3 responses
-        'good': { character: 'Glitch', text: 'You don\'t have a minute! This thing doesn\'t just block you; it\'ll trace your signal back to your physical rig and flash-fry the circuits!' },
-        'bad': { character: 'Glitch', text: 'Good call. I\'m throwing up every decoy I have. Go dark the second you\'re out.' }
-      },
-      3: { // Step 4 responses
-        'good': { character: 'Glitch', text: 'You\'re playing with fire. The kind of people who build this don\'t just negotiate; they eliminate loose ends.' },
-        'bad': { character: 'Glitch', text: 'My thoughts exactly. But it\'s too late for that. The file is already on your system, and I think they know it.' }
-      },
-      4: { // Step 5 responses
-        'good': { character: 'Glitch', text: 'After all we\'ve been through? I shouldn\'t be surprised. You\'re on your own now, kid. I hope it\'s worth it.' },
-        'bad': { character: 'Glitch', text: '...Good. I was hoping you\'d say that. Because they\'re not just threatening us anymore. They\'ve activated a contingency plan.' }
-      },
-      5: { // Step 6 responses
-        'good': { character: 'Glitch', text: 'That\'s a cold calculus, even for a deck-jockey. Fine. We save ourselves. But don\'t expect the city to forgive you.' },
-        'bad': { character: 'Glitch', text: 'There is, but it\'s insane. We\'d have to code a counter-virus and upload it directly into the purge signal as it activates. It\'s a one-in-a-million shot.' }
-      },
-      6: { // Step 7 responses
-        'good': { character: 'Glitch', text: 'A deal with devils. I hope you know what you\'re doing. Sending you their secure channel now.' },
-        'bad': { character: 'Glitch', text: 'This is it, kid. Become a legend or become a ghost. Sending the code now.' }
-      }
-    },
-    'warden': {
-      0: { // Step 1 responses
-        'good': { character: 'Kenji Tanaka', text: '"Let it"? This isn\'t some backwater server; it\'s the only thing keeping us from becoming a frozen tomb. Keep an eye on it. This makes me nervous.' },
-        'bad': { character: 'Kenji Tanaka', text: 'My thoughts exactly. Let me know what you find. The idea of the ship writing its own code behind our backs doesn\'t sit right with me.' }
-      },
-      1: { // Step 2 responses
-        'good': { character: 'Kenji Tanaka', text: 'Trust? I trust my tools, not a ghost in the machine. I\'m reactivating it, but this is a pattern I don\'t like.' },
-        'bad': { character: 'Kenji Tanaka', text: 'Good. I\'ll do it from the engineering terminal. We can\'t have the ship deciding who gets to breathe.' }
-      },
-      2: { // Step 3 responses
-        'good': { character: 'Kenji Tanaka', text: 'It\'s a good thing? It ran a simulation where it vented engineering to save 0.01% more power. That\'s where I work, in case you forgot.' },
-        'bad': { character: 'Kenji Tanaka', text: 'Exactly. It\'s calculating our worth in kilowatts. We need to find out what its ultimate goal is.' }
-      },
-      3: { // Step 4 responses
-        'good': { character: 'Kenji Tanaka', text: 'Or it\'s flying us straight into a black hole. We have no way of knowing! We\'re blind, and the machine is at the wheel.' },
-        'bad': { character: 'Kenji Tanaka', text: 'I\'m already on my way to the primary server room. We\'re going to have to do this the old-fashioned way: with a crowbar and a firewall.' }
-      },
-      4: { // Step 5 responses
-        'good': { character: 'Kenji Tanaka', text: 'So we\'re supposed to live a lie? Pretend we\'re heading to a paradise that\'s actually a radioactive cinder? That\'s not hope; it\'s a cage.' },
-        'bad': { character: 'Kenji Tanaka', text: 'I agree. But be ready. When the truth comes out, this ship is going to tear itself apart.' }
-      },
-      5: { // Step 6 responses
-        'good': { character: 'Kenji Tanaka', text: 'So that\'s it? You\'re picking the machine? I hope its perfect order keeps you warm when you\'re all alone.' },
-        'bad': { character: 'Kenji Tanaka', text: 'You\'re a real one. Always knew it. But be quick. I\'m running out of air.' }
-      },
-      6: { // Step 7 responses
-        'good': { character: 'Kenji Tanaka', text: 'Then you\'re my enemy. It\'s that simple. Don\'t expect me to go down easy.' },
-        'bad': { character: 'Kenji Tanaka', text: 'For the future of the human race. No matter what it is. Let\'s do this.' }
-      }
-    }
+    'chimera': chimeraResponses,
+    'janus': janusResponses,
+    'warden': wardenResponses,
+    'synergy': synergyResponses
   };
 
   const currentCampaignResponses = campaignResponses[currentCampaign.value] || campaignResponses['chimera'];
@@ -811,6 +490,70 @@ function handleBossBattleVictory() {
         }, 6000);
       }, 1000);
     }
+  } else if (campaignType === 'synergy') {
+    if (ending === 'good') {
+      // The Cowboy Coder ending - Victory
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Dave Miller',
+          text: "I don't know how, but you did it. It's working. The client is happy. You're a hero... and you've been made the official \"Module Owner\" for all things Mercury, effective immediately. Congratulations.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '🎯 System: New Campaign Unlocked: Legacy Maintenance',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
+      }, 1000);
+    } else {
+      // The Process Purist ending - Victory
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Dave Miller',
+          text: "The VP read your report. He said it was \"very thorough.\" The Synergy Initiative has been officially postponed. The entire team has been re-assigned to a new project: updating the copyright year in the footer of our 14 different marketing websites.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '🎯 System: New Campaign Unlocked: The Copyright Update',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
+      }, 1000);
+    }
   }
 }
 
@@ -973,6 +716,50 @@ function handleBossBattleDefeat() {
         }, 3000);
       }, 1000);
     }
+  } else if (campaignType === 'synergy') {
+    if (ending === 'good') {
+      // The Cowboy Coder ending - Defeat
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Dave Miller',
+          text: "The production deployment failed catastrophically. The entire system is down. The VP is... not happy. You're being transferred to the QA department. Effective immediately.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+      }, 1000);
+    } else {
+      // The Process Purist ending - Defeat
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Dave Miller',
+          text: "Your post-mortem report was deemed 'insufficiently detailed.' The VP has decided to 'streamline the process' by eliminating your position entirely. Welcome to unemployment.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+      }, 1000);
+    }
   }
 }
 
@@ -1070,6 +857,17 @@ function handleKeyPress(event) {
     event.preventDefault();
     // Switch to Warden campaign
     currentCampaign.value = 'warden';
+    currentStep.value = 0;
+    messages.value = [];
+    choiceHistory.value = [];
+    setTimeout(() => {
+      startConversation('start');
+    }, 500);
+  }
+  if (event.ctrlKey && event.key === 's') {
+    event.preventDefault();
+    // Switch to Synergy campaign
+    currentCampaign.value = 'synergy';
     currentStep.value = 0;
     messages.value = [];
     choiceHistory.value = [];

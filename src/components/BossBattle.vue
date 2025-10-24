@@ -148,6 +148,42 @@ const bossDialogues = {
         "humanity.reclaim(); hope;"
       ]
     }
+  },
+  synergy: {
+    good: {
+      name: "PRODUCTION_DEPLOY",
+      avatar: "🚀",
+      dialogue: "COWBOY CODER DETECTED. DIRECT PRODUCTION DEPLOYMENT REQUIRED. SERVER TIMEOUT IMMINENT.",
+      codeLines: [
+        "git.checkout(); main;",
+        "git.merge(); feature;",
+        "git.push(); force;",
+        "deploy.production(); now;",
+        "server.timeout(); 30s;",
+        "database.migrate(); run;",
+        "cache.clear(); all;",
+        "load.balancer(); restart;",
+        "monitoring.alert(); off;",
+        "deployment.complete(); success;"
+      ]
+    },
+    bad: {
+      name: "JIRA_TICKET",
+      avatar: "📋",
+      dialogue: "PROCESS PURIST DETECTED. POST-MORTEM REPORT REQUIRED. END OF DAY DEADLINE APPROACHING.",
+      codeLines: [
+        "ticket.create(); postmortem;",
+        "severity.set(); critical;",
+        "priority.set(); high;",
+        "team.affected(); all;",
+        "stakeholders.tag(); @everyone;",
+        "root.cause(); analyze;",
+        "action.items(); create;",
+        "timeline.document(); detailed;",
+        "lessons.learned(); capture;",
+        "report.submit(); deadline;"
+      ]
+    }
   }
 };
 
