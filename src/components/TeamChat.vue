@@ -605,15 +605,16 @@ defineExpose({
   position: relative;
 }
 
-/* FIXED CHAT MESSAGES BOX */
+/* FIXED CHAT MESSAGES BOX - TAKES REMAINING SPACE */
 .chat-messages-container {
   flex: 1;
   overflow: hidden;
   position: relative;
   border: 2px solid var(--border-color);
   border-radius: 8px;
-  margin: 5px;
+  margin: 5px 5px 0 5px; /* No bottom margin to prevent gap */
   background: var(--sidebar-bg);
+  margin-bottom: 0; /* Ensure no gap with bottom box */
 }
 
 .chat-messages {
@@ -629,20 +630,17 @@ defineExpose({
   scrollbar-color: var(--gray) var(--bg-color);
 }
 
-/* FIXED RESPONSE/INPUT BOX - SEPARATE WINDOW */
+/* FIXED BOTTOM BOX - CONTAINS BOTH RESPONSES AND INPUT */
 .response-input-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative; /* Changed from absolute to relative */
   background: var(--terminal-bg);
   border: 2px solid var(--border-color);
   border-radius: 8px;
   padding: 15px;
-  z-index: 1000;
+  margin: 0 5px 5px 5px; /* Bottom margin only */
+  flex-shrink: 0; /* Don't shrink */
   max-height: 200px;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Remove old chat-messages rule - now handled above */
