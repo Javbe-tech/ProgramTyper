@@ -194,6 +194,13 @@ function resetCurrentLine() {
         line.statuses.fill('untyped');
     }
     resetLineState(true); // Reset timers and stats for the entire session (like starting a new file)
+    
+    // Re-activate the current line so user can start typing immediately
+    if (activeLineIndex.value !== -1) {
+        lineStartTime.value = new Date(); // Set new start time for the line
+        scrollToActiveLine(); // Ensure line is visible
+    }
+    
     emit('liveTypingUpdate', 0); // Reset the live WPM display in terminal
 }
 
