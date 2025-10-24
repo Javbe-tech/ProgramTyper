@@ -143,10 +143,10 @@ function processChoice(choice) {
         const isBackToBack = timeSinceLastMessage < 5000; // Less than 5 seconds
         
         if (isBackToBack) {
-          console.log('Back-to-back message detected, adding 20 second delay');
+          console.log('Back-to-back message detected, adding 30 second delay');
           setTimeout(() => {
             startConversation(stepTriggers[currentStep.value]);
-          }, 20000); // 20 second delay for back-to-back messages
+          }, 30000); // 30 second delay for back-to-back messages
         } else {
           startConversation(stepTriggers[currentStep.value]);
         }
