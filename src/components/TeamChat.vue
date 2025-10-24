@@ -510,31 +510,29 @@ function startChimeraCampaign() {
 
 // Start chat system
 function startChatSystem() {
-  if (authService.isAuthenticated()) {
-    console.log('Chat system already authenticated, starting...');
-    
-    // Initialize campaign progress if not exists
-    if (!campaignProgress.chimera) {
-      campaignProgress.chimera = {
-        currentStep: 0,
-        score: 0,
-        completed: false,
-        hasUnread: false,
-        lastMessageTime: null
-      };
-    }
-    
-    // Load saved progress
-    campaignState.currentCampaign = 'chimera';
-    campaignState.currentStep = campaignProgress.chimera.currentStep;
-    campaignState.score = campaignProgress.chimera.score;
-    campaignState.completed = campaignProgress.chimera.completed;
-    
-    chatState.messages = [];
-    
-    // Start Chimera campaign
-    startChimeraCampaign();
+  console.log('Starting chat system...');
+  
+  // Initialize campaign progress if not exists
+  if (!campaignProgress.chimera) {
+    campaignProgress.chimera = {
+      currentStep: 0,
+      score: 0,
+      completed: false,
+      hasUnread: false,
+      lastMessageTime: null
+    };
   }
+  
+  // Load saved progress
+  campaignState.currentCampaign = 'chimera';
+  campaignState.currentStep = campaignProgress.chimera.currentStep;
+  campaignState.score = campaignProgress.chimera.score;
+  campaignState.completed = campaignProgress.chimera.completed;
+  
+  chatState.messages = [];
+  
+  // Start Chimera campaign
+  startChimeraCampaign();
 }
 
 // Computed properties
