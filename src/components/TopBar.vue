@@ -221,6 +221,68 @@ onMounted(() => {
   font-weight: bold;
   font-size: 1.1rem;
   color: var(--font-color);
+  text-shadow: 0 0 10px var(--keyword);
+  transition: all 0.3s ease;
+}
+
+/* Theme-specific glows for app title */
+[data-theme="default"] .app-title {
+  text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed;
+}
+
+[data-theme="matrix"] .app-title {
+  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  animation: matrixGlow 2s ease-in-out infinite alternate;
+}
+
+[data-theme="black-white"] .app-title {
+  text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+}
+
+[data-theme="black-red"] .app-title {
+  text-shadow: 0 0 10px #ff2d2d, 0 0 20px #ff2d2d, 0 0 30px #ff2d2d;
+}
+
+[data-theme="white"] .app-title {
+  text-shadow: 0 0 10px #000000, 0 0 20px #000000;
+}
+
+[data-theme="psychedelic"] .app-title {
+  text-shadow: 0 0 10px #f472b6, 0 0 20px #60a5fa, 0 0 30px #34d399;
+  animation: psychedelicGlow 3s ease-in-out infinite alternate;
+}
+
+[data-theme="cyberpunk"] .app-title {
+  text-shadow: 0 0 10px #ff2bd6, 0 0 20px #2bf0ff, 0 0 30px #ff2bd6;
+  animation: cyberpunkGlow 2s ease-in-out infinite alternate;
+}
+
+/* Glow animations */
+@keyframes matrixGlow {
+  from { 
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  }
+  to { 
+    text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
+  }
+}
+
+@keyframes psychedelicGlow {
+  from { 
+    text-shadow: 0 0 10px #f472b6, 0 0 20px #60a5fa, 0 0 30px #34d399;
+  }
+  to { 
+    text-shadow: 0 0 20px #60a5fa, 0 0 30px #34d399, 0 0 40px #f472b6;
+  }
+}
+
+@keyframes cyberpunkGlow {
+  from { 
+    text-shadow: 0 0 10px #ff2bd6, 0 0 20px #2bf0ff, 0 0 30px #ff2bd6;
+  }
+  to { 
+    text-shadow: 0 0 20px #2bf0ff, 0 0 30px #ff2bd6, 0 0 40px #2bf0ff;
+  }
 }
 
 .menu-list {
