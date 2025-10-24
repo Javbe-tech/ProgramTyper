@@ -1394,6 +1394,11 @@ defineExpose({
   backdrop-filter: blur(10px);
 }
 
+[data-theme="white"] .campaign-switch-dialog {
+  background: #ffffff;
+  border-color: #000000;
+}
+
 .dialog-header h3 {
   margin: 0 0 15px 0;
   color: var(--font-color);
