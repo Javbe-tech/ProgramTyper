@@ -21,7 +21,6 @@ const currentCampaign = ref('chimera');
 
 // Chat input state
 const chatInput = ref('');
-const selectedChoice = ref(null);
 const isTyping = ref(false);
 
 // Messages container ref for scrolling
@@ -174,54 +173,42 @@ function showNextMessage(conversation) {
 }
 
 function makeChoice(choice) {
-  // Set the selected choice and update input
-  selectedChoice.value = choice;
-  chatInput.value = choice.text;
+  // Immediately process the choice - no need to wait for send button
+  console.log('Choice made:', choice);
   
-  // Don't send yet - wait for user to click send
-}
+  // Add user message to chat immediately
+  messages.value.push({
+    id: Date.now() + Math.random(),
+    character: getUserName(),
+    text: choice.text,
+    timestamp: new Date(),
+    isUser: true
+  });
 
-function sendMessage() {
-  console.log('sendMessage called!');
-  console.log('selectedChoice:', selectedChoice.value);
-  console.log('chatInput:', chatInput.value);
-  
-  if (!selectedChoice.value) {
-    console.log('No selected choice, returning');
-    return;
-  }
-  
-  const choice = selectedChoice.value;
-  
+  // Auto-scroll to bottom
+  nextTick(() => {
+    scrollToBottom();
+  });
+
+  // Store choice in history
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
     timestamp: new Date()
   });
-    
-  // Add user message to chat (so it stays visible)
-  messages.value.push({
-    id: Date.now() + Math.random(),
-    character: getUserName(),
-    text: chatInput.value,
-    timestamp: new Date(),
-    isUser: true
-  });
-
-  console.log('Message added to chat:', messages.value.length);
-
-  // Auto-scroll to bottom after adding message
-  nextTick(() => {
-    scrollToBottom();
-  });
-
-  // Clear input and choices
-  chatInput.value = '';
-  selectedChoice.value = null;
+  
+  // Hide choices immediately
   showChoices.value = false;
   currentChoices.value = [];
   
   emit('choice-made', choice);
+  
+  // Process the choice and continue story
+  processChoice(choice);
+}
+
+function processChoice(choice) {
+  console.log('Processing choice:', choice);
   
   // Show response based on choice
   setTimeout(() => {
@@ -242,19 +229,45 @@ function sendMessage() {
       });
     }
     
-    // Move to next step
-    currentStep.value++;
-    if (currentStep.value < stepTriggers.length) {
-      setTimeout(() => {
+    // Move to next step after response
+    setTimeout(() => {
+      currentStep.value++;
+      if (currentStep.value < stepTriggers.length) {
+        console.log('Moving to next step:', stepTriggers[currentStep.value]);
         startConversation(stepTriggers[currentStep.value]);
-      }, 2000);
-    } else {
-      // Campaign complete - trigger boss battle
-      setTimeout(() => {
-        triggerBossBattle();
-      }, 2000);
-    }
-  }, 1000);
+      } else {
+        // Campaign complete - trigger boss battle
+        console.log('Campaign complete, triggering boss battle');
+        setTimeout(() => {
+          triggerBossBattle();
+        }, 2000);
+      }
+    }, 2000); // Wait 2 seconds after response before continuing
+  }, 1000); // Wait 1 second before showing response
+}
+
+function sendMessage() {
+  // This function is now simplified - just for manual text input if needed
+  if (!chatInput.value.trim()) {
+    return;
+  }
+  
+  // Add user message to chat
+  messages.value.push({
+    id: Date.now() + Math.random(),
+    character: getUserName(),
+    text: chatInput.value,
+    timestamp: new Date(),
+    isUser: true
+  });
+
+  // Auto-scroll to bottom
+  nextTick(() => {
+    scrollToBottom();
+  });
+
+  // Clear input
+  chatInput.value = '';
 }
 
 function getChoiceResponse(choice) {
@@ -458,47 +471,21 @@ defineExpose({
       </div>
     </div>
     
-    <div v-if="showChoices" class="chat-input-section">
+    <div v-if="showChoices" class="chat-choices-section">
       <div class="response-suggestions">
+        <h4>Choose your response:</h4>
         <div class="suggestion-buttons">
-      <button 
+          <button 
             v-for="choice in currentChoices" 
             :key="choice.id"
             @click="makeChoice(choice)"
             class="suggestion-btn"
-            :class="{ 'selected': selectedChoice?.id === choice.id }"
           >
             {{ choice.text }}
-      </button>
-        </div>
-    </div>
-    
-      <div class="chat-input-container">
-        <div class="chat-toolbar">
-          <button class="toolbar-btn" title="Emoji">😊</button>
-          <button class="toolbar-btn" title="Format">B</button>
-          <button class="toolbar-btn" title="More">⋯</button>
-    </div>
-    
-        <div class="input-wrapper">
-          <input 
-            v-model="chatInput"
-            type="text"
-            placeholder="Type your response..."
-            class="chat-input"
-            :disabled="!selectedChoice"
-            @keydown.enter="sendMessage"
-          />
-          <button 
-            @click="sendMessage"
-            class="send-btn"
-            :disabled="!selectedChoice || !chatInput.trim()"
-          >
-            Send
           </button>
-          </div>
         </div>
       </div>
+    </div>
     
     <div v-show="!shouldShowChat" class="chat-minimized">
       <button @click="toggleChat" class="toggle-chat-btn">💬</button>
@@ -655,7 +642,7 @@ defineExpose({
   word-wrap: break-word;
 }
 
-.chat-input-section {
+.chat-choices-section {
   padding: 15px;
   border-top: 1px solid var(--border-color);
   background: var(--terminal-bg);
@@ -665,6 +652,13 @@ defineExpose({
   margin-bottom: 10px;
 }
 
+.response-suggestions h4 {
+  color: var(--font-color);
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .suggestion-buttons {
   display: flex;
   flex-direction: column;
@@ -672,29 +666,25 @@ defineExpose({
 }
 
 .suggestion-btn {
-  padding: 8px 12px;
+  padding: 12px 16px;
   background: var(--bg-color);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   color: var(--font-color);
   cursor: pointer;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
   text-align: left;
   transition: all 0.2s;
-  opacity: 0.8;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .suggestion-btn:hover {
-  background: var(--active-line-bg);
-  border-color: var(--keyword);
-  opacity: 1;
-}
-
-.suggestion-btn.selected {
   background: var(--keyword);
   color: var(--bg-primary);
   border-color: var(--keyword);
-  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
 }
 
 .chat-input-container {
