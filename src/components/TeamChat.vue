@@ -9,7 +9,7 @@ const props = defineProps({
   currentCampaign: { type: String, default: 'chimera' }
 });
 
-const emit = defineEmits(['choice-made']);
+const emit = defineEmits(['choice-made', 'cancel-campaign-switch']);
 
 // Chat state - like the old FakeChat
 const messages = ref([]);
@@ -19,6 +19,10 @@ const currentChoices = ref([]);
 const choiceHistory = ref([]);
 const chatVisible = ref(true);
 const currentCampaign = ref('chimera');
+
+// Campaign switch confirmation
+const showCampaignSwitchDialog = ref(false);
+const pendingCampaign = ref(null);
 
 // Chat input state
 const chatInput = ref('');
@@ -675,16 +679,55 @@ function handleBossBattleDefeat() {
   }
 }
 
+// Handle campaign switch confirmation
+function confirmCampaignSwitch() {
+  // Complete reset of all campaign state
+  currentCampaign.value = pendingCampaign.value;
+  currentStep.value = 0;
+  messages.value = [];
+  choiceHistory.value = [];
+  currentMessageIndex.value = 0;
+  showChoices.value = false;
+  currentChoices.value = [];
+  selectedChoice.value = null;
+  chatInput.value = '';
+  isTyping.value = false;
+  
+  // Close dialog
+  showCampaignSwitchDialog.value = false;
+  pendingCampaign.value = null;
+  
+  // Start new campaign
+  setTimeout(() => {
+    startConversation('start');
+  }, 500);
+}
+
+function cancelCampaignSwitch() {
+  // Close dialog without switching
+  showCampaignSwitchDialog.value = false;
+  pendingCampaign.value = null;
+  
+  // Reset parent component's campaign back to current
+  emit('cancel-campaign-switch', currentCampaign.value);
+}
+
+// Get campaign display name
+function getCampaignName(campaignId) {
+  const names = {
+    'chimera': 'Project Chimera',
+    'janus': 'The Janus Contract',
+    'architect': 'The Architect'
+  };
+  return names[campaignId] || campaignId;
+}
+
 // Watch for campaign changes from parent
 watch(() => props.currentCampaign, (newCampaign) => {
   if (newCampaign && newCampaign !== currentCampaign.value) {
-    currentCampaign.value = newCampaign;
-    currentStep.value = 0;
-    messages.value = [];
-    choiceHistory.value = [];
-    setTimeout(() => {
-      startConversation('start');
-    }, 500);
+    // Show confirmation dialog instead of immediately switching
+    pendingCampaign.value = newCampaign;
+    showCampaignSwitchDialog.value = true;
   }
 });
 
@@ -837,6 +880,23 @@ defineExpose({
     @victory="handleBossBattleVictory"
     @defeat="handleBossBattleDefeat"
   />
+
+  <!-- Campaign Switch Confirmation Dialog -->
+  <div v-if="showCampaignSwitchDialog" class="campaign-switch-dialog-overlay">
+    <div class="campaign-switch-dialog">
+      <div class="dialog-header">
+        <h3>Switch Campaign?</h3>
+      </div>
+      <div class="dialog-content">
+        <p>Are you sure you want to switch to <strong>{{ getCampaignName(pendingCampaign) }}</strong>?</p>
+        <p class="warning-text">⚠️ Your current progress in <strong>{{ getCampaignName(currentCampaign) }}</strong> will be lost.</p>
+      </div>
+      <div class="dialog-actions">
+        <button @click="cancelCampaignSwitch" class="cancel-btn">No, Stay</button>
+        <button @click="confirmCampaignSwitch" class="confirm-btn">Yes, Switch</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -1279,5 +1339,85 @@ defineExpose({
 
 .chat-minimized .toggle-chat-btn {
   font-size: 1.5rem;
+}
+
+/* Campaign Switch Confirmation Dialog */
+.campaign-switch-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.campaign-switch-dialog {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header h3 {
+  margin: 0 0 15px 0;
+  color: var(--font-color);
+  font-size: 1.2rem;
+}
+
+.dialog-content {
+  margin-bottom: 20px;
+}
+
+.dialog-content p {
+  margin: 0 0 10px 0;
+  color: var(--font-color);
+  line-height: 1.4;
+}
+
+.warning-text {
+  color: var(--keyword) !important;
+  font-weight: bold;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancel-btn, .confirm-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: var(--bg-color);
+  color: var(--font-color);
+}
+
+.cancel-btn:hover {
+  background: var(--active-line-bg);
+}
+
+.confirm-btn {
+  background: var(--keyword);
+  color: var(--bg-primary);
+  border-color: var(--keyword);
+}
+
+.confirm-btn:hover {
+  background: var(--font-color);
+  color: var(--bg-primary);
 }
 </style>

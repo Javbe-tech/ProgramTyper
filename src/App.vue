@@ -569,6 +569,12 @@ function handleSwitchCampaign(campaignId) {
   currentCampaign.value = campaignId;
 }
 
+function handleCancelCampaignSwitch(campaignId) {
+  // Reset the campaign back to the current one when user cancels
+  console.log('Canceling campaign switch, staying with:', campaignId);
+  currentCampaign.value = campaignId;
+}
+
 // Authentication state
 const isAuthenticated = ref(false);
 const currentUser = ref(null);
@@ -1112,7 +1118,7 @@ onUnmounted(() => {
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
       </div>
       <RightAdBar v-if="showAds && !isAuthenticated" :show-ads="showAds" @remove-ads="openRemoveAds" />
-      <TeamChat :show-chat="true" :is-authenticated="isAuthenticated" :current-campaign="currentCampaign" />
+      <TeamChat :show-chat="true" :is-authenticated="isAuthenticated" :current-campaign="currentCampaign" @cancel-campaign-switch="handleCancelCampaignSwitch" />
     </div>
     <NewFileModal 
       v-if="showNewFileModal" 
