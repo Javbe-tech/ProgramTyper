@@ -860,10 +860,20 @@ defineExpose({
   font-size: 0.85rem;
   line-height: 1.4;
   word-wrap: break-word;
-  white-space: normal; /* Normal text wrapping, no special whitespace handling */
+  white-space: pre-line; /* Preserve line breaks but collapse spaces */
   text-indent: 0; /* Remove any text indentation */
   padding-left: 0; /* Ensure no left padding */
   margin-left: 0; /* Ensure no left margin */
+  text-align: left; /* Force left alignment */
+  text-transform: none; /* Don't transform text */
+}
+
+/* Specifically target user messages to ensure no indentation */
+.message.user-message .message-text {
+  text-indent: 0 !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  white-space: pre-line !important;
 }
 
 /* Old chat-input-section removed - now using response-input-container */
