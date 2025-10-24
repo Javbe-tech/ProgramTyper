@@ -732,7 +732,7 @@ defineExpose({
   margin: 0 5px 5px 5px; /* Bottom margin only */
   flex-shrink: 0; /* Don't shrink */
   max-height: 200px;
-  overflow-y: auto;
+  overflow: visible; /* Remove scrolling - everything should be visible */
 }
 
 /* Remove old chat-messages rule - now handled above */
@@ -860,8 +860,10 @@ defineExpose({
   font-size: 0.85rem;
   line-height: 1.4;
   word-wrap: break-word;
-  white-space: pre-line; /* Preserve line breaks but collapse spaces */
+  white-space: normal; /* Normal text wrapping, no special whitespace handling */
   text-indent: 0; /* Remove any text indentation */
+  padding-left: 0; /* Ensure no left padding */
+  margin-left: 0; /* Ensure no left margin */
 }
 
 /* Old chat-input-section removed - now using response-input-container */
