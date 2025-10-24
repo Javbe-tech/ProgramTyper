@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { authService } from '../services/authService.js';
 import BossBattle from './BossBattle.vue';
 
@@ -23,6 +23,9 @@ const currentCampaign = ref('chimera');
 const chatInput = ref('');
 const selectedChoice = ref(null);
 const isTyping = ref(false);
+
+// Messages container ref for scrolling
+const messagesContainer = ref(null);
 
 // Show chat by default
 const shouldShowChat = computed(() => {
@@ -160,6 +163,12 @@ function showNextMessage(conversation) {
       timestamp: new Date()
     });
     currentMessageIndex.value++;
+    
+    // Auto-scroll to bottom after adding message
+    nextTick(() => {
+      scrollToBottom();
+    });
+    
     showNextMessage(conversation);
   }, message.delay);
 }
@@ -187,11 +196,11 @@ function sendMessage() {
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
-      timestamp: new Date()
-    });
+    timestamp: new Date()
+  });
     
   // Add user message to chat (so it stays visible)
-    messages.value.push({
+  messages.value.push({
     id: Date.now() + Math.random(),
     character: getUserName(),
     text: chatInput.value,
@@ -200,6 +209,11 @@ function sendMessage() {
   });
 
   console.log('Message added to chat:', messages.value.length);
+
+  // Auto-scroll to bottom after adding message
+  nextTick(() => {
+    scrollToBottom();
+  });
 
   // Clear input and choices
   chatInput.value = '';
@@ -210,16 +224,21 @@ function sendMessage() {
   emit('choice-made', choice);
   
   // Show response based on choice
-    setTimeout(() => {
+  setTimeout(() => {
     const response = getChoiceResponse(choice);
     console.log('Response:', response);
     if (response) {
-    messages.value.push({
+      messages.value.push({
         id: Date.now() + Math.random(),
         character: response.character,
         text: response.text,
         timestamp: new Date(),
         isResponse: true
+      });
+      
+      // Auto-scroll to bottom after adding response
+      nextTick(() => {
+        scrollToBottom();
       });
     }
     
@@ -331,8 +350,20 @@ function getUserName() {
   return 'You'; // Fallback
 }
 
-function handleLogin() {
-  authService.signIn();
+function scrollToBottom() {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+}
+
+async function handleLogin() {
+  try {
+    await authService.login();
+    // The auth state will be updated automatically through the parent component
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('Login failed. Please try again.');
+  }
 }
 
 // Boss battle state
@@ -532,10 +563,13 @@ defineExpose({
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: calc(100vh - 200px); /* Ensure it doesn't grow beyond viewport */
+  scroll-behavior: smooth;
 }
 
 .message {
