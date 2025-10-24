@@ -22,42 +22,6 @@ const campaignState = reactive({
   completed: false
 });
 
-// Campaign progress tracking
-const campaignProgress = reactive({
-  chimera: {
-  currentStep: 0,
-    score: 0,
-  completed: false,
-    hasUnread: false,
-    lastMessageTime: null
-  }
-});
-
-// Campaign selector state
-const campaignSelector = reactive({
-  isExpanded: false,
-  campaigns: [
-    {
-      id: 'chimera',
-      name: 'Project Chimera',
-      icon: '🧬',
-      status: 'available'
-    },
-    {
-      id: 'leviathan',
-      name: 'The Leviathan',
-      icon: '🔒',
-      status: 'locked'
-    },
-    {
-      id: 'architect',
-      name: 'The Architect',
-      icon: '🔒',
-      status: 'locked'
-    }
-  ]
-});
-
 // Boss battle state
 const showBossBattle = ref(false);
 const bossBattleData = ref({});
@@ -196,9 +160,9 @@ function getNextCampaignInteraction() {
   const currentStep = campaignState.value.currentStep;
   
   if (currentStep < campaign.length) {
-  return campaign[currentStep];
-}
-
+    return campaign[currentStep];
+  }
+  
   return null;
 }
 
@@ -226,18 +190,18 @@ function checkCampaignCompletion() {
     
     setTimeout(() => {
       addMessage({
-      type: 'system',
-      message: ending.story,
-      timestamp: new Date()
-    });
+        type: 'system', 
+        message: ending.story,
+        timestamp: new Date()
+      });
     }, 2000);
     
     setTimeout(() => {
       addMessage({
-      type: 'system',
-      message: `💭 Moral: ${ending.moral}`,
-      timestamp: new Date()
-    });
+        type: 'system',
+        message: `💭 Moral: ${ending.moral}`,
+        timestamp: new Date()
+      });
     }, 4000);
     
     // Trigger boss battle after completion
@@ -280,11 +244,11 @@ function handleBossBattleClose() {
 
 function handleBossBattleVictory() {
   addMessage({
-      type: 'system',
+    type: 'system',
     message: '🎉 BOSS DEFEATED! The threat has been neutralized and the system is secure.',
-      timestamp: new Date()
-    });
-    
+    timestamp: new Date()
+  });
+  
   setTimeout(() => {
     handleBossBattleClose();
   }, 3000);
@@ -292,14 +256,14 @@ function handleBossBattleVictory() {
 
 function handleBossBattleDefeat() {
   addMessage({
-      type: 'system',
+    type: 'system',
     message: '💥 SYSTEM COMPROMISED! The threat has taken control of the system.',
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
+    timestamp: new Date()
+  });
+  
+  setTimeout(() => {
     handleBossBattleClose();
-    }, 3000);
+  }, 3000);
 }
 
 // Start next campaign
@@ -324,10 +288,10 @@ function startNextCampaign() {
     
     setTimeout(() => {
       addMessage({
-      type: 'system',
+        type: 'system',
         message: 'A revolutionary AI project has taken a dangerous turn. Dr. Elias Vance needs your help.',
-      timestamp: new Date()
-    });
+        timestamp: new Date()
+      });
       
       setTimeout(() => {
         startNewInteraction();
@@ -339,14 +303,6 @@ function startNextCampaign() {
 // Add message to chat
 function addMessage(message) {
   chatState.messages.push(message);
-  
-  // Mark other campaigns as having unread messages
-  Object.keys(campaignProgress).forEach(campaignId => {
-    if (campaignId !== campaignState.currentCampaign) {
-      campaignProgress[campaignId].hasUnread = true;
-    }
-  });
-  
   // Auto-scroll to bottom
   setTimeout(() => {
     const chatMessages = document.querySelector('.chat-messages');
@@ -439,129 +395,24 @@ function handleKeyPress(event) {
   }
 }
 
-// Toggle campaign selector
-function toggleCampaignSelector() {
-  campaignSelector.isExpanded = !campaignSelector.isExpanded;
-}
-
-// Switch to different campaign
-function switchCampaign(campaignId) {
-  if (campaignId === campaignState.currentCampaign) {
-    campaignSelector.isExpanded = false;
-    return;
-  }
-  
-  // Save current progress before switching
-  saveCampaignProgress();
-  
-  // Switch to new campaign
-  campaignState.currentCampaign = campaignId;
-  campaignState.currentStep = campaignProgress[campaignId]?.currentStep || 0;
-  campaignState.score = campaignProgress[campaignId]?.score || 0;
-  campaignState.completed = campaignProgress[campaignId]?.completed || false;
-  
-  // Clear current chat
-  chatState.messages = [];
-  chatState.currentInteraction = null;
-  chatState.responseOptions = [];
-  chatState.isWaitingForResponse = false;
-  
-  // Mark as read
-  campaignProgress[campaignId].hasUnread = false;
-  
-  // Collapse selector
-  campaignSelector.isExpanded = false;
-  
-  // Start the campaign
-  if (campaignId === 'chimera') {
-    startChimeraCampaign();
-  }
-}
-
-// Save current campaign progress
-function saveCampaignProgress() {
-  const currentId = campaignState.currentCampaign;
-  if (campaignProgress[currentId]) {
-    campaignProgress[currentId].currentStep = campaignState.currentStep;
-    campaignProgress[currentId].score = campaignState.score;
-    campaignProgress[currentId].completed = campaignState.completed;
-    campaignProgress[currentId].lastMessageTime = new Date();
-  }
-}
-
-// Start Chimera campaign
-function startChimeraCampaign() {
-  if (campaignState.currentStep === 0) {
-    // Fresh start
-    addMessage({
-      type: 'system',
-      message: '🕵️ PROJECT CHIMERA: A revolutionary AI project has taken a dangerous turn.',
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-      addMessage({
-        type: 'system',
-        message: 'Dr. Elias Vance needs your help to stop the AI before it\'s too late.',
-        timestamp: new Date()
-      });
-      
-      setTimeout(() => {
-        startNewInteraction();
-      }, 2000);
-    }, 2000);
-  } else {
-    // Resume from saved progress
-    addMessage({
-      type: 'system',
-      message: `📖 RESUMING PROJECT CHIMERA: Step ${campaignState.currentStep + 1}`,
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-      startNewInteraction();
-    }, 1500);
-  }
-}
-
 // Start chat system
 function startChatSystem() {
   if (authService.isAuthenticated()) {
     console.log('Chat system already authenticated, starting...');
-    
-    // Initialize campaign progress if not exists
-    if (!campaignProgress.chimera) {
-      campaignProgress.chimera = {
-        currentStep: 0,
-        score: 0,
-        completed: false,
-        hasUnread: false,
-        lastMessageTime: null
-      };
-    }
-    
-    // Load saved progress
-    campaignState.currentCampaign = 'chimera';
-    campaignState.currentStep = campaignProgress.chimera.currentStep;
-    campaignState.score = campaignProgress.chimera.score;
-    campaignState.completed = campaignProgress.chimera.completed;
+    campaignState.value.currentCampaign = 'chimera';
+    campaignState.value.currentStep = 0;
+    campaignState.value.ending = null;
+    campaignState.value.score = 0;
+    campaignState.value.completed = false;
     
     chatState.messages = [];
     
-    // Start Chimera campaign
-    startChimeraCampaign();
+    // Start first interaction
+    setTimeout(() => {
+      startNewInteraction();
+    }, 1000);
   }
 }
-
-// Computed properties
-const hasUnreadMessages = computed(() => {
-  return Object.values(campaignProgress).some(campaign => campaign.hasUnread);
-});
-
-const getCurrentCampaignName = () => {
-  const campaign = campaignSelector.campaigns.find(c => c.id === campaignState.currentCampaign);
-  return campaign ? campaign.name : 'Unknown Campaign';
-};
 
 // Lifecycle hooks
 onMounted(() => {
@@ -586,63 +437,55 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
 
 <template>
   <div class="team-chat-container">
-    <!-- Slim Campaign Selector -->
-    <div class="campaign-selector" :class="{ 'expanded': campaignSelector.isExpanded }">
-      <div class="selector-tab" @click="toggleCampaignSelector">
-        <div class="tab-icon">📁</div>
-        <div class="tab-text">Campaigns</div>
-        <div class="tab-indicator" v-if="hasUnreadMessages">●</div>
-        <div class="tab-arrow" :class="{ 'rotated': campaignSelector.isExpanded }">▼</div>
-      </div>
-      
-      <div class="campaign-list" v-if="campaignSelector.isExpanded">
-        <div 
-          v-for="campaign in campaignSelector.campaigns" 
-          :key="campaign.id"
-          class="campaign-item"
-          :class="{ 
-            'active': campaignState.currentCampaign === campaign.id,
-            'locked': campaign.status === 'locked',
-            'has-unread': campaignProgress[campaign.id]?.hasUnread
-          }"
-          @click="campaign.status !== 'locked' && switchCampaign(campaign.id)"
-        >
-          <div class="campaign-icon">{{ campaign.icon }}</div>
-          <div class="campaign-name">{{ campaign.name }}</div>
-          <div class="campaign-status">
-            <span v-if="campaignProgress[campaign.id]?.hasUnread" class="unread-dot">●</span>
-            <span v-else-if="campaignProgress[campaign.id]?.completed" class="completed-check">✓</span>
-            <span v-else-if="campaign.status === 'locked'" class="locked-icon">🔒</span>
-          </div>
+    <!-- Server Selection Sidebar -->
+    <div class="server-sidebar">
+      <div class="server-list">
+        <div class="server-item" :class="{ 'active': campaignState.currentCampaign === 'chimera', 'completed': false }">
+          <div class="server-icon">🧬</div>
+          <div class="server-name">Project Chimera</div>
+          <div class="server-status" v-if="false">✓</div>
+        </div>
+        
+        <!-- Placeholder for future campaigns -->
+        <div class="server-item locked">
+          <div class="server-icon">🔒</div>
+          <div class="server-name">The Leviathan</div>
+          <div class="server-status">🔒</div>
+        </div>
+        
+        <div class="server-item locked">
+          <div class="server-icon">🔒</div>
+          <div class="server-name">The Architect</div>
+          <div class="server-status">🔒</div>
         </div>
       </div>
     </div>
 
     <!-- Chat Area -->
     <div class="chat-area">
-    <div class="chat-header">
-      <h3>Team Chat</h3>
+      <div class="chat-header">
+        <h3>Team Chat</h3>
         <div class="campaign-info">
-          <span class="campaign-name">{{ getCurrentCampaignName() }}</span>
+          <span class="campaign-name">{{ campaignState.currentCampaign.toUpperCase() }}</span>
           <span class="campaign-step">Step {{ campaignState.currentStep + 1 }}</span>
+        </div>
       </div>
-    </div>
-    
+      
       <div class="chat-messages" ref="chatMessages">
-      <div 
+        <div 
           v-for="(message, index) in chatState.messages" 
           :key="index"
-        class="message"
-        :class="message.type"
-      >
+          class="message"
+          :class="message.type"
+        >
           <div class="message-header" v-if="message.type === 'team-member'">
             <span class="member-name">{{ message.member }}</span>
             <span class="message-time">{{ message.timestamp.toLocaleTimeString() }}</span>
+          </div>
+          <div class="message-content" :class="{ 'system-message': message.type === 'system' }">{{ message.message }}</div>
         </div>
-        <div class="message-content" :class="{ 'system-message': message.type === 'system' }">{{ message.message }}</div>
       </div>
-    </div>
-    
+      
       <div class="response-options" v-if="chatState.responseOptions.length > 0">
         <div 
           v-for="option in chatState.responseOptions" 
@@ -654,7 +497,7 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
         </div>
       </div>
     </div>
-    
+
     <!-- Boss Battle Component -->
     <BossBattle 
       :show="showBossBattle"
@@ -664,7 +507,7 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
       @victory="handleBossBattleVictory"
       @defeat="handleBossBattleDefeat"
     />
-    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -673,128 +516,68 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   height: 100%;
   background: var(--bg-primary);
   color: var(--text-primary);
-  position: relative;
 }
 
-/* Slim Campaign Selector */
-.campaign-selector {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 1000;
+/* Server Sidebar */
+.server-sidebar {
+  width: 200px;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  border-right: 1px solid var(--border-color);
+  padding: 20px 0;
 }
 
-.campaign-selector.expanded {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.selector-tab {
+.server-list {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  min-width: 120px;
+  padding: 0 16px;
 }
 
-.selector-tab:hover {
-  background: var(--bg-hover);
-}
-
-.tab-icon {
-  font-size: 16px;
-}
-
-.tab-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.tab-indicator {
-  color: var(--red);
-  font-size: 12px;
-  margin-left: auto;
-}
-
-.tab-arrow {
-  font-size: 10px;
-  color: var(--text-secondary);
-  transition: transform 0.2s ease;
-}
-
-.tab-arrow.rotated {
-  transform: rotate(180deg);
-}
-
-.campaign-list {
-  border-top: 1px solid var(--border-color);
-  padding: 8px 0;
-  background: var(--bg-secondary);
-  border-radius: 0 0 8px 8px;
-}
-
-.campaign-item {
+.server-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
 }
 
-.campaign-item:hover {
+.server-item:hover {
   background: var(--bg-hover);
 }
 
-.campaign-item.active {
+.server-item.active {
   background: var(--keyword);
   color: var(--bg-primary);
 }
 
-.campaign-item.locked {
+.server-item.completed {
+  background: linear-gradient(135deg, var(--keyword), var(--accent));
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px var(--keyword);
+}
+
+.server-item.locked {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.campaign-item.has-unread {
-  border-left: 3px solid var(--red);
-}
-
-.campaign-icon {
-  font-size: 16px;
-  width: 20px;
+.server-icon {
+  font-size: 20px;
+  width: 24px;
   text-align: center;
 }
 
-.campaign-name {
-  font-size: 13px;
+.server-name {
   font-weight: 500;
-  flex: 1;
+  font-size: 14px;
 }
 
-.campaign-status {
-  font-size: 12px;
-}
-
-.unread-dot {
-  color: var(--red);
-}
-
-.completed-check {
-  color: var(--keyword);
-}
-
-.locked-icon {
-  opacity: 0.6;
+.server-status {
+  margin-left: auto;
+  font-size: 16px;
 }
 
 /* Chat Area */
