@@ -172,6 +172,7 @@ function makeChoice(choice) {
 }
 
 function sendMessage() {
+  console.log('sendMessage called, selectedChoice:', selectedChoice.value);
   if (!selectedChoice.value) return;
   
   const choice = selectedChoice.value;
@@ -179,11 +180,11 @@ function sendMessage() {
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
-      timestamp: new Date()
-    });
-    
+    timestamp: new Date()
+  });
+  
   // Add user message to chat (so it stays visible)
-    messages.value.push({
+  messages.value.push({
     id: Date.now() + Math.random(),
     character: getUserName(),
     text: chatInput.value,
@@ -200,10 +201,11 @@ function sendMessage() {
   emit('choice-made', choice);
   
   // Show response based on choice
-    setTimeout(() => {
+  setTimeout(() => {
     const response = getChoiceResponse(choice);
+    console.log('Response:', response);
     if (response) {
-    messages.value.push({
+      messages.value.push({
         id: Date.now() + Math.random(),
         character: response.character,
         text: response.text,
@@ -366,9 +368,8 @@ defineExpose({
     
     <div v-if="showChoices" class="chat-input-section">
       <div class="response-suggestions">
-        <div class="suggestions-header">Suggested responses:</div>
         <div class="suggestion-buttons">
-          <button 
+      <button 
             v-for="choice in currentChoices" 
             :key="choice.id"
             @click="makeChoice(choice)"
@@ -376,11 +377,17 @@ defineExpose({
             :class="{ 'selected': selectedChoice?.id === choice.id }"
           >
             {{ choice.text }}
-          </button>
+      </button>
         </div>
-      </div>
-      
+    </div>
+    
       <div class="chat-input-container">
+        <div class="chat-toolbar">
+          <button class="toolbar-btn" title="Emoji">😊</button>
+          <button class="toolbar-btn" title="Format">B</button>
+          <button class="toolbar-btn" title="More">⋯</button>
+    </div>
+    
         <div class="input-wrapper">
           <input 
             v-model="chatInput"
@@ -390,29 +397,21 @@ defineExpose({
             :disabled="!selectedChoice"
             @keydown.enter="sendMessage"
           />
-      <button 
+          <button 
             @click="sendMessage"
             class="send-btn"
             :disabled="!selectedChoice || !chatInput.trim()"
-      >
-        Send
-      </button>
-    </div>
-      </div>
-    </div>
-    
-      <div class="chat-footer">
-      <div class="karma-indicator">
-        <span class="karma-label">Karma:</span>
-        <span class="karma-value" :class="getKarmaClass()">{{ getTotalKarma() }}</span>
+          >
+            Send
+          </button>
           </div>
         </div>
       </div>
-  
-  <div v-show="!shouldShowChat" class="chat-minimized">
-    <button @click="toggleChat" class="toggle-chat-btn">💬</button>
+    
+    <div v-show="!shouldShowChat" class="chat-minimized">
+      <button @click="toggleChat" class="toggle-chat-btn">💬</button>
     </div>
-
+    
   <!-- Boss Battle Component -->
   <BossBattle 
     :show="showBossBattle"
@@ -566,14 +565,7 @@ defineExpose({
 }
 
 .response-suggestions {
-  margin-bottom: 15px;
-}
-
-.suggestions-header {
-  color: var(--font-color);
-  font-size: 0.8rem;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 10px;
 }
 
 .suggestion-buttons {
@@ -610,7 +602,29 @@ defineExpose({
 
 .chat-input-container {
   border-top: 1px solid var(--border-color);
-  padding-top: 15px;
+  padding-top: 10px;
+}
+
+.chat-toolbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.toolbar-btn {
+  padding: 4px 8px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--font-color);
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: var(--active-line-bg);
+  border-color: var(--keyword);
 }
 
 .input-wrapper {
@@ -662,39 +676,6 @@ defineExpose({
   cursor: not-allowed;
 }
 
-.chat-footer {
-  padding: 10px 15px;
-  border-top: 1px solid var(--border-color);
-  background: var(--terminal-bg);
-}
-
-.karma-indicator {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.karma-label {
-  color: var(--gray);
-  font-size: 0.8rem;
-}
-
-.karma-value {
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-
-.karma-value.positive {
-  color: var(--completed-green);
-}
-
-.karma-value.negative {
-  color: var(--red);
-}
-
-.karma-value.neutral {
-  color: var(--gray);
-}
 
 .chat-minimized {
   width: 50px;
