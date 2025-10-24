@@ -10,7 +10,7 @@ import { synergyCampaign, synergyResponses } from '../campaigns/synergy.js';
 const props = defineProps({
   showChat: { type: Boolean, default: true },
   isAuthenticated: { type: Boolean, default: false },
-  currentCampaign: { type: String, default: 'chimera' }
+  currentCampaign: { type: String, default: 'synergy' }
 });
 
 const emit = defineEmits(['choice-made', 'cancel-campaign-switch']);

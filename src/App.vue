@@ -11,6 +11,7 @@ import FileCompletionAnimation from './components/FileCompletionAnimation.vue';
 import RemoveAdsModal from './components/RemoveAdsModal.vue';
 import HelpModal from './components/HelpModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
+import WelcomeModal from './components/WelcomeModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
 import { userStatsService } from './services/userStatsService.js';
@@ -575,10 +576,15 @@ function handleCancelCampaignSwitch(campaignId) {
   currentCampaign.value = campaignId;
 }
 
+function handleWelcomeClose() {
+  // Welcome modal closed - no action needed
+  console.log('Welcome modal closed');
+}
+
 // Authentication state
 const isAuthenticated = ref(false);
 const currentUser = ref(null);
-const currentCampaign = ref('chimera'); // Track current campaign
+const currentCampaign = ref('synergy'); // Track current campaign
 
 // File system with campaign-specific files
 const fileSystem = computed(() => {
@@ -1269,6 +1275,9 @@ onUnmounted(() => {
       @close="showSettingsModal = false"
       @open-pro-upgrade="openProUpgrade"
     />
+    
+    <!-- Welcome Modal -->
+    <WelcomeModal @close="handleWelcomeClose" />
     
     <!-- Matrix Effect Overlay -->
     <div v-if="showMatrixEffect" class="matrix-overlay">
