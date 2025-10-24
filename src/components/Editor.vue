@@ -781,20 +781,20 @@ onUnmounted(() => {
 }
 
 [data-theme="black-white"] .tab.completed {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-left: 3px solid #000000;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-left: 3px solid #ffffff;
 }
 
 [data-theme="black-white"] .tab-name.completed {
-  color: #000000;
+  color: #ffffff;
 }
 
 [data-theme="black-white"] .challenge-count.success {
-  background-color: #000000;
+  background-color: #ffffff;
 }
 
 [data-theme="black-white"] .completed-challenge span {
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 
 [data-theme="psychedelic"] .tab.completed {
@@ -815,19 +815,19 @@ onUnmounted(() => {
 }
 
 [data-theme="white"] .tab.completed {
-  background-color: rgba(124, 58, 237, 0.2);
-  border-left: 3px solid #7c3aed;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-left: 3px solid #000000;
 }
 
 [data-theme="white"] .tab-name.completed {
-  color: #7c3aed;
+  color: #000000;
 }
 
 [data-theme="white"] .challenge-count.success {
-  background-color: #7c3aed;
+  background-color: #000000;
 }
 
 [data-theme="white"] .completed-challenge span {
-  color: #7c3aed !important;
+  color: #000000 !important;
 }
 </style>

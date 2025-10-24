@@ -637,14 +637,84 @@ onUnmounted(() => {
   text-shadow: 0 0 10px #000000;
 }
 
+/* Psychedelic theme overrides */
+[data-theme="psychedelic"] .completion-popup {
+  border-color: #f472b6;
+}
+
+[data-theme="psychedelic"] .start-next-btn {
+  background: #f472b6;
+}
+
+[data-theme="psychedelic"] .start-next-btn:hover {
+  background: #60a5fa;
+}
+
+[data-theme="psychedelic"] .scan-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #f472b6 50%, 
+    transparent 100%
+  );
+}
+
+[data-theme="psychedelic"] .scan-text {
+  color: #f472b6;
+  text-shadow: 0 0 10px #f472b6;
+}
+
+[data-theme="psychedelic"] .funny-stat {
+  background: rgba(244, 114, 182, 0.1);
+  border: 1px solid rgba(244, 114, 182, 0.3);
+  color: #f472b6;
+}
+
 [data-theme="psychedelic"] .ascii-art {
   color: #f472b6;
   text-shadow: 0 0 10px #f472b6;
 }
 
+/* White theme overrides */
+[data-theme="white"] .completion-popup {
+  border-color: #000000;
+}
+
+[data-theme="white"] .start-next-btn {
+  background: #000000;
+}
+
+[data-theme="white"] .start-next-btn:hover {
+  background: #374151;
+}
+
+[data-theme="white"] .scan-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #000000 50%, 
+    transparent 100%
+  );
+}
+
+[data-theme="white"] .scan-text {
+  color: #000000;
+  text-shadow: 0 0 10px #000000;
+}
+
+[data-theme="white"] .funny-stat {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  color: #000000;
+}
+
 [data-theme="white"] .ascii-art {
-  color: #7c3aed;
-  text-shadow: 0 0 10px #7c3aed;
+  color: #000000;
+  text-shadow: 0 0 10px #000000;
+}
+
+/* Black-White theme - revert to original white colors */
+[data-theme="black-white"] .ascii-art {
+  color: #ffffff;
+  text-shadow: 0 0 10px #ffffff;
 }
 
 /* Matrix theme keyframes */
