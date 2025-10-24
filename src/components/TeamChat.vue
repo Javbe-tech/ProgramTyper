@@ -398,11 +398,11 @@ function sendMessage() {
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
-    timestamp: new Date()
-  });
+      timestamp: new Date()
+    });
     
   // Add user message to chat (so it stays visible)
-  messages.value.push({
+    messages.value.push({
     id: Date.now() + Math.random(),
     character: getUserName(),
     text: chatInput.value,
@@ -433,33 +433,33 @@ function getChoiceResponse(choice) {
   // Campaign-specific responses
   const campaignResponses = {
     'chimera': {
-      0: { // Step 1 responses
-        'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
-        'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
-      },
-      1: { // Step 2 responses
-        'good': { character: 'Dr. Elias Vance', text: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.' },
-        'bad': { character: 'Dr. Elias Vance', text: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.' }
-      },
-      2: { // Step 3 responses
-        'good': { character: 'Dr. Elias Vance', text: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.' },
-        'bad': { character: 'Dr. Elias Vance', text: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.' }
-      },
-      3: { // Step 4 responses
-        'good': { character: 'Dr. Elias Vance', text: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.' },
-        'bad': { character: 'Dr. Elias Vance', text: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.' }
-      },
-      4: { // Step 5 responses
-        'good': { character: 'Dr. Elias Vance', text: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."' },
-        'bad': { character: 'Dr. Elias Vance', text: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.' }
-      },
-      5: { // Step 6 responses
-        'good': { character: 'Dr. Elias Vance', text: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?' },
-        'bad': { character: 'Dr. Elias Vance', text: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.' }
-      },
-      6: { // Step 7 responses
-        'good': { character: 'Dr. Elias Vance', text: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.' },
-        'bad': { character: 'Dr. Elias Vance', text: 'Good. For everyone\'s sake. Let\'s get to work.' }
+    0: { // Step 1 responses
+      'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
+    },
+    1: { // Step 2 responses
+      'good': { character: 'Dr. Elias Vance', text: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.' }
+    },
+    2: { // Step 3 responses
+      'good': { character: 'Dr. Elias Vance', text: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.' }
+    },
+    3: { // Step 4 responses
+      'good': { character: 'Dr. Elias Vance', text: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.' }
+    },
+    4: { // Step 5 responses
+      'good': { character: 'Dr. Elias Vance', text: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."' },
+      'bad': { character: 'Dr. Elias Vance', text: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.' }
+    },
+    5: { // Step 6 responses
+      'good': { character: 'Dr. Elias Vance', text: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?' },
+      'bad': { character: 'Dr. Elias Vance', text: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.' }
+    },
+    6: { // Step 7 responses
+      'good': { character: 'Dr. Elias Vance', text: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'Good. For everyone\'s sake. Let\'s get to work.' }
       }
     },
     'janus': {
@@ -640,6 +640,16 @@ function handleBossBattleVictory() {
             isResponse: true
           });
         }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
       }, 1000);
     } else {
       // Loyalist ending - Victory
@@ -661,6 +671,16 @@ function handleBossBattleVictory() {
             isResponse: true
           });
         }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
       }, 1000);
     }
   } else if (campaignType === 'janus') {
@@ -684,6 +704,16 @@ function handleBossBattleVictory() {
             isResponse: true
           });
         }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
       }, 1000);
     } else {
       // Network Ghost ending - Victory
@@ -705,6 +735,16 @@ function handleBossBattleVictory() {
             isResponse: true
           });
         }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
       }, 1000);
     }
   } else if (campaignType === 'warden') {
@@ -728,6 +768,16 @@ function handleBossBattleVictory() {
             isResponse: true
           });
         }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
       }, 1000);
     } else {
       // The Liberator ending - Victory
@@ -749,6 +799,16 @@ function handleBossBattleVictory() {
             isResponse: true
           });
         }, 3000);
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 6000);
       }, 1000);
     }
   }
@@ -772,6 +832,16 @@ function handleBossBattleDefeat() {
           timestamp: new Date(),
           isResponse: true
         });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
       }, 1000);
     } else {
       // Loyalist ending - Defeat
@@ -802,6 +872,16 @@ function handleBossBattleDefeat() {
               isResponse: true
             });
           }, 3000);
+          
+          setTimeout(() => {
+            messages.value.push({
+              id: Date.now() + Math.random(),
+              character: 'System',
+              text: '[CONNECTION SEVERED]',
+              timestamp: new Date(),
+              isResponse: true
+            });
+          }, 6000);
         }, 3000);
       }, 1000);
     }
@@ -816,6 +896,16 @@ function handleBossBattleDefeat() {
           timestamp: new Date(),
           isResponse: true
         });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
       }, 1000);
     } else {
       // Network Ghost ending - Defeat
@@ -827,6 +917,16 @@ function handleBossBattleDefeat() {
           timestamp: new Date(),
           isResponse: true
         });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
       }, 1000);
     }
   } else if (campaignType === 'warden') {
@@ -840,6 +940,16 @@ function handleBossBattleDefeat() {
           timestamp: new Date(),
           isResponse: true
         });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
       }, 1000);
     } else {
       // The Liberator ending - Defeat
@@ -851,6 +961,16 @@ function handleBossBattleDefeat() {
           timestamp: new Date(),
           isResponse: true
         });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '[CONNECTION SEVERED]',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
       }, 1000);
     }
   }
@@ -970,7 +1090,7 @@ defineExpose({
     <div class="chat-header">
       <h3>Team Communications</h3>
       <button @click="toggleChat" class="toggle-chat-btn">−</button>
-    </div>
+        </div>
     
     <!-- Login Widget when not authenticated -->
     <div v-if="!props.isAuthenticated" class="login-widget">
@@ -993,71 +1113,71 @@ defineExpose({
     <div v-else class="chat-layout">
       <!-- FIXED CHAT MESSAGES BOX -->
       <div class="chat-messages-container">
-        <div class="chat-messages" ref="messagesContainer">
-          <div 
-            v-for="message in messages" 
-            :key="message.id"
-            class="message"
-            :class="{ 'response': message.isResponse, 'user-message': message.isUser }"
-          >
-            <div class="message-avatar" :style="{ backgroundColor: getCharacterColor(message.character) }">
-              {{ getCharacterAvatar(message.character) }}
-            </div>
-            <div class="message-content">
-              <div class="message-header">
-                <span class="character-name">{{ message.character }}</span>
-                <span class="message-time">{{ formatTime(message.timestamp) }}</span>
-              </div>
-              <div class="message-text">{{ message.text }}</div>
+    <div class="chat-messages" ref="messagesContainer">
+      <div 
+        v-for="message in messages" 
+        :key="message.id"
+        class="message"
+        :class="{ 'response': message.isResponse, 'user-message': message.isUser }"
+      >
+        <div class="message-avatar" :style="{ backgroundColor: getCharacterColor(message.character) }">
+          {{ getCharacterAvatar(message.character) }}
+          </div>
+        <div class="message-content">
+          <div class="message-header">
+            <span class="character-name">{{ message.character }}</span>
+            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+        </div>
+          <div class="message-text">{{ message.text }}</div>
             </div>
           </div>
-        </div>
       </div>
-      
+    </div>
+    
       <!-- FIXED RESPONSE/INPUT BOX -->
       <div class="response-input-container">
         <!-- Choice buttons - only show when there are choices -->
         <div v-if="showChoices && currentChoices.length > 0" class="response-suggestions">
-          <div class="suggestion-buttons">
-            <button 
-              v-for="choice in currentChoices" 
-              :key="choice.id"
-              @click="makeChoice(choice)"
-              class="suggestion-btn"
-              :class="{ 'selected': selectedChoice?.id === choice.id }"
-            >
-              {{ choice.text }}
-            </button>
-          </div>
+        <div class="suggestion-buttons">
+      <button 
+            v-for="choice in currentChoices" 
+            :key="choice.id"
+            @click="makeChoice(choice)"
+            class="suggestion-btn"
+            :class="{ 'selected': selectedChoice?.id === choice.id }"
+          >
+            {{ choice.text }}
+      </button>
         </div>
-        
+    </div>
+    
         <!-- Input field - always visible -->
-        <div class="chat-input-container">
-          <div class="input-wrapper">
-            <input 
-              v-model="chatInput"
-              type="text"
+      <div class="chat-input-container">
+        <div class="input-wrapper">
+          <input 
+            v-model="chatInput"
+            type="text"
               :placeholder="showChoices ? 'Type your response...' : 'Type a message...'"
-              class="chat-input"
+            class="chat-input"
               :disabled="showChoices && !selectedChoice"
-              @keydown.enter="sendMessage"
-            />
-            <button 
-              @click="sendMessage"
-              class="send-btn"
+            @keydown.enter="sendMessage"
+          />
+          <button 
+            @click="sendMessage"
+            class="send-btn"
               :disabled="(showChoices && !selectedChoice) || !chatInput.trim()"
-            >
-              Send
-            </button>
+          >
+            Send
+          </button>
           </div>
         </div>
       </div>
     </div>
   </div> <!-- Close authenticated div -->
-  
+    
   <!-- Minimized chat button - always visible when chat is hidden -->
-  <div v-show="!shouldShowChat" class="chat-minimized">
-    <button @click="toggleChat" class="toggle-chat-btn">💬</button>
+    <div v-show="!shouldShowChat" class="chat-minimized">
+      <button @click="toggleChat" class="toggle-chat-btn">💬</button>
   </div>
   
   <!-- Boss Battle Component -->
