@@ -467,8 +467,10 @@ defineExpose({
       </div>
     </div>
     
-    <div v-if="showChoices" class="chat-input-section">
-      <div class="response-suggestions">
+    <!-- Always visible input section -->
+    <div class="chat-input-section">
+      <!-- Choice buttons - only show when there are choices -->
+      <div v-if="showChoices && currentChoices.length > 0" class="response-suggestions">
         <div class="suggestion-buttons">
           <button 
             v-for="choice in currentChoices" 
@@ -482,20 +484,21 @@ defineExpose({
         </div>
       </div>
       
+      <!-- Input field - always visible -->
       <div class="chat-input-container">
         <div class="input-wrapper">
           <input 
             v-model="chatInput"
             type="text"
-            placeholder="Type your response..."
+            :placeholder="showChoices ? 'Type your response...' : 'Type a message...'"
             class="chat-input"
-            :disabled="!selectedChoice"
+            :disabled="showChoices && !selectedChoice"
             @keydown.enter="sendMessage"
           />
           <button 
             @click="sendMessage"
             class="send-btn"
-            :disabled="!selectedChoice || !chatInput.trim()"
+            :disabled="(showChoices && !selectedChoice) || !chatInput.trim()"
           >
             Send
           </button>
@@ -626,14 +629,15 @@ defineExpose({
 }
 
 .message:not(.user-message) .message-text {
-  background: var(--bg-color);
-  color: var(--font-color);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   padding: 10px 14px;
   border-radius: 18px;
   border-bottom-left-radius: 4px; /* Pointed corner like Android */
   display: inline-block;
   word-wrap: break-word;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 /* User messages - right aligned, no avatar */
@@ -648,13 +652,14 @@ defineExpose({
 }
 
 .message.user-message .message-text {
-  background: var(--keyword);
-  color: var(--bg-primary);
+  background: #7c3aed;
+  color: #ffffff;
   padding: 10px 14px;
   border-radius: 18px;
   border-bottom-right-radius: 4px; /* Pointed corner like Android */
   display: inline-block;
   word-wrap: break-word;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
 }
 
 .message.user-message .message-avatar {
@@ -702,17 +707,19 @@ defineExpose({
 
 .character-name {
   font-weight: 500;
-  color: var(--font-color);
+  color: #ffffff;
   font-size: 0.75rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .message-time {
-  color: var(--gray);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.65rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .message-text {
-  color: var(--font-color);
+  color: #ffffff;
   font-size: 0.85rem;
   line-height: 1.4;
   word-wrap: break-word;
