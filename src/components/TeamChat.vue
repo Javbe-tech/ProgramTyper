@@ -1272,6 +1272,13 @@ defineExpose({
   border: 1px solid #000000;
 }
 
+/* White theme - make user text bubble very light gray */
+[data-theme="white"] .message.user-message .message-text {
+  background: #f5f5f5 !important;
+  color: #000000 !important;
+  border: 1px solid #e0e0e0;
+}
+
 .message.user-message .message-avatar {
   display: none; /* Hide avatar for user messages */
 }
