@@ -165,6 +165,15 @@ function makeChoice(choice) {
       timestamp: new Date()
     });
     
+  // Add user message to chat (so it stays visible)
+    messages.value.push({
+    id: Date.now() + Math.random(),
+    character: getUserName(),
+    text: choice.text,
+    timestamp: new Date(),
+    isUser: true
+  });
+
   showChoices.value = false;
   currentChoices.value = [];
   
@@ -186,10 +195,10 @@ function makeChoice(choice) {
     // Move to next step
     currentStep.value++;
     if (currentStep.value < stepTriggers.length) {
-      setTimeout(() => {
+    setTimeout(() => {
         startConversation(stepTriggers[currentStep.value]);
       }, 2000);
-    } else {
+  } else {
       // Campaign complete - trigger boss battle
       setTimeout(() => {
         triggerBossBattle();
@@ -251,6 +260,18 @@ function getKarmaClass() {
   return 'neutral';
 }
 
+function getUserName() {
+  // Try to get user name from auth service
+  const user = authService.getCurrentUser();
+  if (user && user.name) {
+    return user.name;
+  }
+  if (user && user.email) {
+    return user.email.split('@')[0]; // Use email prefix
+  }
+  return 'You'; // Fallback
+}
+
 // Boss battle state
 const showBossBattle = ref(false);
 const bossBattleData = ref({
@@ -275,7 +296,20 @@ function handleBossBattleDefeat() {
 // Start conversation when component mounts
 onMounted(() => {
   startConversation('start');
+  document.addEventListener('keydown', handleKeyPress);
 });
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyPress);
+});
+
+// Handle cheat key for boss battle
+function handleKeyPress(event) {
+  if (event.ctrlKey && event.key === 'b') {
+    event.preventDefault();
+    triggerBossBattle();
+  }
+}
 
 // Expose methods for parent component
 defineExpose({
@@ -295,7 +329,7 @@ defineExpose({
         v-for="message in messages" 
         :key="message.id"
         class="message"
-        :class="{ 'response': message.isResponse }"
+        :class="{ 'response': message.isResponse, 'user-message': message.isUser }"
       >
         <div class="message-avatar" :style="{ backgroundColor: getCharacterColor(message.character) }">
           {{ getCharacterAvatar(message.character) }}
@@ -327,13 +361,13 @@ defineExpose({
       <div class="karma-indicator">
         <span class="karma-label">Karma:</span>
         <span class="karma-value" :class="getKarmaClass()">{{ getTotalKarma() }}</span>
+          </div>
         </div>
       </div>
-    </div>
   
   <div v-show="!shouldShowChat" class="chat-minimized">
     <button @click="toggleChat" class="toggle-chat-btn">💬</button>
-  </div>
+    </div>
 
   <!-- Boss Battle Component -->
   <BossBattle 
@@ -402,6 +436,27 @@ defineExpose({
   display: flex;
   gap: 10px;
   animation: slideIn 0.3s ease-out;
+}
+
+.message.user-message {
+  flex-direction: row-reverse;
+}
+
+.message.user-message .message-content {
+  text-align: right;
+}
+
+.message.user-message .message-text {
+  background: var(--keyword);
+  color: var(--bg-primary);
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 80%;
+}
+
+.message.user-message .message-avatar {
+  background: var(--keyword) !important;
 }
 
 .message.response {
@@ -483,14 +538,16 @@ defineExpose({
   color: var(--font-color);
   cursor: pointer;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   text-align: left;
   transition: all 0.2s;
+  opacity: 0.7;
 }
 
 .choice-btn:hover {
   background: var(--active-line-bg);
   border-color: var(--keyword);
+  opacity: 1;
 }
 
 .choice-btn.good-karma {
