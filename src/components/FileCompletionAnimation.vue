@@ -359,7 +359,7 @@ onUnmounted(() => {
   height: 2px;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    #00ff00 50%, 
+    var(--keyword) 50%, 
     transparent 100%
   );
   animation: scanMove 3s ease-in-out;
@@ -367,11 +367,11 @@ onUnmounted(() => {
 }
 
 .scan-text {
-  color: #00ff00;
+  color: var(--keyword);
   font-family: 'Courier New', monospace;
   font-size: 1.2rem;
   font-weight: bold;
-  text-shadow: 0 0 10px #00ff00;
+  text-shadow: 0 0 10px var(--keyword);
   animation: scanTextPulse 0.5s ease-in-out infinite alternate;
 }
 
@@ -446,9 +446,9 @@ onUnmounted(() => {
   font-style: italic;
   font-size: 0.9rem;
   padding: 10px;
-  background: rgba(124, 58, 237, 0.1);
+  background: var(--bg-color);
   border-radius: 6px;
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  border: 1px solid var(--keyword);
 }
 
 .next-file-prompt {
@@ -476,7 +476,7 @@ onUnmounted(() => {
 }
 
 .start-next-btn:hover {
-  background: #22c55e;
+  background: var(--font-color);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -499,11 +499,11 @@ onUnmounted(() => {
 @keyframes scanTextPulse {
   from { 
     opacity: 0.7;
-    text-shadow: 0 0 10px #00ff00;
+    text-shadow: 0 0 10px var(--keyword);
   }
   to { 
     opacity: 1;
-    text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00;
+    text-shadow: 0 0 20px var(--keyword), 0 0 30px var(--keyword);
   }
 }
 
@@ -516,5 +516,57 @@ onUnmounted(() => {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+}
+
+/* Theme-specific overrides */
+[data-theme="matrix"] .scan-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #00ff00 50%, 
+    transparent 100%
+  );
+}
+
+[data-theme="matrix"] .funny-stat {
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  color: #00ff00;
+}
+
+[data-theme="black-white"] .funny-stat {
+  background: #f0f0f0;
+  border: 1px solid #000000;
+  color: #000000;
+}
+
+[data-theme="black-white"] .scan-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #000000 50%, 
+    transparent 100%
+  );
+}
+
+[data-theme="black-white"] .scan-text {
+  color: #000000;
+  text-shadow: 0 0 10px #000000;
+}
+
+/* Matrix theme keyframes */
+@keyframes matrixScanTextPulse {
+  from { 
+    opacity: 0.7;
+    text-shadow: 0 0 10px #00ff00;
+  }
+  to { 
+    opacity: 1;
+    text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00;
+  }
+}
+
+[data-theme="matrix"] .scan-text {
+  color: #00ff00;
+  text-shadow: 0 0 10px #00ff00;
+  animation: matrixScanTextPulse 0.5s ease-in-out infinite alternate;
 }
 </style>
