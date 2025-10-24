@@ -136,7 +136,20 @@ function processChoice(choice) {
       currentStep.value++;
       if (currentStep.value < stepTriggers.length) {
         console.log('Moving to next step:', stepTriggers[currentStep.value]);
-        startConversation(stepTriggers[currentStep.value]);
+        
+        // Check if this is a back-to-back message (within 5 seconds of previous message)
+        const lastMessage = messages.value[messages.value.length - 1];
+        const timeSinceLastMessage = Date.now() - lastMessage.timestamp.getTime();
+        const isBackToBack = timeSinceLastMessage < 5000; // Less than 5 seconds
+        
+        if (isBackToBack) {
+          console.log('Back-to-back message detected, adding 20 second delay');
+          setTimeout(() => {
+            startConversation(stepTriggers[currentStep.value]);
+          }, 20000); // 20 second delay for back-to-back messages
+        } else {
+          startConversation(stepTriggers[currentStep.value]);
+        }
       } else {
         // Campaign complete - trigger boss battle
         console.log('Campaign complete, triggering boss battle');
