@@ -552,6 +552,70 @@ onUnmounted(() => {
   text-shadow: 0 0 10px #000000;
 }
 
+/* Black-Red theme overrides */
+[data-theme="black-red"] .completion-popup {
+  border-color: #ff2d2d;
+}
+
+[data-theme="black-red"] .start-next-btn {
+  background: #ff2d2d;
+}
+
+[data-theme="black-red"] .start-next-btn:hover {
+  background: #ff5a5a;
+}
+
+[data-theme="black-red"] .scan-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #ff2d2d 50%, 
+    transparent 100%
+  );
+}
+
+[data-theme="black-red"] .scan-text {
+  color: #ff2d2d;
+  text-shadow: 0 0 10px #ff2d2d;
+}
+
+[data-theme="black-red"] .funny-stat {
+  background: rgba(255, 45, 45, 0.1);
+  border: 1px solid rgba(255, 45, 45, 0.3);
+  color: #ff2d2d;
+}
+
+/* Cyberpunk theme overrides */
+[data-theme="cyberpunk"] .completion-popup {
+  border-color: #ff2bd6;
+}
+
+[data-theme="cyberpunk"] .start-next-btn {
+  background: #ff2bd6;
+}
+
+[data-theme="cyberpunk"] .start-next-btn:hover {
+  background: #2bf0ff;
+}
+
+[data-theme="cyberpunk"] .scan-line {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #ff2bd6 50%, 
+    transparent 100%
+  );
+}
+
+[data-theme="cyberpunk"] .scan-text {
+  color: #ff2bd6;
+  text-shadow: 0 0 10px #ff2bd6;
+}
+
+[data-theme="cyberpunk"] .funny-stat {
+  background: rgba(255, 43, 214, 0.1);
+  border: 1px solid rgba(255, 43, 214, 0.3);
+  color: #ff2bd6;
+}
+
 /* Matrix theme keyframes */
 @keyframes matrixScanTextPulse {
   from { 
