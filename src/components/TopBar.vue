@@ -140,7 +140,7 @@ onMounted(() => {
           Team Chat
           <div class="dropdown">
             <button @click="switchCampaign('chimera')">Project Chimera</button>
-            <button @click="switchCampaign('leviathan')" disabled>The Leviathan</button>
+            <button @click="switchCampaign('janus')">The Janus Contract</button>
             <button @click="switchCampaign('architect')" disabled>The Architect</button>
           </div>
         </li>

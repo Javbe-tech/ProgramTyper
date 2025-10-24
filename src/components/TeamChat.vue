@@ -5,7 +5,8 @@ import BossBattle from './BossBattle.vue';
 
 const props = defineProps({
   showChat: { type: Boolean, default: true },
-  isAuthenticated: { type: Boolean, default: false }
+  isAuthenticated: { type: Boolean, default: false },
+  currentCampaign: { type: String, default: 'chimera' }
 });
 
 const emit = defineEmits(['choice-made']);
@@ -673,6 +674,19 @@ function handleBossBattleDefeat() {
     }
   }
 }
+
+// Watch for campaign changes from parent
+watch(() => props.currentCampaign, (newCampaign) => {
+  if (newCampaign && newCampaign !== currentCampaign.value) {
+    currentCampaign.value = newCampaign;
+    currentStep.value = 0;
+    messages.value = [];
+    choiceHistory.value = [];
+    setTimeout(() => {
+      startConversation('start');
+    }, 500);
+  }
+});
 
 // Start conversation when component mounts
 onMounted(() => {

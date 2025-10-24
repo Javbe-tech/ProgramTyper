@@ -563,14 +563,16 @@ function handleLogout() {
 }
 
 function handleSwitchCampaign(campaignId) {
-  // This will be handled by the TeamChat component
-  // We just need to pass the event through
+  // Pass the campaign switch to TeamChat component
   console.log('Switching to campaign:', campaignId);
+  // Update the current campaign for TeamChat
+  currentCampaign.value = campaignId;
 }
 
 // Authentication state
 const isAuthenticated = ref(false);
 const currentUser = ref(null);
+const currentCampaign = ref('chimera'); // Track current campaign
 
 // File system with multiple unique code files for typing practice
 const fileSystem = ref([
@@ -1110,7 +1112,7 @@ onUnmounted(() => {
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
       </div>
       <RightAdBar v-if="showAds && !isAuthenticated" :show-ads="showAds" @remove-ads="openRemoveAds" />
-      <TeamChat :show-chat="true" :is-authenticated="isAuthenticated" />
+      <TeamChat :show-chat="true" :is-authenticated="isAuthenticated" :current-campaign="currentCampaign" />
     </div>
     <NewFileModal 
       v-if="showNewFileModal" 
