@@ -138,7 +138,7 @@ function startConversation(trigger) {
   const conversation = currentScenario.value.conversations.find(c => c.trigger === trigger);
   if (!conversation) return;
 
-  messages.value = [];
+  // DON'T clear messages - just reset the message index for this conversation
   currentMessageIndex.value = 0;
   showChoices.value = false;
   currentChoices.value = [];
@@ -523,12 +523,13 @@ defineExpose({
 <style scoped>
 .fake-chat-container {
   width: 320px;
-  height: 100%;
+  height: 100vh;
   background: var(--sidebar-bg);
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   font-family: 'Consolas', monospace;
+  position: relative;
 }
 
 .chat-header {
@@ -571,8 +572,8 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: calc(100vh - 200px); /* Ensure it doesn't grow beyond viewport */
   scroll-behavior: smooth;
+  min-height: 0; /* Important for flexbox scrolling */
 }
 
 .message {
@@ -662,6 +663,7 @@ defineExpose({
   padding: 15px;
   border-top: 1px solid var(--border-color);
   background: var(--terminal-bg);
+  flex-shrink: 0; /* Don't shrink */
   position: sticky;
   bottom: 0;
   z-index: 10;
@@ -703,10 +705,7 @@ defineExpose({
   opacity: 1;
 }
 
-.chat-input-container {
-  border-top: 1px solid var(--border-color);
-  padding-top: 10px;
-}
+/* Chat input container styling handled by input-wrapper */
 
 .chat-toolbar {
   display: flex;
@@ -734,22 +733,26 @@ defineExpose({
   display: flex;
   gap: 8px;
   align-items: center;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: border-color 0.2s;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--keyword);
 }
 
 .chat-input {
   flex: 1;
-  padding: 10px 12px;
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
+  background: transparent;
+  border: none;
   color: var(--font-color);
-  border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-family: 'Consolas', monospace;
-}
-
-.chat-input:focus {
   outline: none;
-  border-color: var(--keyword);
+  padding: 0;
 }
 
 .chat-input:disabled {
@@ -758,7 +761,7 @@ defineExpose({
 }
 
 .send-btn {
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: var(--keyword);
   color: var(--bg-primary);
   border: none;
@@ -767,16 +770,18 @@ defineExpose({
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 60px;
 }
 
 .send-btn:hover:not(:disabled) {
-  background: var(--keyword);
-  opacity: 0.9;
+  background: #6d28d9;
+  transform: translateY(-1px);
 }
 
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 
