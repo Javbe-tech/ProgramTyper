@@ -575,7 +575,7 @@ defineExpose({
   gap: 10px;
   scroll-behavior: smooth;
   min-height: 0; /* Important for flexbox scrolling */
-  padding-bottom: 120px; /* Add padding to account for fixed input section */
+  padding-bottom: 130px; /* Increased padding to account for extra input section padding */
 }
 
 /* Custom scrollbar styling */
@@ -600,27 +600,53 @@ defineExpose({
   display: flex;
   gap: 10px;
   animation: slideIn 0.3s ease-out;
+  margin-bottom: 8px;
 }
 
+/* AI/Other person messages - left aligned with avatar */
+.message:not(.user-message) {
+  justify-content: flex-start;
+  margin-left: 0;
+}
+
+.message:not(.user-message) .message-content {
+  max-width: 70%;
+}
+
+.message:not(.user-message) .message-text {
+  background: var(--bg-color);
+  color: var(--font-color);
+  padding: 10px 14px;
+  border-radius: 18px;
+  border-bottom-left-radius: 4px; /* Pointed corner like Android */
+  display: inline-block;
+  word-wrap: break-word;
+  border: 1px solid var(--border-color);
+}
+
+/* User messages - right aligned, no avatar */
 .message.user-message {
-  flex-direction: row-reverse;
+  justify-content: flex-end;
+  margin-right: 0;
 }
 
 .message.user-message .message-content {
+  max-width: 70%;
   text-align: right;
 }
 
 .message.user-message .message-text {
   background: var(--keyword);
   color: var(--bg-primary);
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  border-bottom-right-radius: 4px; /* Pointed corner like Android */
   display: inline-block;
-  max-width: 80%;
+  word-wrap: break-word;
 }
 
 .message.user-message .message-avatar {
-  background: var(--keyword) !important;
+  display: none; /* Hide avatar for user messages */
 }
 
 .message.response {
@@ -639,14 +665,15 @@ defineExpose({
 }
 
 .message-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
   flex-shrink: 0;
+  margin-top: 2px; /* Align with first line of text */
 }
 
 .message-content {
@@ -658,18 +685,18 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .character-name {
   font-weight: 500;
   color: var(--font-color);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .message-time {
   color: var(--gray);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
 }
 
 .message-text {
@@ -680,7 +707,7 @@ defineExpose({
 }
 
 .chat-input-section {
-  padding: 15px;
+  padding: 15px 15px 20px 15px; /* Extra bottom padding to prevent cutoff */
   border-top: 1px solid var(--border-color);
   background: var(--terminal-bg);
   position: absolute;
