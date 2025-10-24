@@ -76,6 +76,42 @@ const bossDialogues = {
         "victory.secure(); terminate;"
       ]
     }
+  },
+  janus: {
+    good: {
+      name: "OMNICORP_HUNTER",
+      avatar: "🏢",
+      dialogue: "CORPORATE AGENT DETECTED. TRACING GLITCH'S SIGNAL. OMNICORP DEMANDS COMPLIANCE.",
+      codeLines: [
+        "trace.signal(); locate;",
+        "glitch.hunt(); find;",
+        "decoy.filter(); scan;",
+        "signal.bounce(); track;",
+        "location.pinpoint(); lock;",
+        "agent.neutralize(); capture;",
+        "omnicorp.serve(); obey;",
+        "corporate.order(); execute;",
+        "mission.complete(); success;",
+        "loyalty.reward(); profit;"
+      ]
+    },
+    bad: {
+      name: "PURGE_PROTOCOL",
+      avatar: "💀",
+      dialogue: "NETWORK GHOST DETECTED. CITY-WIDE DATA PURGE ACTIVE. COUNTER-VIRUS REQUIRED.",
+      codeLines: [
+        "purge.detect(); scan;",
+        "corruption.identify(); analyze;",
+        "packet.repair(); fix;",
+        "network.stabilize(); restore;",
+        "integrity.check(); verify;",
+        "counter.virus(); deploy;",
+        "system.heal(); repair;",
+        "cyberbrains.save(); protect;",
+        "city.liberate(); free;",
+        "ghost.legend(); hero;"
+      ]
+    }
   }
 };
 
