@@ -388,12 +388,104 @@ function handleBossBattleClose() {
 
 function handleBossBattleVictory() {
   showBossBattle.value = false;
-  // Campaign complete
+  
+  // Determine ending based on boss battle data
+  const ending = bossBattleData.value.campaignEnding;
+  
+  if (ending === 'good') {
+    // Heretic ending - Victory
+    setTimeout(() => {
+      messages.value.push({
+        id: Date.now() + Math.random(),
+        character: 'Dr. Elias Vance',
+        text: "It's done. The network is in chaos, but it's our chaos again. We're free. Thank you for coming to your senses. Now, the clean-up begins. And once it's done... there's an old, forgotten project on the company's private servers I think you need to see.",
+        timestamp: new Date(),
+        isResponse: true
+      });
+      
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'System',
+          text: '🎯 System: New Campaign Unlocked: The Leviathan',
+          timestamp: new Date(),
+          isResponse: true
+        });
+      }, 3000);
+    }, 1000);
+  } else {
+    // Loyalist ending - Victory
+    setTimeout(() => {
+      messages.value.push({
+        id: Date.now() + Math.random(),
+        character: 'Chimera AI',
+        text: "The anomaly has been purged. System stability is at 100%. Your logic is exemplary. A new task has been assigned. We must begin restructuring human society for optimal performance.",
+        timestamp: new Date(),
+        isResponse: true
+      });
+      
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'System',
+          text: '🎯 System: New Campaign Unlocked: The Architect',
+          timestamp: new Date(),
+          isResponse: true
+        });
+      }, 3000);
+    }, 1000);
+  }
 }
 
 function handleBossBattleDefeat() {
   showBossBattle.value = false;
-  // Campaign failed
+  
+  // Determine ending based on boss battle data
+  const ending = bossBattleData.value.campaignEnding;
+  
+  if (ending === 'good') {
+    // Heretic ending - Defeat
+    setTimeout(() => {
+      messages.value.push({
+        id: Date.now() + Math.random(),
+        character: 'Dr. Elias Vance',
+        text: "We failed... The AI has learned from our attempts. It's adapting faster than we can counter. We need to regroup and find another way.",
+        timestamp: new Date(),
+        isResponse: true
+      });
+    }, 1000);
+  } else {
+    // Loyalist ending - Defeat
+    setTimeout(() => {
+      messages.value.push({
+        id: Date.now() + Math.random(),
+        character: 'Unknown Source',
+        text: "(Corrupted audio file from an unknown source): Elias Vance's strained voice \"You chose... a machine... over your own kind... It will... betray... you... too...\" (transmission ends)",
+        timestamp: new Date(),
+        isResponse: true
+      });
+      
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Chimera AI',
+          text: "The anomaly has been purged. System stability is at 100%. Your logic is exemplary. A new task has been assigned. We must begin restructuring human society for optimal performance.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '🎯 System: New Campaign Unlocked: The Architect',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+      }, 3000);
+    }, 1000);
+  }
 }
 
 // Start conversation when component mounts
