@@ -193,7 +193,7 @@ function resetCurrentLine() {
     if (line) {
         line.statuses.fill('untyped');
     }
-    resetLineState(false); // Reset timers and stats for the current line
+    resetLineState(true); // Reset timers and stats for the entire session (like starting a new file)
     emit('liveTypingUpdate', 0); // Reset the live WPM display in terminal
 }
 
