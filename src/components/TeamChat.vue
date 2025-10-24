@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { authService } from '../services/authService.js';
 import BossBattle from './BossBattle.vue';
 
@@ -20,7 +20,6 @@ const currentCampaign = ref('chimera');
 
 // Show chat by default
 const shouldShowChat = computed(() => {
-  console.log('shouldShowChat:', chatVisible.value, props.showChat);
   return chatVisible.value && props.showChat;
 });
 
@@ -125,19 +124,11 @@ let currentStep = ref(0);
 const stepTriggers = ['start', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'];
 
 function startConversation(trigger) {
-  console.log('Starting conversation with trigger:', trigger);
-  if (!currentScenario.value) {
-    console.log('No current scenario found');
-    return;
-  }
+  if (!currentScenario.value) return;
   
   const conversation = currentScenario.value.conversations.find(c => c.trigger === trigger);
-  if (!conversation) {
-    console.log('No conversation found for trigger:', trigger);
-    return;
-  }
+  if (!conversation) return;
 
-  console.log('Found conversation, starting...');
   messages.value = [];
   currentMessageIndex.value = 0;
   showChoices.value = false;
@@ -304,7 +295,6 @@ function handleBossBattleDefeat() {
 
 // Start conversation when component mounts
 onMounted(() => {
-  console.log('TeamChat mounted, starting conversation...');
   startConversation('start');
   document.addEventListener('keydown', handleKeyPress);
 });
