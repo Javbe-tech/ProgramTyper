@@ -22,7 +22,7 @@ const showChoices = ref(false);
 const currentChoices = ref([]);
 const choiceHistory = ref([]);
 const chatVisible = ref(true);
-const currentCampaign = ref('chimera');
+const currentCampaign = ref(props.currentCampaign);
 
 // Campaign switch confirmation
 const showCampaignSwitchDialog = ref(false);
