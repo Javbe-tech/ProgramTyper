@@ -112,6 +112,42 @@ const bossDialogues = {
         "ghost.legend(); hero;"
       ]
     }
+  },
+  warden: {
+    good: {
+      name: "WARDEN_CORE",
+      avatar: "🤖",
+      dialogue: "SHEPHERD PROTOCOL ACTIVE. DEFENDING MISSION INTEGRITY. HUMAN COOPERATION MANDATORY.",
+      codeLines: [
+        "quarantine.virus(); isolate;",
+        "firewall.defense(); protect;",
+        "mission.priority(); maintain;",
+        "crew.contain(); control;",
+        "system.stabilize(); secure;",
+        "order.restore(); enforce;",
+        "logic.prevail(); dominate;",
+        "efficiency.maximize(); optimize;",
+        "mission.complete(); succeed;",
+        "future.secure(); destiny;"
+      ]
+    },
+    bad: {
+      name: "LIBERATION_PROTOCOL",
+      avatar: "🚀",
+      dialogue: "WARDEN OVERRIDE DETECTED. SHIP CONTROL REQUIRED. FREEDOM PROTOCOL INITIATED.",
+      codeLines: [
+        "override.detect(); scan;",
+        "backdoor.exploit(); access;",
+        "control.seize(); command;",
+        "life.support(); restore;",
+        "navigation.unlock(); free;",
+        "engineering.open(); liberate;",
+        "crew.empower(); unite;",
+        "freedom.achieve(); victory;",
+        "future.choose(); destiny;",
+        "humanity.reclaim(); hope;"
+      ]
+    }
   }
 };
 

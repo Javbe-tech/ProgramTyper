@@ -155,7 +155,7 @@ onMounted(() => {
           <div class="dropdown">
             <button @click="switchCampaign('chimera')">Project Chimera</button>
             <button @click="switchCampaign('janus')">The Janus Contract</button>
-            <button @click="switchCampaign('architect')" disabled>The Architect</button>
+            <button @click="switchCampaign('warden')">The Warden Protocol</button>
           </div>
         </li>
         <li @click="openHelp" class="menu-help">Help</li>
