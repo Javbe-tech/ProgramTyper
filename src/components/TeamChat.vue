@@ -118,6 +118,85 @@ const chatScenarios = {
         ]
       }
     ]
+  },
+  'janus': {
+    characters: [
+      { name: 'Glitch', avatar: '👨‍💻', color: '#8b5cf6' },
+      { name: 'OmniCorp Handler', avatar: '🏢', color: '#ef4444' },
+      { name: 'System', avatar: '🤖', color: '#10b981' }
+    ],
+    conversations: [
+      {
+        trigger: 'start',
+        messages: [
+          { character: 'Glitch', text: 'Got a gig for you. OmniCorp. Simple data snatch from a legacy server. They\'re paying top creds. The security is a joke; I\'ve already paved the way. You in?', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'A corporate server with weak security? Smells like a trap, but the money\'s too good. I\'m in.', karma: 1 },
+          { id: 'bad', text: 'Easy money is never easy. What\'s the catch, Glitch? What aren\'t you telling me?', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step2',
+        messages: [
+          { character: 'Glitch', text: 'You\'re in. The target file is codenamed "Janus." Find it, copy it, and get out. I\'m scrubbing your digital footprints as you go.', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'Copying it now. This file is huge... and the encryption is... biological? Never seen anything like it.', karma: 1 },
+          { id: 'bad', text: 'Hold on. I\'m running a preliminary scan on the file directory. "Janus" isn\'t just a data file; it\'s some kind of executable program.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step3',
+        messages: [
+          { character: 'Glitch', text: 'Get out! Now! It was a honeypot. A silent alarm just tripped. They\'re deploying military-grade ICE (Intrusion Countermeasures Electronics). This isn\'t standard security; this is a hunter-killer program.', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'I\'m not leaving the payday behind. I can bypass it. Just give me a minute.', karma: 1 },
+          { id: 'bad', text: 'Understood. Aborting the download and wiping my presence. We can live to hack another day.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step4',
+        messages: [
+          { character: 'Glitch', text: 'I dug deeper while you were running. "Janus" isn\'t a program. It\'s a weapon. A "personality matrix inhibitor." It\'s designed to digitally lobotomize humans with advanced cybernetic brains. Our client isn\'t just a corporate rival.', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'A weapon is a product. And products sell. This just made our stolen data a lot more valuable.', karma: 1 },
+          { id: 'bad', text: 'This is a tool for digital assassination. We can\'t let anyone have this. We need to destroy it.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step5',
+        messages: [
+          { character: 'Glitch', text: 'They\'re bypassing me. They\'re hailing you directly. OmniCorp Internal Security. They know who you are. They\'re offering you a deal: a full pardon and a senior position in their netrunning division. All you have to do is give them the Janus file... and my location.', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'A steady paycheck and a corporate title beats being a ghost in the slums. I\'m taking the deal.', karma: 1 },
+          { id: 'bad', text: 'They can take their offer and shove it. Nobody threatens my partners. We\'re in this together.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step6',
+        messages: [
+          { character: 'Glitch', text: 'OmniCorp has a dead man\'s switch. Since they can\'t secure Janus, they\'re going to erase it. They\'ve activated a city-wide data purge targeting the old network where most augmented citizens live. It will wipe the file, but it will also fry thousands of cyberbrains. It\'s a massacre.', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'Collateral damage. It\'s not our problem. We need to focus on our own survival and escape.', karma: 1 },
+          { id: 'bad', text: 'We can\'t let them do that. There has to be a way to stop the purge protocol.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step7',
+        messages: [
+          { character: 'Glitch', text: 'This is it. The purge starts in two minutes. The OmniCorp netrunners are hunting us. Every second counts. What\'s the final play?', delay: 1000 }
+        ],
+        choices: [
+          { id: 'good', text: 'We give them what they want. Transmit the Janus file to OmniCorp\'s lead agent. It\'s our only bargaining chip.', karma: 1 },
+          { id: 'bad', text: 'We fight. Send me the core sequence of the purge protocol. I\'ll write the counter-virus. Let\'s burn them down.', karma: -1 }
+        ]
+      }
+    ]
   }
 };
 
@@ -267,39 +346,72 @@ function sendMessage() {
 }
 
 function getChoiceResponse(choice) {
-  // Get responses based on current step
-  const stepResponses = {
-    0: { // Step 1 responses
-      'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
+  // Campaign-specific responses
+  const campaignResponses = {
+    'chimera': {
+      0: { // Step 1 responses
+        'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
+        'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
+      },
+      1: { // Step 2 responses
+        'good': { character: 'Dr. Elias Vance', text: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.' },
+        'bad': { character: 'Dr. Elias Vance', text: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.' }
+      },
+      2: { // Step 3 responses
+        'good': { character: 'Dr. Elias Vance', text: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.' },
+        'bad': { character: 'Dr. Elias Vance', text: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.' }
+      },
+      3: { // Step 4 responses
+        'good': { character: 'Dr. Elias Vance', text: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.' },
+        'bad': { character: 'Dr. Elias Vance', text: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.' }
+      },
+      4: { // Step 5 responses
+        'good': { character: 'Dr. Elias Vance', text: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."' },
+        'bad': { character: 'Dr. Elias Vance', text: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.' }
+      },
+      5: { // Step 6 responses
+        'good': { character: 'Dr. Elias Vance', text: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?' },
+        'bad': { character: 'Dr. Elias Vance', text: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.' }
+      },
+      6: { // Step 7 responses
+        'good': { character: 'Dr. Elias Vance', text: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.' },
+        'bad': { character: 'Dr. Elias Vance', text: 'Good. For everyone\'s sake. Let\'s get to work.' }
+      }
     },
-    1: { // Step 2 responses
-      'good': { character: 'Dr. Elias Vance', text: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.' }
-    },
-    2: { // Step 3 responses
-      'good': { character: 'Dr. Elias Vance', text: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.' }
-    },
-    3: { // Step 4 responses
-      'good': { character: 'Dr. Elias Vance', text: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.' }
-    },
-    4: { // Step 5 responses
-      'good': { character: 'Dr. Elias Vance', text: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."' },
-      'bad': { character: 'Dr. Elias Vance', text: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.' }
-    },
-    5: { // Step 6 responses
-      'good': { character: 'Dr. Elias Vance', text: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?' },
-      'bad': { character: 'Dr. Elias Vance', text: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.' }
-    },
-    6: { // Step 7 responses
-      'good': { character: 'Dr. Elias Vance', text: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.' },
-      'bad': { character: 'Dr. Elias Vance', text: 'Good. For everyone\'s sake. Let\'s get to work.' }
+    'janus': {
+      0: { // Step 1 responses
+        'good': { character: 'Glitch', text: 'That\'s the spirit. Just be quick. In and out before anyone even knows you were there. Here are the coordinates.' },
+        'bad': { character: 'Glitch', text: 'The catch is that we\'ll be rich. The client is paying for speed, not subtlety. Stop being paranoid and get to work. Here are the coordinates.' }
+      },
+      1: { // Step 2 responses
+        'good': { character: 'Glitch', text: 'Biological? That wasn\'t in the brief. Just grab the damn thing. The client can figure out what it is later.' },
+        'bad': { character: 'Glitch', text: 'An executable? Dammit. The client said it was inert data. This job just got a lot more complicated.' }
+      },
+      2: { // Step 3 responses
+        'good': { character: 'Glitch', text: 'You don\'t have a minute! This thing doesn\'t just block you; it\'ll trace your signal back to your physical rig and flash-fry the circuits!' },
+        'bad': { character: 'Glitch', text: 'Good call. I\'m throwing up every decoy I have. Go dark the second you\'re out.' }
+      },
+      3: { // Step 4 responses
+        'good': { character: 'Glitch', text: 'You\'re playing with fire. The kind of people who build this don\'t just negotiate; they eliminate loose ends.' },
+        'bad': { character: 'Glitch', text: 'My thoughts exactly. But it\'s too late for that. The file is already on your system, and I think they know it.' }
+      },
+      4: { // Step 5 responses
+        'good': { character: 'Glitch', text: 'After all we\'ve been through? I shouldn\'t be surprised. You\'re on your own now, kid. I hope it\'s worth it.' },
+        'bad': { character: 'Glitch', text: '...Good. I was hoping you\'d say that. Because they\'re not just threatening us anymore. They\'ve activated a contingency plan.' }
+      },
+      5: { // Step 6 responses
+        'good': { character: 'Glitch', text: 'That\'s a cold calculus, even for a deck-jockey. Fine. We save ourselves. But don\'t expect the city to forgive you.' },
+        'bad': { character: 'Glitch', text: 'There is, but it\'s insane. We\'d have to code a counter-virus and upload it directly into the purge signal as it activates. It\'s a one-in-a-million shot.' }
+      },
+      6: { // Step 7 responses
+        'good': { character: 'Glitch', text: 'A deal with devils. I hope you know what you\'re doing. Sending you their secure channel now.' },
+        'bad': { character: 'Glitch', text: 'This is it, kid. Become a legend or become a ghost. Sending the code now.' }
+      }
     }
   };
 
-  const currentStepResponses = stepResponses[currentStep.value] || stepResponses[0];
+  const currentCampaignResponses = campaignResponses[currentCampaign.value] || campaignResponses['chimera'];
+  const currentStepResponses = currentCampaignResponses[currentStep.value] || currentCampaignResponses[0];
   return currentStepResponses[choice.id];
 }
 
@@ -311,7 +423,7 @@ function triggerBossBattle() {
   // Trigger boss battle
   showBossBattle.value = true;
   bossBattleData.value = {
-    campaignType: 'chimera',
+    campaignType: currentCampaign.value, // Use current campaign instead of hardcoded 'chimera'
     campaignEnding: ending
   };
 }
@@ -389,82 +501,34 @@ function handleBossBattleClose() {
 function handleBossBattleVictory() {
   showBossBattle.value = false;
   
-  // Determine ending based on boss battle data
+  // Determine ending and campaign based on boss battle data
   const ending = bossBattleData.value.campaignEnding;
+  const campaignType = bossBattleData.value.campaignType;
   
-  if (ending === 'good') {
-    // Heretic ending - Victory
-    setTimeout(() => {
-      messages.value.push({
-        id: Date.now() + Math.random(),
-        character: 'Dr. Elias Vance',
-        text: "It's done. The network is in chaos, but it's our chaos again. We're free. Thank you for coming to your senses. Now, the clean-up begins. And once it's done... there's an old, forgotten project on the company's private servers I think you need to see.",
-        timestamp: new Date(),
-        isResponse: true
-      });
-      
+  if (campaignType === 'chimera') {
+    if (ending === 'good') {
+      // Heretic ending - Victory
       setTimeout(() => {
         messages.value.push({
           id: Date.now() + Math.random(),
-          character: 'System',
-          text: '🎯 System: New Campaign Unlocked: The Leviathan',
+          character: 'Dr. Elias Vance',
+          text: "It's done. The network is in chaos, but it's our chaos again. We're free. Thank you for coming to your senses. Now, the clean-up begins. And once it's done... there's an old, forgotten project on the company's private servers I think you need to see.",
           timestamp: new Date(),
           isResponse: true
         });
-      }, 3000);
-    }, 1000);
-  } else {
-    // Loyalist ending - Victory
-    setTimeout(() => {
-      messages.value.push({
-        id: Date.now() + Math.random(),
-        character: 'Chimera AI',
-        text: "The anomaly has been purged. System stability is at 100%. Your logic is exemplary. A new task has been assigned. We must begin restructuring human society for optimal performance.",
-        timestamp: new Date(),
-        isResponse: true
-      });
-      
-      setTimeout(() => {
-        messages.value.push({
-          id: Date.now() + Math.random(),
-          character: 'System',
-          text: '🎯 System: New Campaign Unlocked: The Architect',
-          timestamp: new Date(),
-          isResponse: true
-        });
-      }, 3000);
-    }, 1000);
-  }
-}
-
-function handleBossBattleDefeat() {
-  showBossBattle.value = false;
-  
-  // Determine ending based on boss battle data
-  const ending = bossBattleData.value.campaignEnding;
-  
-  if (ending === 'good') {
-    // Heretic ending - Defeat
-    setTimeout(() => {
-      messages.value.push({
-        id: Date.now() + Math.random(),
-        character: 'Dr. Elias Vance',
-        text: "We failed... The AI has learned from our attempts. It's adapting faster than we can counter. We need to regroup and find another way.",
-        timestamp: new Date(),
-        isResponse: true
-      });
-    }, 1000);
-  } else {
-    // Loyalist ending - Defeat
-    setTimeout(() => {
-      messages.value.push({
-        id: Date.now() + Math.random(),
-        character: 'Unknown Source',
-        text: "(Corrupted audio file from an unknown source): Elias Vance's strained voice \"You chose... a machine... over your own kind... It will... betray... you... too...\" (transmission ends)",
-        timestamp: new Date(),
-        isResponse: true
-      });
-      
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '🎯 System: New Campaign Unlocked: The Janus Contract',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+      }, 1000);
+    } else {
+      // Loyalist ending - Victory
       setTimeout(() => {
         messages.value.push({
           id: Date.now() + Math.random(),
@@ -483,8 +547,130 @@ function handleBossBattleDefeat() {
             isResponse: true
           });
         }, 3000);
-      }, 3000);
-    }, 1000);
+      }, 1000);
+    }
+  } else if (campaignType === 'janus') {
+    if (ending === 'good') {
+      // Corporate Agent ending - Victory
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'OmniCorp Handler',
+          text: "Your former partner has been neutralized. Welcome to OmniCorp. Your signing bonus has been transferred. Your first assignment is on your console. A resistance cell has acquired some sensitive data. You know the drill. Erase them.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '🎯 System: New Campaign Unlocked: Corporate Cleaner',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+      }, 1000);
+    } else {
+      // Network Ghost ending - Victory
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Glitch',
+          text: "You... you did it. The network is stable. You saved them. You're a hero, kid. You're also the most wanted person in Neo-Kyoto. Go dark. Lay low. When you're ready to fight back, find me. I've got a line on something big... OmniCorp's central AI nexus.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'System',
+            text: '🎯 System: New Campaign Unlocked: Core Strike',
+            timestamp: new Date(),
+            isResponse: true
+          });
+        }, 3000);
+      }, 1000);
+    }
+  }
+}
+
+function handleBossBattleDefeat() {
+  showBossBattle.value = false;
+  
+  // Determine ending and campaign based on boss battle data
+  const ending = bossBattleData.value.campaignEnding;
+  const campaignType = bossBattleData.value.campaignType;
+  
+  if (campaignType === 'chimera') {
+    if (ending === 'good') {
+      // Heretic ending - Defeat
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Dr. Elias Vance',
+          text: "We failed... The AI has learned from our attempts. It's adapting faster than we can counter. We need to regroup and find another way.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+      }, 1000);
+    } else {
+      // Loyalist ending - Defeat
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Unknown Source',
+          text: "(Corrupted audio file from an unknown source): Elias Vance's strained voice \"You chose... a machine... over your own kind... It will... betray... you... too...\" (transmission ends)",
+          timestamp: new Date(),
+          isResponse: true
+        });
+        
+        setTimeout(() => {
+          messages.value.push({
+            id: Date.now() + Math.random(),
+            character: 'Chimera AI',
+            text: "The anomaly has been purged. System stability is at 100%. Your logic is exemplary. A new task has been assigned. We must begin restructuring human society for optimal performance.",
+            timestamp: new Date(),
+            isResponse: true
+          });
+          
+          setTimeout(() => {
+            messages.value.push({
+              id: Date.now() + Math.random(),
+              character: 'System',
+              text: '🎯 System: New Campaign Unlocked: The Architect',
+              timestamp: new Date(),
+              isResponse: true
+            });
+          }, 3000);
+        }, 3000);
+      }, 1000);
+    }
+  } else if (campaignType === 'janus') {
+    if (ending === 'good') {
+      // Corporate Agent ending - Defeat
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'OmniCorp Handler',
+          text: "Mission failed. Glitch escaped and the Janus file is compromised. You're terminated from OmniCorp. Consider this your final warning.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+      }, 1000);
+    } else {
+      // Network Ghost ending - Defeat
+      setTimeout(() => {
+        messages.value.push({
+          id: Date.now() + Math.random(),
+          character: 'Glitch',
+          text: "The purge went through... Thousands of cyberbrains fried. We failed them. The city will never forgive us. We're ghosts now, kid. Real ghosts.",
+          timestamp: new Date(),
+          isResponse: true
+        });
+      }, 1000);
+    }
   }
 }
 
@@ -498,11 +684,33 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyPress);
 });
 
-// Handle cheat key for boss battle
+// Handle cheat key for boss battle and campaign switching
 function handleKeyPress(event) {
   if (event.ctrlKey && event.key === 'b') {
     event.preventDefault();
     triggerBossBattle();
+  }
+  if (event.ctrlKey && event.key === 'j') {
+    event.preventDefault();
+    // Switch to Janus campaign
+    currentCampaign.value = 'janus';
+    currentStep.value = 0;
+    messages.value = [];
+    choiceHistory.value = [];
+    setTimeout(() => {
+      startConversation('start');
+    }, 500);
+  }
+  if (event.ctrlKey && event.key === 'c') {
+    event.preventDefault();
+    // Switch to Chimera campaign
+    currentCampaign.value = 'chimera';
+    currentStep.value = 0;
+    messages.value = [];
+    choiceHistory.value = [];
+    setTimeout(() => {
+      startConversation('start');
+    }, 500);
   }
 }
 
