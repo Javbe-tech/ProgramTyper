@@ -7,6 +7,7 @@ const props = defineProps({
   tabChallengeStats: Object,
   fileChallengeRegeneration: Object,
   getTabChallengeStats: Function,
+  currentCampaign: { type: String, default: 'chimera' }, // Current campaign for project name
 });
 const emit = defineEmits(['open-file', 'new-file-modal']);
 
@@ -61,12 +62,23 @@ const processedFileSystem = computed(() => {
   }
   return props.fileSystem.map(item => renderFileSystemItem(item, 0));
 });
+
+// Campaign-specific project names
+const projectName = computed(() => {
+  const names = {
+    'chimera': 'CHIMERA_AI',
+    'janus': 'NEO_KYOTO',
+    'warden': 'ODYSSEY_SHIP',
+    'synergy': 'INNOVATE_SOLUTIONS'
+  };
+  return names[props.currentCampaign] || 'CHIMERA_AI';
+});
 </script>
 
 <template>
   <div id="sidebar-left">
     <div class="project-header">
-      <span>PROJECT</span>
+      <span>{{ projectName }}</span>
       <button class="new-file-btn" @click="$emit('new-file-modal')" title="Create New File">+</button>
     </div>
     

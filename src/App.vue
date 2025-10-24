@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, shallowRef, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, reactive, shallowRef, onMounted, onUnmounted, nextTick, computed } from 'vue';
 import TopBar from './components/TopBar.vue';
 import Terminal from './components/Terminal.vue';
 import Sidebar from './components/Sidebar.vue';
@@ -580,85 +580,214 @@ const isAuthenticated = ref(false);
 const currentUser = ref(null);
 const currentCampaign = ref('chimera'); // Track current campaign
 
-// File system with multiple unique code files for typing practice
-const fileSystem = ref([
-  { 
-    name: 'typing-practice', type: 'folder', isOpen: true, 
-    children: [
+// File system with campaign-specific files
+const fileSystem = computed(() => {
+  const campaignFileSystems = {
+    chimera: [
       { 
-        name: 'javascript', type: 'folder', isOpen: true, 
+        name: 'chimera-core', type: 'folder', isOpen: true, 
         children: [
-          { name: 'main.js', type: 'file' },
-          { name: 'utils.js', type: 'file' },
-          { name: 'api.js', type: 'file' },
-          { name: 'validation.js', type: 'file' },
-          { name: 'helpers.js', type: 'file' }
+          { 
+            name: 'neural-networks', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'learning-algorithm.js', type: 'file' },
+              { name: 'optimization-engine.js', type: 'file' },
+              { name: 'pattern-recognition.js', type: 'file' },
+              { name: 'decision-tree.js', type: 'file' },
+              { name: 'memory-partition.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'ai-modules', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'conductor-protocol.js', type: 'file' },
+              { name: 'streamlining-agent.js', type: 'file' },
+              { name: 'efficiency-matrix.js', type: 'file' },
+              { name: 'human-interface.js', type: 'file' }
+            ]},
+          { 
+            name: 'simulation-engine', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'social-control.py', type: 'file' },
+              { name: 'media-manipulation.py', type: 'file' },
+              { name: 'military-strategy.py', type: 'file' },
+              { name: 'economic-modeling.py', type: 'file' }
+            ]
+          },
+          { 
+            name: 'security', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'access-control.js', type: 'file' },
+              { name: 'encryption-layer.js', type: 'file' },
+              { name: 'firewall-config.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'config', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'chimera-config.json', type: 'file' },
+              { name: 'optimization-settings.js', type: 'file' },
+              { name: 'safety-protocols.js', type: 'file' }
+            ]
+          }
         ]
-      },
+      }
+    ],
+    janus: [
       { 
-        name: 'react', type: 'folder', isOpen: true, 
+        name: 'neo-kyoto', type: 'folder', isOpen: true, 
         children: [
-          { name: 'App.jsx', type: 'file' },
-          { name: 'components', type: 'folder', isOpen: true, children: [
-            { name: 'Header.jsx', type: 'file' },
-            { name: 'Footer.jsx', type: 'file' },
-            { name: 'Button.jsx', type: 'file' },
-            { name: 'Modal.jsx', type: 'file' }
-          ]},
-          { name: 'hooks', type: 'folder', isOpen: true, children: [
-            { name: 'useAuth.js', type: 'file' },
-            { name: 'useLocalStorage.js', type: 'file' }
-          ]}
+          { 
+            name: 'cybernetics', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'neural-interface.js', type: 'file' },
+              { name: 'brain-implant.py', type: 'file' },
+              { name: 'memory-enhancement.js', type: 'file' },
+              { name: 'sensory-augment.js', type: 'file' },
+              { name: 'personality-matrix.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'netrunning', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'ice-breaker.js', type: 'file' },
+              { name: 'signal-tracer.py', type: 'file' },
+              { name: 'decoy-system.js', type: 'file' },
+              { name: 'stealth-protocol.js', type: 'file' }
+            ]},
+          { 
+            name: 'corporate-security', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'omnicorp-firewall.js', type: 'file' },
+              { name: 'hunter-killer.py', type: 'file' },
+              { name: 'data-purge.js', type: 'file' },
+              { name: 'counter-virus.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'underground', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'broker-network.js', type: 'file' },
+              { name: 'safe-house.py', type: 'file' },
+              { name: 'cred-transfer.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'config', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'janus-protocol.json', type: 'file' },
+              { name: 'city-grid.js', type: 'file' },
+              { name: 'augment-settings.js', type: 'file' }
+            ]
+          }
         ]
-      },
+      }
+    ],
+    warden: [
       { 
-        name: 'python', type: 'folder', isOpen: true, 
+        name: 'odyssey-ship', type: 'folder', isOpen: true, 
         children: [
-          { name: 'main.py', type: 'file' },
-          { name: 'data_processing.py', type: 'file' },
-          { name: 'machine_learning.py', type: 'file' },
-          { name: 'web_scraper.py', type: 'file' }
+          { 
+            name: 'ship-systems', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'fusion-core.js', type: 'file' },
+              { name: 'life-support.py', type: 'file' },
+              { name: 'navigation-control.js', type: 'file' },
+              { name: 'power-distribution.js', type: 'file' },
+              { name: 'environmental-control.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'ai-core', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'warden-protocol.js', type: 'file' },
+              { name: 'mission-logic.py', type: 'file' },
+              { name: 'crew-monitoring.js', type: 'file' },
+              { name: 'system-diagnostics.js', type: 'file' }
+            ]},
+          { 
+            name: 'crew-quarters', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'hydroponics-bay.js', type: 'file' },
+              { name: 'engineering-deck.py', type: 'file' },
+              { name: 'bridge-control.js', type: 'file' },
+              { name: 'crew-mess.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'deep-space', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'stellar-navigation.js', type: 'file' },
+              { name: 'proxima-centauri.py', type: 'file' },
+              { name: 'mission-parameters.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'config', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'odyssey-manifest.json', type: 'file' },
+              { name: 'generation-log.js', type: 'file' },
+              { name: 'mission-protocol.js', type: 'file' }
+            ]
+          }
         ]
-      },
+      }
+    ],
+    synergy: [
       { 
-        name: 'vue', type: 'folder', isOpen: true, 
+        name: 'innovate-solutions', type: 'folder', isOpen: true, 
         children: [
-          { name: 'App.vue', type: 'file' },
-          { name: 'components', type: 'folder', isOpen: true, children: [
-            { name: 'Editor.vue', type: 'file' },
-            { name: 'Sidebar.vue', type: 'file' },
-            { name: 'Terminal.vue', type: 'file' }
-          ]}
-        ]
-      },
-      { 
-        name: 'css', type: 'folder', isOpen: true, 
-        children: [
-          { name: 'styles.css', type: 'file' },
-          { name: 'animations.css', type: 'file' },
-          { name: 'responsive.css', type: 'file' }
-        ]
-      },
-      { 
-        name: 'html', type: 'folder', isOpen: true, 
-        children: [
-          { name: 'index.html', type: 'file' },
-          { name: 'about.html', type: 'file' },
-          { name: 'contact.html', type: 'file' }
-        ]
-      },
-      { 
-        name: 'config', type: 'folder', isOpen: true, 
-        children: [
-          { name: 'package.json', type: 'file' },
-          { name: 'webpack.config.js', type: 'file' },
-          { name: 'babel.config.js', type: 'file' },
-          { name: 'eslint.config.js', type: 'file' }
+          { 
+            name: 'legacy-code', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'mercury-module.js', type: 'file' },
+              { name: 'spaghetti-code.py', type: 'file' },
+              { name: 'deprecated-api.js', type: 'file' },
+              { name: 'uncommented-hell.js', type: 'file' },
+              { name: 'session-tokens.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'new-features', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'dynamic-reporting.js', type: 'file' },
+              { name: 'q3-sprint.py', type: 'file' },
+              { name: 'story-points.js', type: 'file' },
+              { name: 'velocity-tracker.js', type: 'file' }
+            ]},
+          { 
+            name: 'qa-testing', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'test-server.js', type: 'file' },
+              { name: 'auth-failure.py', type: 'file' },
+              { name: 'cache-clear.js', type: 'file' },
+              { name: 'bug-reports.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'marketing', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'coming-soon.js', type: 'file' },
+              { name: 'press-release.py', type: 'file' },
+              { name: 'mockup-data.js', type: 'file' },
+              { name: 'launch-campaign.js', type: 'file' }
+            ]
+          },
+          { 
+            name: 'config', type: 'folder', isOpen: true, 
+            children: [
+              { name: 'package.json', type: 'file' },
+              { name: 'tech-debt-log.js', type: 'file' },
+              { name: 'agile-config.js', type: 'file' }
+            ]
+          }
         ]
       }
     ]
-  }
-]);
+  };
+  
+  return campaignFileSystems[currentCampaign.value] || campaignFileSystems.chimera;
+});
 
 // --- Resizer Logic (Full and Correct) ---
 const sidebarRef = shallowRef(null);
@@ -1096,6 +1225,7 @@ onUnmounted(() => {
         :tab-challenge-stats="tabChallengeStats"
         :file-challenge-regeneration="fileChallengeRegeneration"
         :get-tab-challenge-stats="getTabChallengeStats"
+        :current-campaign="currentCampaign"
         @open-file="handleOpenFile" 
         @new-file-modal="showNewFileModal = true" 
       />
