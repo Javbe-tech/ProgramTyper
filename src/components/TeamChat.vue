@@ -1379,6 +1379,19 @@ defineExpose({
   max-width: 400px;
   width: 90%;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: none;
+}
+
+/* Theme-specific dialog backgrounds */
+[data-theme="psychedelic"] .campaign-switch-dialog {
+  background: linear-gradient(135deg, 
+    rgba(244, 114, 182, 0.95) 0%, 
+    rgba(96, 165, 250, 0.95) 25%, 
+    rgba(52, 211, 153, 0.95) 50%, 
+    rgba(251, 191, 36, 0.95) 75%, 
+    rgba(168, 139, 250, 0.95) 100%
+  );
+  backdrop-filter: blur(10px);
 }
 
 .dialog-header h3 {

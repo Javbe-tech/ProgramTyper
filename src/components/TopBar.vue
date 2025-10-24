@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { authService } from '../services/authService.js';
 import Dashboard from './Dashboard.vue';
 
@@ -85,6 +85,20 @@ function getUserInitials() {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
+// Theme-specific names
+const themeNames = computed(() => {
+  const names = {
+    'default': 'James Dark',
+    'matrix': 'Neo Agent',
+    'black-white': 'Monochrome',
+    'black-red': 'Crimson',
+    'white': 'Luna',
+    'psychedelic': 'Rainbow',
+    'cyberpunk': 'Cyber'
+  };
+  return names[theme.value] || 'James Dark';
+});
+
 function switchCampaign(campaignId) {
   // Emit event to parent component to switch campaign
   emit('switch-campaign', campaignId);
@@ -113,7 +127,7 @@ onMounted(() => {
 <template>
   <div id="top-bar">
     <div class="left-section">
-      <span class="app-title">James Dark</span>
+      <span class="app-title">{{ themeNames }}</span>
       <ul class="menu-list">
         <li>File</li>
         <li>Edit</li>
