@@ -782,7 +782,7 @@ defineExpose({
     <div class="chat-header">
       <h3>Team Communications</h3>
       <button @click="toggleChat" class="toggle-chat-btn">−</button>
-        </div>
+    </div>
     
     <!-- Login Widget when not authenticated -->
     <div v-if="!props.isAuthenticated" class="login-widget">
@@ -865,11 +865,12 @@ defineExpose({
         </div>
       </div>
     </div>
-    
-    <div v-show="!shouldShowChat" class="chat-minimized">
-      <button @click="toggleChat" class="toggle-chat-btn">💬</button>
-    </div>
   </div> <!-- Close authenticated div -->
+  
+  <!-- Minimized chat button - always visible when chat is hidden -->
+  <div v-show="!shouldShowChat" class="chat-minimized">
+    <button @click="toggleChat" class="toggle-chat-btn">💬</button>
+  </div>
   
   <!-- Boss Battle Component -->
   <BossBattle 
@@ -1327,18 +1328,33 @@ defineExpose({
 }
 
 .chat-minimized {
+  position: fixed;
+  top: 20px;
+  right: 20px;
   width: 50px;
-  height: 100%;
+  height: 50px;
   background: var(--sidebar-bg);
-  border-left: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: 15px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.chat-minimized:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 .chat-minimized .toggle-chat-btn {
   font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--font-color);
 }
 
 /* Campaign Switch Confirmation Dialog */
