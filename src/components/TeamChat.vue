@@ -565,29 +565,36 @@ defineExpose({
   color: var(--font-color);
 }
 
-/* Custom scrollbar styling */
+/* Custom scrollbar styling - Force visibility */
 .chat-messages::-webkit-scrollbar {
-  width: 8px; /* Make it wider */
+  width: 12px; /* Make it even wider */
+  -webkit-appearance: none;
 }
 
 .chat-messages::-webkit-scrollbar-track {
   background: var(--bg-color);
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
   background: var(--gray);
-  border-radius: 4px;
-  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  border: 2px solid var(--bg-color);
+  min-height: 20px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
   background: var(--font-color);
 }
 
+.chat-messages::-webkit-scrollbar-corner {
+  background: var(--bg-color);
+}
+
 .chat-messages {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll; /* Force scrollbar to always show */
   overflow-x: hidden;
   padding: 10px;
   display: flex;
@@ -595,6 +602,7 @@ defineExpose({
   gap: 10px;
   scroll-behavior: smooth;
   min-height: 0; /* Important for flexbox scrolling */
+  max-height: calc(100vh - 200px); /* Force height constraint to enable scrolling */
   padding-bottom: 150px; /* Increased padding to account for elevated input section */
   scrollbar-width: thin;
   scrollbar-color: var(--gray) var(--bg-color);
