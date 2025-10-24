@@ -8,7 +8,7 @@ const props = defineProps({
   runButtonActive: { type: Boolean, default: false }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'run-button']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'run-button', 'switch-campaign']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 const user = ref(null);
@@ -85,6 +85,11 @@ function getUserInitials() {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
+function switchCampaign(campaignId) {
+  // Emit event to parent component to switch campaign
+  emit('switch-campaign', campaignId);
+}
+
 onMounted(() => {
   // Apply saved theme immediately on load
   const savedTheme = localStorage.getItem('pt_theme') || 'default';
@@ -130,6 +135,14 @@ onMounted(() => {
         </li>
         <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
           Terminal {{ terminalVisible ? '▼' : '▶' }}
+        </li>
+        <li class="menu-team-chat">
+          Team Chat
+          <div class="dropdown">
+            <button @click="switchCampaign('chimera')">Project Chimera</button>
+            <button @click="switchCampaign('leviathan')" disabled>The Leviathan</button>
+            <button @click="switchCampaign('architect')" disabled>The Architect</button>
+          </div>
         </li>
         <li @click="openHelp" class="menu-help">Help</li>
         <li @click="openSettings" class="menu-settings">Settings</li>

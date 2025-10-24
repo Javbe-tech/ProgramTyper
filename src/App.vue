@@ -562,6 +562,12 @@ function handleLogout() {
   document.documentElement.style.setProperty('--faded-words-opacity', '0.5');
 }
 
+function handleSwitchCampaign(campaignId) {
+  // This will be handled by the TeamChat component
+  // We just need to pass the event through
+  console.log('Switching to campaign:', campaignId);
+}
+
 // Authentication state
 const isAuthenticated = ref(false);
 const currentUser = ref(null);
@@ -1073,6 +1079,7 @@ onUnmounted(() => {
       @open-pro-upgrade="openProUpgrade"
       @user-logout="handleLogout"
       @run-button="handleRunButton"
+      @switch-campaign="handleSwitchCampaign"
     />
     <div id="app-container">
       <Sidebar 

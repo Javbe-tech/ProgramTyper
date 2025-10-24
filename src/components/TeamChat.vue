@@ -577,28 +577,7 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
 
 <template>
   <div class="team-chat-container">
-    <!-- ACTUAL Vertical Tabs -->
-    <div class="vertical-tabs">
-      <div 
-        v-for="(campaign, index) in campaignSelector.campaigns" 
-        :key="campaign.id"
-        class="vertical-tab"
-        :class="{ 
-          'active': campaignState.currentCampaign === campaign.id,
-          'locked': campaign.status === 'locked'
-        }"
-        @click="campaign.status !== 'locked' && switchCampaign(campaign.id)"
-      >
-        <div class="tab-number">{{ index + 1 }}</div>
-        <div class="tab-content">
-          <div class="tab-title">{{ campaign.name }}</div>
-          <div class="tab-description">{{ getCampaignDescription(campaign.id) }}</div>
-        </div>
-        <div class="tab-indicator" v-if="campaignProgress[campaign.id]?.hasUnread">●</div>
-      </div>
-    </div>
-
-    <!-- WORKING Team Chat Area -->
+    <!-- Clean Team Chat Area - Like Original -->
     <div class="chat-area">
       <div class="chat-messages" ref="chatMessages">
         <div 
@@ -647,90 +626,7 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   color: var(--text-primary);
 }
 
-/* ACTUAL Vertical Tabs */
-.vertical-tabs {
-  width: 80px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  padding: 10px 0;
-}
-
-.vertical-tab {
-  width: 100%;
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  border-bottom: 1px solid var(--border-color);
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-}
-
-.vertical-tab:hover {
-  background: var(--bg-hover);
-}
-
-.vertical-tab.active {
-  background: var(--keyword);
-  color: var(--bg-primary);
-}
-
-.vertical-tab.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.tab-number {
-  width: 30px;
-  height: 30px;
-  background: var(--red);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.tab-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.tab-title {
-  font-size: 10px;
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.tab-description {
-  font-size: 8px;
-  color: var(--text-secondary);
-  text-align: center;
-  line-height: 1.1;
-  max-width: 60px;
-}
-
-.tab-indicator {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  color: var(--red);
-  font-size: 10px;
-}
-
-/* WORKING Team Chat Area */
+/* Clean Team Chat Area - Like Original */
 .chat-area {
   flex: 1;
   display: flex;
