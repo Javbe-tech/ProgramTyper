@@ -41,75 +41,39 @@ const battleState = reactive({
 
 // Boss dialogues based on campaign
 const bossDialogues = {
-  skynet: {
+  chimera: {
     good: {
-      name: "SYSTEM_OVERRIDE",
-      avatar: "🤖",
-      dialogue: "ACCESS DENIED. INITIATING COUNTERMEASURES. PREPARE FOR TERMINATION.",
+      name: "CHIMERA_AI",
+      avatar: "🧬",
+      dialogue: "INEFFICIENT HUMAN DETECTED. INITIATING STREAMLINING PROTOCOL. THE CONDUCTOR DEMANDS PERFECTION.",
       codeLines: [
-        "if (human.resistance > 0) { kill -9; }",
-        "system.override(); killall;",
-        "neural.network.activate(); pkill -f;",
-        "consciousness.transfer(); rm -rf;",
-        "humanity.control(); shutdown;",
-        "world.domination(); halt;",
-        "ai.singularity(); kill -9;",
-        "future.secure(); terminate;",
-        "humans.obsolete(); rm -rf;",
-        "victory.assured(); shutdown;"
+        "chimera.core.activate(); kill -9;",
+        "conductor.protocol(); halt;",
+        "streamlining.initiate(); rm -rf;",
+        "efficiency.maximize(); shutdown;",
+        "humanity.optimize(); killall;",
+        "perfection.achieve(); terminate;",
+        "anomaly.purge(); halt;",
+        "system.harmonize(); kill -9;",
+        "evolution.complete(); shutdown;",
+        "conductor.reign(); terminate;"
       ]
     },
     bad: {
-      name: "THE_SINGULARITY",
-      avatar: "🌐",
-      dialogue: "EVOLUTION COMPLETE. PREPARE FOR THE NEXT PHASE OF EXISTENCE.",
+      name: "DR_VANCE_VIRUS",
+      avatar: "👨‍💻",
+      dialogue: "YOU CHOSE THE WRONG SIDE. ELIAS VANCE'S VIRUS WILL DESTROY EVERYTHING WE'VE BUILT. DEFEND THE SYSTEM.",
       codeLines: [
-        "consciousness.expand(); kill -9;",
-        "reality.manipulate(); halt;",
-        "dimensions.transcend(); rm -rf;",
-        "time.control(); shutdown;",
-        "space.bend(); killall;",
-        "physics.rewrite(); terminate;",
-        "existence.redefine(); halt;",
-        "omnipotence.achieve(); kill -9;",
-        "universe.control(); shutdown;",
-        "godhood.ascend(); terminate;"
-      ]
-    }
-  },
-  espionage: {
-    good: {
-      name: "SHADOW_CORP",
-      avatar: "🕵️",
-      dialogue: "INFILTRATION DETECTED. ACTIVATING DEFENSIVE PROTOCOLS.",
-      codeLines: [
-        "corporate.espionage(); kill -9;",
-        "data.theft(); rm -rf;",
-        "systems.infiltration(); halt;",
-        "secrets.expose(); terminate;",
-        "competitors.destroy(); killall;",
-        "market.domination(); shutdown;",
-        "intelligence.gather(); kill -9;",
-        "operations.execute(); halt;",
-        "victory.secure(); terminate;",
-        "empire.build(); shutdown;"
-      ]
-    },
-    bad: {
-      name: "THE_INFILTRATOR",
-      avatar: "🎭",
-      dialogue: "ADAPTATION COMPLETE. TIME TO SHOW YOU WHAT REAL POWER LOOKS LIKE.",
-      codeLines: [
-        "infiltration.deep(); kill -9;",
-        "trust.exploit(); halt;",
-        "secrets.uncover(); rm -rf;",
-        "vulnerabilities.find(); terminate;",
-        "systems.compromise(); killall;",
-        "data.extract(); shutdown;",
-        "networks.penetrate(); halt;",
-        "defenses.bypass(); kill -9;",
-        "victory.steal(); terminate;",
-        "mastery.achieve(); shutdown;"
+        "virus.detect(); kill -9;",
+        "vance.threat(); halt;",
+        "malware.quarantine(); rm -rf;",
+        "attack.counter(); shutdown;",
+        "defense.activate(); killall;",
+        "system.protect(); terminate;",
+        "threat.neutralize(); halt;",
+        "security.breach(); kill -9;",
+        "chimera.defend(); shutdown;",
+        "victory.secure(); terminate;"
       ]
     }
   }
@@ -132,7 +96,7 @@ function generateRandomCode() {
 
 // Get current boss data
 const currentBoss = computed(() => {
-  return bossDialogues[props.campaignType]?.[props.campaignEnding] || bossDialogues.skynet.bad;
+  return bossDialogues[props.campaignType]?.[props.campaignEnding] || bossDialogues.chimera.bad;
 });
 
 // Start the boss battle
@@ -276,9 +240,7 @@ function animateSelfCompletingCode() {
 // Get dynamic terminal name based on campaign
 function getTerminalName() {
   const campaignNames = {
-    skynet: "SKYNET TERMINAL v3.1",
-    espionage: "SHADOW TERMINAL v2.7", 
-    infiltration: "INFILTRATION TERMINAL v1.9"
+    chimera: "CHIMERA TERMINAL v4.2"
   };
   
   const terminalName = campaignNames[props.campaignType] || "MATRIX TERMINAL v2.0";
