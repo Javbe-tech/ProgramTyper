@@ -395,7 +395,7 @@ defineExpose({
     <div v-if="showChoices" class="chat-input-section">
       <div class="response-suggestions">
         <div class="suggestion-buttons">
-      <button 
+          <button 
             v-for="choice in currentChoices" 
             :key="choice.id"
             @click="makeChoice(choice)"
@@ -403,17 +403,17 @@ defineExpose({
             :class="{ 'selected': selectedChoice?.id === choice.id }"
           >
             {{ choice.text }}
-      </button>
+          </button>
         </div>
-    </div>
-    
+      </div>
+      
       <div class="chat-input-container">
         <div class="chat-toolbar">
           <button class="toolbar-btn" title="Emoji">😊</button>
           <button class="toolbar-btn" title="Format">B</button>
           <button class="toolbar-btn" title="More">⋯</button>
-    </div>
-    
+        </div>
+        
         <div class="input-wrapper">
           <input 
             v-model="chatInput"
@@ -430,14 +430,15 @@ defineExpose({
           >
             Send
           </button>
-          </div>
         </div>
       </div>
+    </div>
     
     <div v-show="!shouldShowChat" class="chat-minimized">
       <button @click="toggleChat" class="toggle-chat-btn">💬</button>
     </div>
-    
+  </div>
+  
   <!-- Boss Battle Component -->
   <BossBattle 
     :show="showBossBattle"
