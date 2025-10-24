@@ -871,7 +871,7 @@ defineExpose({
 /* Specifically target user messages to ensure no indentation */
 .message.user-message .message-text {
   text-indent: 0 !important;
-  padding-left: 0 !important;
+  padding-left: 14px !important; /* Add proper left padding */
   margin-left: 0 !important;
   white-space: pre-line !important;
 }
