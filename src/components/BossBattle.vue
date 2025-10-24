@@ -1331,7 +1331,7 @@ onUnmounted(() => {
 
 .terminal-input-display {
   flex: 1;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.3);
   border: 2px solid var(--keyword);
   border-radius: 4px;
   color: var(--font-color);
@@ -1340,6 +1340,7 @@ onUnmounted(() => {
   padding: 8px;
   min-height: 20px;
   transition: all 0.3s ease;
+  font-weight: bold;
 }
 
 .terminal-input-display.time-critical {
@@ -1349,8 +1350,9 @@ onUnmounted(() => {
 }
 
 .terminal-input-display.focused {
-  background: rgba(0, 255, 0, 0.1);
+  background: rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 10px var(--keyword);
+  border-color: var(--keyword);
 }
 
 /* Stats */
@@ -1507,5 +1509,36 @@ onUnmounted(() => {
 
 [data-theme="cyberpunk"] .progress-fill {
   background: linear-gradient(90deg, #ff2bd6, #2bf0ff);
+}
+
+/* Theme-specific input display overrides */
+[data-theme="matrix"] .terminal-input-display {
+  color: #00ff95 !important;
+  text-shadow: 0 0 5px #00ff95;
+}
+
+[data-theme="cyberpunk"] .terminal-input-display {
+  color: #ff2bd6 !important;
+  text-shadow: 0 0 5px #ff2bd6;
+}
+
+[data-theme="black-white"] .terminal-input-display {
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="white"] .terminal-input-display {
+  color: #000000 !important;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="black-red"] .terminal-input-display {
+  color: #ff2d2d !important;
+  text-shadow: 0 0 5px #ff2d2d;
+}
+
+[data-theme="psychedelic"] .terminal-input-display {
+  color: #f472b6 !important;
+  text-shadow: 0 0 5px #f472b6;
 }
 </style>
