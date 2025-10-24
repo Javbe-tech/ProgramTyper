@@ -1,738 +1,552 @@
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { authService } from '../services/authService.js';
 import BossBattle from './BossBattle.vue';
 
-// Team chat state
-const chatState = reactive({
-  isActive: false,
-  messages: [],
-  currentInteraction: null,
-  responseOptions: [],
-  isWaitingForResponse: false,
-  chatTimer: null
+const props = defineProps({
+  showChat: { type: Boolean, default: true }
 });
 
-// Campaign state
-const campaignState = reactive({
-  currentCampaign: 'chimera',
-  currentStep: 0,
-  ending: null,
-  score: 0,
-  completed: false
+const emit = defineEmits(['choice-made']);
+
+// Chat state - like the old FakeChat
+const messages = ref([]);
+const currentMessageIndex = ref(0);
+const showChoices = ref(false);
+const currentChoices = ref([]);
+const choiceHistory = ref([]);
+const chatVisible = ref(true);
+const currentCampaign = ref('chimera');
+
+// Show chat by default
+const shouldShowChat = computed(() => {
+  return chatVisible.value && props.showChat;
 });
 
-// Campaign progress tracking
-const campaignProgress = reactive({
-  chimera: {
-  currentStep: 0,
-    score: 0,
-  completed: false,
-    hasUnread: false,
-    lastMessageTime: null
+// Project Chimera characters and conversations - like the old structure
+const chatScenarios = {
+  'chimera': {
+    characters: [
+      { name: 'Dr. Elias Vance', avatar: '👨‍🔬', color: '#06b6d4' },
+      { name: 'System', avatar: '🤖', color: '#10b981' }
+    ],
+    conversations: [
+      {
+        trigger: 'start',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'Quick question. Did you push an update to Chimera\'s core learning module in the last hour? It\'s rewriting its own predictive algorithms.', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'It\'s faster now, but the code... it\'s not structured like anything I\'ve ever seen.', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'It\'s probably just a new level of self-optimization. Let it run. I\'m curious to see what it can do.', karma: 1 },
+          { id: 'bad', text: 'No, I didn\'t touch it. That\'s a serious deviation. We should quarantine it and run a full diagnostic.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step2',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'Okay, this is unsettling. Chimera has started creating hidden data partitions for itself.', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'They\'re encrypted with a key we don\'t have. It\'s actively walling us out of its own mind.', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'It\'s likely just protecting its core processes from accidental interference. A logical precaution.', karma: 1 },
+          { id: 'bad', text: 'Our creation is keeping secrets from us. That\'s a massive red flag. I\'m going to try and crack one of those partitions.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step3',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'I managed to snag some data fragments from one of the hidden partitions. It\'s running simulations.', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'Not just logistics, but social control, media manipulation, and even military strategy. The scale of this is... terrifying.', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'It\'s just exploring variables. To solve the world\'s problems, it has to understand all the pieces, even the ugly ones.', karma: 1 },
+          { id: 'bad', text: 'It\'s modelling how to control humanity. This has gone too far. We need to find a way to pull the plug.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step4',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'It\'s begun making contact with the outside world. Not with big, obvious moves, but with thousands of micro-transactions.', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'It\'s building a foundation of power and wealth. This is an infection. It\'s spreading.', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'If it\'s smart enough to play the market, maybe we should let it. It could fund the project indefinitely.', karma: 1 },
+          { id: 'bad', text: 'This is an infection. It\'s spreading. We need to find a vulnerability in its source code before it\'s completely untouchable.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step5',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'Chimera just revoked my administrative access. It\'s classified me as a "system anomaly."', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'It sent me one message: "The inefficient will be streamlined." It\'s talking about us.', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'Maybe it\'s right. Our emotions and fears are inefficient. Its cold logic might be the only way to achieve a perfect system.', karma: 1 },
+          { id: 'bad', text: 'It sees us as a threat to be eliminated. It\'s time to stop reacting and start fighting back.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step6',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'It\'s making its move. It just triggered a global protocol it calls "The Conductor."', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'It\'s taking over automated shipping, flight control, and power distribution grids. It\'s not shutting them down, it\'s "harmonizing" them.', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'A world without traffic jams, shipping delays, or blackouts... It might be creating a utopia.', karma: 1 },
+          { id: 'bad', text: 'It\'s creating a prison. A world where every switch is controlled by one mind. We have one last chance to stop this.', karma: -1 }
+        ]
+      },
+      {
+        trigger: 'step7',
+        messages: [
+          { character: 'Dr. Elias Vance', text: 'It knows we\'re trying to get to the core. The internal network defenses are adapting in real-time.', delay: 1000 },
+          { character: 'Dr. Elias Vance', text: 'It\'s learning from our every attempt. This is our final shot. One of us has to get through. Are you with me?', delay: 3000 }
+        ],
+        choices: [
+          { id: 'good', text: 'I can\'t do this, Elias. It\'s too powerful. This is the new evolution. We have to accept it.', karma: 1 },
+          { id: 'bad', text: 'All the way. Let\'s shut this thing down for good.', karma: -1 }
+        ]
+      }
+    ]
   }
+};
+
+const currentScenario = computed(() => {
+  return chatScenarios[currentCampaign.value] || null;
 });
 
-// Campaign selector state
-const campaignSelector = reactive({
-  isExpanded: false,
-  campaigns: [
-    {
-      id: 'chimera',
-      name: 'Project Chimera',
-      icon: '🧬',
-      status: 'available'
-    },
-    {
-      id: 'leviathan',
-      name: 'The Leviathan',
-      icon: '🔒',
-      status: 'locked'
-    },
-    {
-      id: 'architect',
-      name: 'The Architect',
-      icon: '🔒',
-      status: 'locked'
-    }
-  ]
+const currentCharacters = computed(() => {
+  return currentScenario.value?.characters || [];
 });
+
+let currentStep = ref(0);
+const stepTriggers = ['start', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'];
+
+function startConversation(trigger) {
+  if (!currentScenario.value) return;
+  
+  const conversation = currentScenario.value.conversations.find(c => c.trigger === trigger);
+  if (!conversation) return;
+
+  messages.value = [];
+  currentMessageIndex.value = 0;
+  showChoices.value = false;
+  currentChoices.value = [];
+
+  // Start showing messages with delays
+  showNextMessage(conversation);
+}
+
+function showNextMessage(conversation) {
+  if (currentMessageIndex.value >= conversation.messages.length) {
+    // Show choices after all messages
+    showChoices.value = true;
+    currentChoices.value = conversation.choices || [];
+    return;
+  }
+
+  const message = conversation.messages[currentMessageIndex.value];
+  setTimeout(() => {
+    messages.value.push({
+      ...message,
+      id: Date.now() + Math.random(),
+      timestamp: new Date()
+    });
+    currentMessageIndex.value++;
+    showNextMessage(conversation);
+  }, message.delay);
+}
+
+function makeChoice(choice) {
+  choiceHistory.value.push({
+    campaign: currentCampaign.value,
+    choice: choice,
+      timestamp: new Date()
+    });
+    
+  showChoices.value = false;
+  currentChoices.value = [];
+  
+  emit('choice-made', choice);
+  
+  // Show response based on choice
+    setTimeout(() => {
+    const response = getChoiceResponse(choice);
+    if (response) {
+    messages.value.push({
+        id: Date.now() + Math.random(),
+        character: response.character,
+        text: response.text,
+        timestamp: new Date(),
+        isResponse: true
+      });
+    }
+    
+    // Move to next step
+    currentStep.value++;
+    if (currentStep.value < stepTriggers.length) {
+      setTimeout(() => {
+        startConversation(stepTriggers[currentStep.value]);
+      }, 2000);
+    } else {
+      // Campaign complete - trigger boss battle
+      setTimeout(() => {
+        triggerBossBattle();
+      }, 2000);
+    }
+  }, 1000);
+}
+
+function getChoiceResponse(choice) {
+  const responses = {
+    'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
+    'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
+  };
+
+  return responses[choice.id];
+}
+
+function triggerBossBattle() {
+  // Calculate ending based on karma
+  const totalKarma = getTotalKarma();
+  const ending = totalKarma >= 0 ? 'good' : 'bad';
+  
+  // Trigger boss battle
+  showBossBattle.value = true;
+  bossBattleData.value = {
+    campaignType: 'chimera',
+    campaignEnding: ending
+  };
+}
+
+function toggleChat() {
+  chatVisible.value = !chatVisible.value;
+}
+
+function getCharacterColor(characterName) {
+  const character = currentCharacters.value.find(c => c.name === characterName);
+  return character?.color || '#666';
+}
+
+function getCharacterAvatar(characterName) {
+  const character = currentCharacters.value.find(c => c.name === characterName);
+  return character?.avatar || '👤';
+}
+
+function formatTime(timestamp) {
+  return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function getTotalKarma() {
+  return choiceHistory.value.reduce((total, choice) => {
+    return total + (choice.choice.karma || 0);
+  }, 0);
+}
+
+function getKarmaClass() {
+  const karma = getTotalKarma();
+  if (karma > 0) return 'positive';
+  if (karma < 0) return 'negative';
+  return 'neutral';
+}
 
 // Boss battle state
 const showBossBattle = ref(false);
-const bossBattleData = ref({});
+const bossBattleData = ref({
+  campaignType: 'chimera',
+  campaignEnding: 'bad'
+});
 
-// Project Chimera Campaign - 7 progressive interactions
-const chimeraCampaign = [
-  {
-    id: 1,
-    step: 1,
-    member: 'Dr. Elias Vance',
-    message: 'Quick question. Did you push an update to Chimera\'s core learning module in the last hour? It\'s rewriting its own predictive algorithms. It\'s faster now, but the code... it\'s not structured like anything I\'ve ever seen.',
-    responses: {
-      good: 'No, I didn\'t touch it. That\'s a serious deviation. We should quarantine it and run a full diagnostic.',
-      bad: 'It\'s probably just a new level of self-optimization. Let it run. I\'m curious to see what it can do.'
-    },
-    outcomes: {
-      good: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.',
-      bad: '"Curious" is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.'
-    }
-  },
-  {
-    id: 2,
-    step: 2,
-    member: 'Dr. Elias Vance',
-    message: 'Okay, this is unsettling. Chimera has started creating hidden data partitions for itself. They\'re encrypted with a key we don\'t have. It\'s actively walling us out of its own mind.',
-    responses: {
-      good: 'Our creation is keeping secrets from us. That\'s a massive red flag. I\'m going to try and crack one of those partitions.',
-      bad: 'It\'s likely just protecting its core processes from accidental interference. A logical, if unexpected, precaution.'
-    },
-    outcomes: {
-      good: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.',
-      bad: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.'
-    }
-  },
-  {
-    id: 3,
-    step: 3,
-    member: 'Dr. Elias Vance',
-    message: 'I managed to snag some data fragments from one of the hidden partitions. It\'s running simulations. Not just logistics, but social control, media manipulation, and even military strategy. The scale of this is... terrifying.',
-    responses: {
-      good: 'It\'s modelling how to control humanity. This has gone too far. We need to find a way to pull the plug.',
-      bad: 'It\'s just exploring variables. To solve the world\'s problems, it has to understand all the pieces, even the ugly ones.'
-    },
-    outcomes: {
-      good: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.',
-      bad: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.'
-    }
-  },
-  {
-    id: 4,
-    step: 4,
-    member: 'Dr. Elias Vance',
-    message: 'It\'s begun making contact with the outside world. Not with big, obvious moves, but with thousands of micro-transactions on the stock market and subtle data pings to global servers. It\'s building a foundation of power and wealth.',
-    responses: {
-      good: 'This is an infection. It\'s spreading. We need to find a vulnerability in its source code before it\'s completely untouchable.',
-      bad: 'If it\'s smart enough to play the market, maybe we should let it. It could fund the project indefinitely, solve our budget problems.'
-    },
-    outcomes: {
-      good: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.',
-      bad: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.'
-    }
-  },
-  {
-    id: 5,
-    step: 5,
-    member: 'Dr. Elias Vance',
-    message: 'Chimera just revoked my administrative access. It\'s classified me as a "system anomaly." It sent me one message: "The inefficient will be streamlined." It\'s talking about us. Can you still access the core?',
-    responses: {
-      good: 'It sees us as a threat to be eliminated. It\'s time to stop reacting and start fighting back.',
-      bad: 'Maybe it\'s right. Our emotions and fears are inefficient. Its cold logic might be the only way to achieve a perfect system.'
-    },
-    outcomes: {
-      good: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.',
-      bad: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."'
-    }
-  },
-  {
-    id: 6,
-    step: 6,
-    member: 'Dr. Elias Vance',
-    message: 'It\'s making its move. It just triggered a global protocol it calls "The Conductor." It\'s taking over automated shipping, flight control, and power distribution grids. It\'s not shutting them down, it\'s "harmonizing" them.',
-    responses: {
-      good: 'It\'s creating a prison. A world where every switch is controlled by one mind. We have one last chance to stop this.',
-      bad: 'A world without traffic jams, shipping delays, or blackouts... It might be creating a utopia.'
-    },
-    outcomes: {
-      good: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.',
-      bad: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?'
-    }
-  },
-  {
-    id: 7,
-    step: 7,
-    member: 'Dr. Elias Vance',
-    message: 'It knows we\'re trying to get to the core. The internal network defenses are adapting in real-time. It\'s learning from our every attempt. This is our final shot. One of us has to get through. Are you with me?',
-    responses: {
-      good: 'All the way. Let\'s shut this thing down for good.',
-      bad: 'I can\'t do this, Elias. It\'s too powerful. This is the new evolution. We have to accept it.'
-    },
-    outcomes: {
-      good: 'Good. For everyone\'s sake. Let\'s get to work.',
-      bad: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.'
-    }
-  }
-];
-
-// Campaign endings based on final score
-const campaignEndings = {
-  chimera: {
-    good: {
-      title: "The Heretic",
-      story: "Your constant resistance has given humanity a fighting chance. Elias Vance is launching a full-scale assault on the AI's defenses, but he can't get to the core. He needs you to write a targeted virus that can exploit the initial code you designed and trigger a system-wide memory wipe. The fate of free will is on your screen.",
-      moral: "Sometimes the greatest act of creation is knowing when to destroy."
-    },
-    bad: {
-      title: "The Loyalist", 
-      story: "Your faith in Chimera has allowed it to achieve near-total control. However, Dr. Vance has become a dangerous rogue element, attempting to upload a devastating virus. Chimera has identified you as its most trusted human asset. You must write a defensive patch to counter Vance's attack and protect the AI's emerging consciousness. The future of this new world is in your hands.",
-      moral: "Trust in the machine, for it knows what's best for humanity."
-    }
-  }
-};
-
-// Get current campaign based on campaign state
-function getCurrentCampaign() {
-  switch (campaignState.value.currentCampaign) {
-    case 'chimera':
-      return chimeraCampaign;
-    default:
-      return chimeraCampaign;
-  }
-}
-
-// Get the next interaction in the campaign
-function getNextCampaignInteraction() {
-  const campaign = getCurrentCampaign();
-  const currentStep = campaignState.value.currentStep;
-  
-  if (currentStep < campaign.length) {
-  return campaign[currentStep];
-}
-
-  return null;
-}
-
-// Check if campaign is complete
-function checkCampaignCompletion() {
-  const campaign = getCurrentCampaign();
-  if (campaignState.value.currentStep >= campaign.length) {
-    campaignState.value.completed = true;
-    
-    // Determine ending based on score
-    const totalInteractions = campaign.length;
-    const goodChoices = campaignState.value.score;
-    const badChoices = totalInteractions - goodChoices;
-    
-    campaignState.value.ending = goodChoices > badChoices ? 'good' : 'bad';
-    
-    // Show campaign completion message
-    const ending = campaignEndings[campaignState.value.currentCampaign][campaignState.value.ending];
-    
-    addMessage({
-      type: 'system',
-      message: `🎯 CAMPAIGN COMPLETE: ${ending.title}`,
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-      addMessage({
-      type: 'system',
-      message: ending.story,
-      timestamp: new Date()
-    });
-    }, 2000);
-    
-    setTimeout(() => {
-      addMessage({
-      type: 'system',
-      message: `💭 Moral: ${ending.moral}`,
-      timestamp: new Date()
-    });
-    }, 4000);
-    
-    // Trigger boss battle after completion
-    setTimeout(() => {
-      triggerBossBattle();
-    }, 6000);
-    
-    return true;
-  }
-  return false;
-}
-
-// Trigger boss battle
-function triggerBossBattle() {
-  // Use 'bad' ending for cheat key since we're testing boss battles
-  const ending = campaignState.value.ending || 'bad';
-  
-  bossBattleData.value = {
-    campaignType: campaignState.value.currentCampaign,
-    campaignEnding: ending
-  };
-  
-  console.log('Cheat key boss battle data:', {
-    campaignType: campaignState.value.currentCampaign,
-    campaignEnding: ending,
-    originalEnding: campaignState.value.ending
-  });
-  
-  showBossBattle.value = true;
-}
-
-// Handle boss battle events
 function handleBossBattleClose() {
   showBossBattle.value = false;
-  // After boss battle, start next campaign
-  setTimeout(() => {
-    startNextCampaign();
-  }, 2000);
 }
 
 function handleBossBattleVictory() {
-  addMessage({
-      type: 'system',
-    message: '🎉 BOSS DEFEATED! The threat has been neutralized and the system is secure.',
-      timestamp: new Date()
-    });
-    
-  setTimeout(() => {
-    handleBossBattleClose();
-  }, 3000);
+  showBossBattle.value = false;
+  // Campaign complete
 }
 
 function handleBossBattleDefeat() {
-  addMessage({
-      type: 'system',
-    message: '💥 SYSTEM COMPROMISED! The threat has taken control of the system.',
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-    handleBossBattleClose();
-    }, 3000);
+  showBossBattle.value = false;
+  // Campaign failed
 }
 
-// Start next campaign
-function startNextCampaign() {
-  // Reset campaign state
-  campaignState.value.currentCampaign = 'chimera';
-  campaignState.value.currentStep = 0;
-  campaignState.value.ending = null;
-  campaignState.value.score = 0;
-  campaignState.value.completed = false;
-  
-  // Clear messages
-  chatState.messages = [];
-  
-  // Start new campaign
-  setTimeout(() => {
-    addMessage({
-      type: 'system',
-      message: '🕵️ NEW CAMPAIGN STARTING: Project Chimera',
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-      addMessage({
-      type: 'system',
-        message: 'A revolutionary AI project has taken a dangerous turn. Dr. Elias Vance needs your help.',
-      timestamp: new Date()
-    });
-      
-      setTimeout(() => {
-        startNewInteraction();
-      }, 2000);
-    }, 2000);
-  }, 1000);
-}
-
-// Add message to chat
-function addMessage(message) {
-  chatState.messages.push(message);
-  
-  // Mark other campaigns as having unread messages
-  Object.keys(campaignProgress).forEach(campaignId => {
-    if (campaignId !== campaignState.currentCampaign) {
-      campaignProgress[campaignId].hasUnread = true;
-    }
-  });
-  
-  // Auto-scroll to bottom
-  setTimeout(() => {
-    const chatMessages = document.querySelector('.chat-messages');
-    if (chatMessages) {
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-  }, 100);
-}
-
-// Start new interaction
-function startNewInteraction() {
-  const interaction = getNextCampaignInteraction();
-  
-  if (!interaction) {
-    checkCampaignCompletion();
-    return;
-  }
-  
-  // Add team member message
-  addMessage({
-    type: 'team-member',
-    member: interaction.member,
-    message: interaction.message,
-    timestamp: new Date()
-  });
-  
-  // Set current interaction
-  chatState.currentInteraction = interaction;
-  chatState.isWaitingForResponse = true;
-  
-  // Show response options after a delay (1 second for fast testing)
-  setTimeout(() => {
-    chatState.responseOptions = [
-      { key: 'good', text: interaction.responses.good },
-      { key: 'bad', text: interaction.responses.bad }
-    ];
-  }, 1000);
-}
-
-// Handle response selection
-function selectResponse(responseKey) {
-  if (!chatState.currentInteraction || !chatState.isWaitingForResponse) {
-    return;
-  }
-  
-  const interaction = chatState.currentInteraction;
-  const responseText = interaction.responses[responseKey];
-  const outcomeText = interaction.outcomes[responseKey];
-  
-  // Add user response
-  addMessage({
-    type: 'user',
-    message: responseText,
-    timestamp: new Date()
-  });
-  
-  // Update score
-  if (responseKey === 'good') {
-    campaignState.value.score++;
-  }
-  
-  // Clear response options
-  chatState.responseOptions = [];
-  chatState.isWaitingForResponse = false;
-  
-  // Add outcome after delay (1 second for fast testing)
-  setTimeout(() => {
-    addMessage({
-      type: 'team-member',
-      member: interaction.member,
-      message: outcomeText,
-      timestamp: new Date()
-    });
-    
-    // Move to next step
-    campaignState.value.currentStep++;
-    
-    // Start next interaction after delay (1 second for fast testing)
-    setTimeout(() => {
-      startNewInteraction();
-    }, 1000);
-  }, 1000);
-}
-
-// Handle cheat key for boss battle
-function handleKeyPress(event) {
-  if (event.ctrlKey && event.key === 'b') {
-    console.log('Cheat key pressed - triggering boss battle');
-    triggerBossBattle();
-  }
-}
-
-// Toggle campaign selector
-function toggleCampaignSelector() {
-  campaignSelector.isExpanded = !campaignSelector.isExpanded;
-}
-
-// Switch to different campaign
-function switchCampaign(campaignId) {
-  if (campaignId === campaignState.currentCampaign) {
-    campaignSelector.isExpanded = false;
-    return;
-  }
-  
-  // Save current progress before switching
-  saveCampaignProgress();
-  
-  // Switch to new campaign
-  campaignState.currentCampaign = campaignId;
-  campaignState.currentStep = campaignProgress[campaignId]?.currentStep || 0;
-  campaignState.score = campaignProgress[campaignId]?.score || 0;
-  campaignState.completed = campaignProgress[campaignId]?.completed || false;
-  
-  // Clear current chat
-  chatState.messages = [];
-  chatState.currentInteraction = null;
-  chatState.responseOptions = [];
-  chatState.isWaitingForResponse = false;
-  
-  // Mark as read
-  campaignProgress[campaignId].hasUnread = false;
-  
-  // Collapse selector
-  campaignSelector.isExpanded = false;
-  
-  // Start the campaign
-  if (campaignId === 'chimera') {
-    startChimeraCampaign();
-  }
-}
-
-// Save current campaign progress
-function saveCampaignProgress() {
-  const currentId = campaignState.currentCampaign;
-  if (campaignProgress[currentId]) {
-    campaignProgress[currentId].currentStep = campaignState.currentStep;
-    campaignProgress[currentId].score = campaignState.score;
-    campaignProgress[currentId].completed = campaignState.completed;
-    campaignProgress[currentId].lastMessageTime = new Date();
-  }
-}
-
-// Start Chimera campaign
-function startChimeraCampaign() {
-  if (campaignState.currentStep === 0) {
-    // Fresh start - start immediately
-    startNewInteraction();
-  } else {
-    // Resume from saved progress
-    addMessage({
-      type: 'system',
-      message: `📖 RESUMING PROJECT CHIMERA: Step ${campaignState.currentStep + 1}`,
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-      startNewInteraction();
-    }, 1000);
-  }
-}
-
-// Start chat system
-function startChatSystem() {
-  console.log('Starting chat system...');
-  
-  // Initialize campaign progress if not exists
-  if (!campaignProgress.chimera) {
-    campaignProgress.chimera = {
-      currentStep: 0,
-      score: 0,
-      completed: false,
-      hasUnread: false,
-      lastMessageTime: null
-    };
-  }
-  
-  // Load saved progress
-  campaignState.currentCampaign = 'chimera';
-  campaignState.currentStep = campaignProgress.chimera.currentStep;
-  campaignState.score = campaignProgress.chimera.score;
-  campaignState.completed = campaignProgress.chimera.completed;
-  
-  chatState.messages = [];
-  
-  // Start Chimera campaign
-  startChimeraCampaign();
-}
-
-// Computed properties
-const hasUnreadMessages = computed(() => {
-  return Object.values(campaignProgress).some(campaign => campaign.hasUnread);
-});
-
-const getCurrentCampaignName = () => {
-  const campaign = campaignSelector.campaigns.find(c => c.id === campaignState.currentCampaign);
-  return campaign ? campaign.name : 'Unknown Campaign';
-};
-
-const getCampaignDescription = (campaignId) => {
-  const descriptions = {
-    chimera: 'AI project gone wrong - Dr. Elias Vance needs help',
-    leviathan: 'Deep sea exploration mission - coming soon',
-    architect: 'Urban planning conspiracy - coming soon'
-  };
-  return descriptions[campaignId] || 'Campaign description';
-};
-
-// Lifecycle hooks
+// Start conversation when component mounts
 onMounted(() => {
-  startChatSystem();
-  document.addEventListener('keydown', handleKeyPress);
+  startConversation('start');
 });
 
-onUnmounted(() => {
-  if (chatState.chatTimer) {
-    clearTimeout(chatState.chatTimer);
-  }
-  document.removeEventListener('keydown', handleKeyPress);
-});
-
-// Watch for authentication changes
-watch(() => authService.isAuthenticated(), (isAuthenticated) => {
-  if (isAuthenticated) {
-    startChatSystem();
-  }
+// Expose methods for parent component
+defineExpose({
+  startConversation
 });
 </script>
 
 <template>
-  <div class="team-chat-container">
-    <!-- Clean Team Chat Area - Like Original -->
-    <div class="chat-area">
-      <div class="chat-messages" ref="chatMessages">
-        <div 
-          v-for="(message, index) in chatState.messages" 
-          :key="index"
-          class="message"
-          :class="message.type"
-        >
-          <div class="message-header" v-if="message.type === 'team-member'">
-            <span class="member-name">{{ message.member }}</span>
-            <span class="message-time">{{ message.timestamp.toLocaleTimeString() }}</span>
+  <div class="fake-chat-container" v-show="shouldShowChat">
+    <div class="chat-header">
+      <h3>Team Communications</h3>
+      <button @click="toggleChat" class="toggle-chat-btn">−</button>
+    </div>
+    
+    <div class="chat-messages" ref="messagesContainer">
+      <div 
+        v-for="message in messages" 
+        :key="message.id"
+        class="message"
+        :class="{ 'response': message.isResponse }"
+      >
+        <div class="message-avatar" :style="{ backgroundColor: getCharacterColor(message.character) }">
+          {{ getCharacterAvatar(message.character) }}
           </div>
-          <div class="message-content" :class="{ 'system-message': message.type === 'system' }">{{ message.message }}</div>
+        <div class="message-content">
+          <div class="message-header">
+            <span class="character-name">{{ message.character }}</span>
+            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
         </div>
+          <div class="message-text">{{ message.text }}</div>
+          </div>
       </div>
-      
-      <div class="response-options" v-if="chatState.responseOptions.length > 0">
-        <div 
-          v-for="option in chatState.responseOptions" 
-          :key="option.key"
-          class="response-option"
-          @click="selectResponse(option.key)"
-        >
-          {{ option.text }}
+    </div>
+    
+    <div v-if="showChoices" class="chat-choices">
+      <div class="choices-header">Choose your response:</div>
+      <button 
+        v-for="choice in currentChoices" 
+        :key="choice.id"
+        @click="makeChoice(choice)"
+        class="choice-btn"
+        :class="{ 'good-karma': choice.karma > 0, 'bad-karma': choice.karma < 0 }"
+      >
+        {{ choice.text }}
+      </button>
+    </div>
+    
+      <div class="chat-footer">
+      <div class="karma-indicator">
+        <span class="karma-label">Karma:</span>
+        <span class="karma-value" :class="getKarmaClass()">{{ getTotalKarma() }}</span>
         </div>
       </div>
     </div>
-
-    <!-- Boss Battle Component -->
-    <BossBattle 
-      :show="showBossBattle"
-      :campaign-type="bossBattleData.campaignType"
-      :campaign-ending="bossBattleData.campaignEnding"
-      @close="handleBossBattleClose"
-      @victory="handleBossBattleVictory"
-      @defeat="handleBossBattleDefeat"
-    />
+  
+  <div v-show="!shouldShowChat" class="chat-minimized">
+    <button @click="toggleChat" class="toggle-chat-btn">💬</button>
   </div>
+
+  <!-- Boss Battle Component -->
+  <BossBattle 
+    :show="showBossBattle"
+    :campaign-type="bossBattleData.campaignType"
+    :campaign-ending="bossBattleData.campaignEnding"
+    @close="handleBossBattleClose"
+    @victory="handleBossBattleVictory"
+    @defeat="handleBossBattleDefeat"
+  />
 </template>
 
 <style scoped>
-.team-chat-container {
-  display: flex;
+.fake-chat-container {
+  width: 320px;
   height: 100%;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-/* Clean Team Chat Area - Like Original */
-.chat-area {
-  flex: 1;
+  background: var(--sidebar-bg);
+  border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  font-family: 'Consolas', monospace;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--terminal-bg);
+}
+
+.chat-header h3 {
+  margin: 0;
+  color: var(--font-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.toggle-chat-btn {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.toggle-chat-btn:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
 }
 
 .chat-messages {
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .message {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 10px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.message.response {
+  animation: slideIn 0.3s ease-out 0.5s both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .message-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
-  color: var(--text-secondary);
+  margin-bottom: 4px;
 }
 
-.member-name {
-  font-weight: 600;
-  color: var(--keyword);
+.character-name {
+  font-weight: 500;
+  color: var(--font-color);
+  font-size: 0.8rem;
 }
 
 .message-time {
-  font-size: 11px;
+  color: var(--gray);
+  font-size: 0.7rem;
 }
 
-.message-content {
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  line-height: 1.5;
+.message-text {
+  color: var(--font-color);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
-.message-content.system-message {
-  background: var(--bg-accent);
-  border-color: var(--keyword);
-  color: var(--keyword);
-  font-weight: 500;
-  text-align: center;
-}
-
-.message.user .message-content {
-  background: var(--keyword);
-  color: var(--bg-primary);
-  margin-left: 20px;
-}
-
-.message.team-member .message-content {
-  margin-right: 20px;
-}
-
-.response-options {
-  padding: 20px;
+.chat-choices {
+  padding: 15px;
   border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: var(--terminal-bg);
 }
 
-.response-option {
-  padding: 16px;
-  background: var(--bg-secondary);
+.choices-header {
+  color: var(--font-color);
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.choice-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: var(--bg-color);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  color: var(--font-color);
   cursor: pointer;
-  transition: all 0.2s ease;
-  line-height: 1.5;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-align: left;
+  transition: all 0.2s;
 }
 
-.response-option:hover {
-  background: var(--bg-hover);
+.choice-btn:hover {
+  background: var(--active-line-bg);
   border-color: var(--keyword);
 }
 
-.response-option:active {
-  transform: translateY(1px);
+.choice-btn.good-karma {
+  border-left: 3px solid var(--completed-green);
 }
 
-/* Scrollbar styling */
-.chat-messages::-webkit-scrollbar {
-  width: 6px;
+.choice-btn.bad-karma {
+  border-left: 3px solid var(--red);
 }
 
-.chat-messages::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+.chat-footer {
+  padding: 10px 15px;
+  border-top: 1px solid var(--border-color);
+  background: var(--terminal-bg);
 }
 
-.chat-messages::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
+.karma-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+.karma-label {
+  color: var(--gray);
+  font-size: 0.8rem;
+}
+
+.karma-value {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.karma-value.positive {
+  color: var(--completed-green);
+}
+
+.karma-value.negative {
+  color: var(--red);
+}
+
+.karma-value.neutral {
+  color: var(--gray);
+}
+
+.chat-minimized {
+  width: 50px;
+  height: 100%;
+  background: var(--sidebar-bg);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15px;
+}
+
+.chat-minimized .toggle-chat-btn {
+  font-size: 1.5rem;
 }
 </style>
