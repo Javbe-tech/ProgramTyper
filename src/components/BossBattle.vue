@@ -223,6 +223,11 @@ function startBossBattle() {
   // Start boot sequence
   startBootSequence();
   
+  // Auto-focus the input after a short delay to ensure DOM is ready
+  setTimeout(() => {
+    focusInput();
+  }, 1000);
+  
   // Start self-completing code
   startSelfCompletingCode();
 }
@@ -446,6 +451,13 @@ function startNextLine() {
   battleState.userInput = '';
   battleState.isTyping = true;
   
+  // Auto-focus input when first line appears
+  if (battleState.currentPhase === 0) {
+    setTimeout(() => {
+      focusInput();
+    }, 500);
+  }
+  
   // Start countdown
   const countdown = setInterval(() => {
     battleState.timeRemaining -= 100;
@@ -538,6 +550,16 @@ function focusTerminateInput() {
   battleState.terminateFocused = true;
   battleState.inputFocused = false;
 }
+
+// Watch for terminate window to appear and auto-focus
+watch(() => battleState.terminateRequired, (newVal) => {
+  if (newVal) {
+    // Auto-focus terminate input when it appears
+    setTimeout(() => {
+      focusTerminateInput();
+    }, 500);
+  }
+});
 
 // Handle keyboard input - EXACT COPY from App.vue handleRunTyping
 function handleKeyDown(event) {
