@@ -727,4 +727,107 @@ onUnmounted(() => {
   /* animation: blink 1s steps(1) infinite; */
   font-weight: bold;
 }
+
+/* Theme-specific overrides for completed tabs */
+[data-theme="black-red"] .tab.completed {
+  background-color: rgba(255, 45, 45, 0.2);
+  border-left: 3px solid #ff2d2d;
+}
+
+[data-theme="black-red"] .tab-name.completed {
+  color: #ff2d2d;
+}
+
+[data-theme="black-red"] .challenge-count.success {
+  background-color: #ff2d2d;
+}
+
+[data-theme="black-red"] .completed-challenge span {
+  color: #ff2d2d !important;
+}
+
+[data-theme="cyberpunk"] .tab.completed {
+  background-color: rgba(255, 43, 214, 0.2);
+  border-left: 3px solid #ff2bd6;
+}
+
+[data-theme="cyberpunk"] .tab-name.completed {
+  color: #ff2bd6;
+}
+
+[data-theme="cyberpunk"] .challenge-count.success {
+  background-color: #ff2bd6;
+}
+
+[data-theme="cyberpunk"] .completed-challenge span {
+  color: #ff2bd6 !important;
+}
+
+[data-theme="matrix"] .tab.completed {
+  background-color: rgba(0, 255, 0, 0.2);
+  border-left: 3px solid #00ff00;
+}
+
+[data-theme="matrix"] .tab-name.completed {
+  color: #00ff00;
+}
+
+[data-theme="matrix"] .challenge-count.success {
+  background-color: #00ff00;
+}
+
+[data-theme="matrix"] .completed-challenge span {
+  color: #00ff00 !important;
+}
+
+[data-theme="black-white"] .tab.completed {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-left: 3px solid #000000;
+}
+
+[data-theme="black-white"] .tab-name.completed {
+  color: #000000;
+}
+
+[data-theme="black-white"] .challenge-count.success {
+  background-color: #000000;
+}
+
+[data-theme="black-white"] .completed-challenge span {
+  color: #000000 !important;
+}
+
+[data-theme="psychedelic"] .tab.completed {
+  background-color: rgba(244, 114, 182, 0.2);
+  border-left: 3px solid #f472b6;
+}
+
+[data-theme="psychedelic"] .tab-name.completed {
+  color: #f472b6;
+}
+
+[data-theme="psychedelic"] .challenge-count.success {
+  background-color: #f472b6;
+}
+
+[data-theme="psychedelic"] .completed-challenge span {
+  color: #f472b6 !important;
+}
+
+[data-theme="white"] .tab.completed {
+  background-color: rgba(124, 58, 237, 0.2);
+  border-left: 3px solid #7c3aed;
+}
+
+[data-theme="white"] .tab-name.completed {
+  color: #7c3aed;
+}
+
+[data-theme="white"] .challenge-count.success {
+  background-color: #7c3aed;
+}
+
+[data-theme="white"] .completed-challenge span {
+  color: #7c3aed !important;
+}
 </style>

@@ -616,6 +616,37 @@ onUnmounted(() => {
   color: #ff2bd6;
 }
 
+/* ASCII Art theme overrides */
+[data-theme="black-red"] .ascii-art {
+  color: #ff2d2d;
+  text-shadow: 0 0 10px #ff2d2d;
+}
+
+[data-theme="cyberpunk"] .ascii-art {
+  color: #ff2bd6;
+  text-shadow: 0 0 10px #ff2bd6;
+}
+
+[data-theme="matrix"] .ascii-art {
+  color: #00ff00;
+  text-shadow: 0 0 10px #00ff00;
+}
+
+[data-theme="black-white"] .ascii-art {
+  color: #000000;
+  text-shadow: 0 0 10px #000000;
+}
+
+[data-theme="psychedelic"] .ascii-art {
+  color: #f472b6;
+  text-shadow: 0 0 10px #f472b6;
+}
+
+[data-theme="white"] .ascii-art {
+  color: #7c3aed;
+  text-shadow: 0 0 10px #7c3aed;
+}
+
 /* Matrix theme keyframes */
 @keyframes matrixScanTextPulse {
   from { 
