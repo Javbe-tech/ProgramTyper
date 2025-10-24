@@ -116,8 +116,8 @@ async function dontShowAgain() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,10 +129,10 @@ async function dontShowAgain() {
   background: var(--bg-color);
   border: 2px solid var(--keyword);
   border-radius: 12px;
-  padding: 30px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
+  padding: 25px;
+  max-width: 500px;
+  width: 85%;
+  max-height: 70vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.4s ease-out;
@@ -140,65 +140,65 @@ async function dontShowAgain() {
 
 .welcome-header {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .welcome-header h1 {
   color: var(--font-color);
-  font-size: 2.2rem;
-  margin: 0 0 10px 0;
+  font-size: 1.8rem;
+  margin: 0 0 8px 0;
   font-weight: bold;
 }
 
 .welcome-icon {
-  font-size: 3rem;
-  margin-bottom: 10px;
+  font-size: 2.5rem;
+  margin-bottom: 8px;
 }
 
 .welcome-content {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .welcome-intro {
   color: var(--font-color);
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 15px;
   text-align: center;
 }
 
 .welcome-features {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: var(--font-color);
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .feature-icon {
-  font-size: 1.5rem;
-  margin-right: 12px;
-  min-width: 30px;
+  font-size: 1.3rem;
+  margin-right: 10px;
+  min-width: 25px;
 }
 
 .welcome-tip {
   background: var(--sidebar-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 15px;
-  margin-top: 20px;
+  padding: 12px;
+  margin-top: 15px;
 }
 
 .welcome-tip p {
   color: var(--font-color);
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .welcome-actions {
