@@ -1530,6 +1530,7 @@ onUnmounted(() => {
 [data-theme="white"] .terminal-input-display {
   color: #000000 !important;
   background: rgba(255, 255, 255, 0.9);
+  border-color: #000000;
 }
 
 [data-theme="black-red"] .terminal-input-display {
