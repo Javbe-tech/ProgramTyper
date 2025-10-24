@@ -729,7 +729,7 @@ defineExpose({
   border: 2px solid var(--border-color);
   border-radius: 8px;
   padding: 15px;
-  margin: 0 5px 15px 5px; /* Increased bottom margin for breathing room */
+  margin: 0 5px 25px 5px; /* Increased bottom margin to account for response choices */
   flex-shrink: 0; /* Don't shrink */
   overflow: hidden; /* Hide overflow but keep content visible */
   min-height: 60px; /* Ensure minimum height for input */
