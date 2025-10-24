@@ -377,13 +377,13 @@ function startNewInteraction() {
   chatState.currentInteraction = interaction;
   chatState.isWaitingForResponse = true;
   
-  // Show response options after a delay
+  // Show response options after a delay (1 second for fast testing)
   setTimeout(() => {
     chatState.responseOptions = [
       { key: 'good', text: interaction.responses.good },
       { key: 'bad', text: interaction.responses.bad }
     ];
-  }, 2000);
+  }, 1000);
 }
 
 // Handle response selection
@@ -412,7 +412,7 @@ function selectResponse(responseKey) {
   chatState.responseOptions = [];
   chatState.isWaitingForResponse = false;
   
-  // Add outcome after delay
+  // Add outcome after delay (1 second for fast testing)
   setTimeout(() => {
     addMessage({
       type: 'team-member',
@@ -424,11 +424,11 @@ function selectResponse(responseKey) {
     // Move to next step
     campaignState.value.currentStep++;
     
-    // Start next interaction after delay
+    // Start next interaction after delay (1 second for fast testing)
     setTimeout(() => {
       startNewInteraction();
-    }, 2000);
-  }, 2000);
+    }, 1000);
+  }, 1000);
 }
 
 // Handle cheat key for boss battle
@@ -492,24 +492,8 @@ function saveCampaignProgress() {
 // Start Chimera campaign
 function startChimeraCampaign() {
   if (campaignState.currentStep === 0) {
-    // Fresh start
-    addMessage({
-      type: 'system',
-      message: '🕵️ PROJECT CHIMERA: A revolutionary AI project has taken a dangerous turn.',
-      timestamp: new Date()
-    });
-    
-    setTimeout(() => {
-      addMessage({
-        type: 'system',
-        message: 'Dr. Elias Vance needs your help to stop the AI before it\'s too late.',
-        timestamp: new Date()
-      });
-      
-      setTimeout(() => {
-        startNewInteraction();
-      }, 2000);
-    }, 2000);
+    // Fresh start - start immediately
+    startNewInteraction();
   } else {
     // Resume from saved progress
     addMessage({
@@ -520,7 +504,7 @@ function startChimeraCampaign() {
     
     setTimeout(() => {
       startNewInteraction();
-    }, 1500);
+    }, 1000);
   }
 }
 
@@ -586,16 +570,15 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
 
 <template>
   <div class="team-chat-container">
-    <!-- Slim Campaign Selector -->
-    <div class="campaign-selector" :class="{ 'expanded': campaignSelector.isExpanded }">
-      <div class="selector-tab" @click="toggleCampaignSelector">
-        <div class="tab-icon">📁</div>
+    <!-- Vertical Campaign Tab -->
+    <div class="vertical-tab" :class="{ 'expanded': campaignSelector.isExpanded }">
+      <div class="tab-header" @click="toggleCampaignSelector">
+        <div class="tab-icon">📋</div>
         <div class="tab-text">Campaigns</div>
         <div class="tab-indicator" v-if="hasUnreadMessages">●</div>
-        <div class="tab-arrow" :class="{ 'rotated': campaignSelector.isExpanded }">▼</div>
       </div>
       
-      <div class="campaign-list" v-if="campaignSelector.isExpanded">
+      <div class="tab-content" v-if="campaignSelector.isExpanded">
         <div 
           v-for="campaign in campaignSelector.campaigns" 
           :key="campaign.id"
@@ -618,31 +601,23 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
       </div>
     </div>
 
-    <!-- Chat Area -->
+    <!-- Clean Chat Area -->
     <div class="chat-area">
-    <div class="chat-header">
-      <h3>Team Chat</h3>
-        <div class="campaign-info">
-          <span class="campaign-name">{{ getCurrentCampaignName() }}</span>
-          <span class="campaign-step">Step {{ campaignState.currentStep + 1 }}</span>
-      </div>
-    </div>
-    
       <div class="chat-messages" ref="chatMessages">
-      <div 
+        <div 
           v-for="(message, index) in chatState.messages" 
           :key="index"
-        class="message"
-        :class="message.type"
-      >
+          class="message"
+          :class="message.type"
+        >
           <div class="message-header" v-if="message.type === 'team-member'">
             <span class="member-name">{{ message.member }}</span>
             <span class="message-time">{{ message.timestamp.toLocaleTimeString() }}</span>
+          </div>
+          <div class="message-content" :class="{ 'system-message': message.type === 'system' }">{{ message.message }}</div>
         </div>
-        <div class="message-content" :class="{ 'system-message': message.type === 'system' }">{{ message.message }}</div>
       </div>
-    </div>
-    
+      
       <div class="response-options" v-if="chatState.responseOptions.length > 0">
         <div 
           v-for="option in chatState.responseOptions" 
@@ -654,7 +629,7 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
         </div>
       </div>
     </div>
-    
+
     <!-- Boss Battle Component -->
     <BossBattle 
       :show="showBossBattle"
@@ -664,7 +639,7 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
       @victory="handleBossBattleVictory"
       @defeat="handleBossBattleDefeat"
     />
-    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -673,78 +648,71 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   height: 100%;
   background: var(--bg-primary);
   color: var(--text-primary);
+}
+
+/* Vertical Campaign Tab */
+.vertical-tab {
+  width: 60px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vertical-tab.expanded {
+  width: 200px;
+}
+
+.tab-header {
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
   position: relative;
 }
 
-/* Slim Campaign Selector */
-.campaign-selector {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 1000;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.campaign-selector.expanded {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.selector-tab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  min-width: 120px;
-}
-
-.selector-tab:hover {
+.tab-header:hover {
   background: var(--bg-hover);
 }
 
 .tab-icon {
-  font-size: 16px;
+  font-size: 20px;
+  margin-bottom: 4px;
 }
 
 .tab-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.tab-indicator {
-  color: var(--red);
-  font-size: 12px;
-  margin-left: auto;
-}
-
-.tab-arrow {
   font-size: 10px;
+  font-weight: 500;
   color: var(--text-secondary);
-  transition: transform 0.2s ease;
-}
-
-.tab-arrow.rotated {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
   transform: rotate(180deg);
 }
 
-.campaign-list {
-  border-top: 1px solid var(--border-color);
+.tab-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--red);
+  font-size: 12px;
+}
+
+.tab-content {
   padding: 8px 0;
-  background: var(--bg-secondary);
-  border-radius: 0 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .campaign-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 8px 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -797,36 +765,11 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   opacity: 0.6;
 }
 
-/* Chat Area */
+/* Clean Chat Area */
 .chat-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.chat-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chat-header h3 {
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.campaign-info {
-  display: flex;
-  gap: 16px;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.campaign-name {
-  font-weight: 600;
-  color: var(--keyword);
 }
 
 .chat-messages {
