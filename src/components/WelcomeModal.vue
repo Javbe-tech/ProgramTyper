@@ -8,27 +8,39 @@ const showWelcome = ref(false);
 
 // Check if user has dismissed the welcome screen
 onMounted(async () => {
+  // Check both authenticated and non-authenticated localStorage keys
+  let welcomeDismissed = false;
+  
   try {
     const user = await authService.getUser();
-    if (user) {
-      // Check user's preferences for welcome screen
-      const welcomeDismissed = localStorage.getItem(`welcome_dismissed_${user.id}`);
-      if (!welcomeDismissed) {
-        showWelcome.value = true;
-      }
-    } else {
-      // For non-authenticated users, check general localStorage
-      const welcomeDismissed = localStorage.getItem('welcome_dismissed');
-      if (!welcomeDismissed) {
-        showWelcome.value = true;
+    console.log('WelcomeModal onMounted - User:', user);
+    
+    if (user && user.id) {
+      // Check user-specific preference first
+      const userDismissed = localStorage.getItem(`welcome_dismissed_${user.id}`);
+      console.log(`User-specific dismissal check: ${userDismissed}`);
+      if (userDismissed) {
+        welcomeDismissed = true;
       }
     }
   } catch (error) {
-    // If there's an error getting user, show welcome for non-authenticated users
-    const welcomeDismissed = localStorage.getItem('welcome_dismissed');
-    if (!welcomeDismissed) {
-      showWelcome.value = true;
+    console.log('Auth service error, checking general localStorage:', error);
+  }
+  
+  // If not dismissed for user, check general localStorage
+  if (!welcomeDismissed) {
+    const generalDismissed = localStorage.getItem('welcome_dismissed');
+    console.log(`General dismissal check: ${generalDismissed}`);
+    if (generalDismissed) {
+      welcomeDismissed = true;
     }
+  }
+  
+  console.log(`Welcome dismissed: ${welcomeDismissed}`);
+  
+  // Show welcome only if not dismissed
+  if (!welcomeDismissed) {
+    showWelcome.value = true;
   }
 });
 
@@ -40,16 +52,19 @@ function dismissWelcome() {
 async function dontShowAgain() {
   try {
     const user = await authService.getUser();
-    if (user) {
+    if (user && user.id) {
       // Save preference for authenticated user
       localStorage.setItem(`welcome_dismissed_${user.id}`, 'true');
+      console.log(`Welcome dismissed for user: ${user.id}`);
     } else {
       // Save preference for non-authenticated user
       localStorage.setItem('welcome_dismissed', 'true');
+      console.log('Welcome dismissed for anonymous user');
     }
   } catch (error) {
     // Fallback to general localStorage
     localStorage.setItem('welcome_dismissed', 'true');
+    console.log('Welcome dismissed (fallback)');
   }
   
   showWelcome.value = false;
