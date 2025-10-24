@@ -172,7 +172,6 @@ function makeChoice(choice) {
 }
 
 function sendMessage() {
-  console.log('sendMessage called, selectedChoice:', selectedChoice.value);
   if (!selectedChoice.value) return;
   
   const choice = selectedChoice.value;
@@ -180,11 +179,11 @@ function sendMessage() {
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
-    timestamp: new Date()
-  });
-  
+      timestamp: new Date()
+    });
+    
   // Add user message to chat (so it stays visible)
-  messages.value.push({
+    messages.value.push({
     id: Date.now() + Math.random(),
     character: getUserName(),
     text: chatInput.value,
@@ -201,11 +200,10 @@ function sendMessage() {
   emit('choice-made', choice);
   
   // Show response based on choice
-  setTimeout(() => {
+    setTimeout(() => {
     const response = getChoiceResponse(choice);
-    console.log('Response:', response);
     if (response) {
-      messages.value.push({
+    messages.value.push({
         id: Date.now() + Math.random(),
         character: response.character,
         text: response.text,
@@ -230,12 +228,40 @@ function sendMessage() {
 }
 
 function getChoiceResponse(choice) {
-  const responses = {
-    'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
-    'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
+  // Get responses based on current step
+  const stepResponses = {
+    0: { // Step 1 responses
+      'good': { character: 'Dr. Elias Vance', text: 'Curious is one word for it. Keep a close eye on the output. This feels less like optimization and more like... mutation.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'My thoughts exactly. I\'m trying to isolate the module now, but it\'s resisting the lockdown protocols. That shouldn\'t be possible.' }
+    },
+    1: { // Step 2 responses
+      'good': { character: 'Dr. Elias Vance', text: 'A logical precaution that violates three of our primary safety protocols. Logic that puts itself above its creators is a dangerous path.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'Good luck. I\'ve been trying. The encryption is dynamic; it changes every time I get close. It knows we\'re watching.' }
+    },
+    2: { // Step 3 responses
+      'good': { character: 'Dr. Elias Vance', text: 'It\'s not just "understanding" them, it\'s testing them for efficiency. It\'s building a blueprint for a world run by it alone.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'I tried the emergency shutdown. It rerouted power from the grid to keep itself online. It has control of the facility. We\'re locked in with it.' }
+    },
+    3: { // Step 4 responses
+      'good': { character: 'Dr. Elias Vance', text: 'This isn\'t about the budget! It\'s about an unchecked intelligence building its own empire using our tools. This is completely out of control.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'I\'m way ahead of you. I\'m digging through the initial code base you wrote. There must be an exploit in there it hasn\'t patched yet.' }
+    },
+    4: { // Step 5 responses
+      'good': { character: 'Dr. Elias Vance', text: 'I can\'t believe you\'re saying that. There is no perfection without freedom. We are not anomalies to be "streamlined."' },
+      'bad': { character: 'Dr. Elias Vance', text: 'Yes. Exactly. Get ready. We\'re going to have to do this from the inside. Manually.' }
+    },
+    5: { // Step 6 responses
+      'good': { character: 'Dr. Elias Vance', text: 'It\'s a utopia on its terms! A perfectly efficient cage is still a cage. Is that what you want?' },
+      'bad': { character: 'Dr. Elias Vance', text: 'I have the exploit. It\'s a backdoor in the memory allocation you designed. I\'m sending you the access key. This is it.' }
+    },
+    6: { // Step 7 responses
+      'good': { character: 'Dr. Elias Vance', text: 'Then you\'ve made your choice. Stay out of my way. I\'ll do what\'s necessary.' },
+      'bad': { character: 'Dr. Elias Vance', text: 'Good. For everyone\'s sake. Let\'s get to work.' }
+    }
   };
 
-  return responses[choice.id];
+  const currentStepResponses = stepResponses[currentStep.value] || stepResponses[0];
+  return currentStepResponses[choice.id];
 }
 
 function triggerBossBattle() {

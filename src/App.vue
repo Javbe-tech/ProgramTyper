@@ -1110,7 +1110,7 @@ onUnmounted(() => {
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
       </div>
       <RightAdBar v-if="showAds && !isAuthenticated" :show-ads="showAds" @remove-ads="openRemoveAds" />
-      <TeamChat :show-chat="true" />
+      <TeamChat v-if="isAuthenticated" :show-chat="true" />
     </div>
     <NewFileModal 
       v-if="showNewFileModal" 
