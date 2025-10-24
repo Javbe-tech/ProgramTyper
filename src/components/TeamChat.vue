@@ -547,6 +547,15 @@ const getCurrentCampaignName = () => {
   return campaign ? campaign.name : 'Unknown Campaign';
 };
 
+const getCampaignDescription = (campaignId) => {
+  const descriptions = {
+    chimera: 'AI project gone wrong - Dr. Elias Vance needs help',
+    leviathan: 'Deep sea exploration mission - coming soon',
+    architect: 'Urban planning conspiracy - coming soon'
+  };
+  return descriptions[campaignId] || 'Campaign description';
+};
+
 // Lifecycle hooks
 onMounted(() => {
   startChatSystem();
@@ -570,34 +579,26 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
 
 <template>
   <div class="team-chat-container">
-    <!-- Vertical Campaign Tab -->
-    <div class="vertical-tab" :class="{ 'expanded': campaignSelector.isExpanded }">
-      <div class="tab-header" @click="toggleCampaignSelector">
-        <div class="tab-icon">📋</div>
-        <div class="tab-text">Campaigns</div>
-        <div class="tab-indicator" v-if="hasUnreadMessages">●</div>
-      </div>
-      
-      <div class="tab-content" v-if="campaignSelector.isExpanded">
-        <div 
-          v-for="campaign in campaignSelector.campaigns" 
-          :key="campaign.id"
-          class="campaign-item"
-          :class="{ 
-            'active': campaignState.currentCampaign === campaign.id,
-            'locked': campaign.status === 'locked',
-            'has-unread': campaignProgress[campaign.id]?.hasUnread
-          }"
-          @click="campaign.status !== 'locked' && switchCampaign(campaign.id)"
-        >
-          <div class="campaign-icon">{{ campaign.icon }}</div>
-          <div class="campaign-name">{{ campaign.name }}</div>
-          <div class="campaign-status">
-            <span v-if="campaignProgress[campaign.id]?.hasUnread" class="unread-dot">●</span>
-            <span v-else-if="campaignProgress[campaign.id]?.completed" class="completed-check">✓</span>
-            <span v-else-if="campaign.status === 'locked'" class="locked-icon">🔒</span>
-          </div>
+    <!-- Vertical Campaign Tabs -->
+    <div class="vertical-tabs">
+      <div 
+        v-for="(campaign, index) in campaignSelector.campaigns" 
+        :key="campaign.id"
+        class="tab-set"
+        :class="{ 
+          'active': campaignState.currentCampaign === campaign.id,
+          'locked': campaign.status === 'locked'
+        }"
+        @click="campaign.status !== 'locked' && switchCampaign(campaign.id)"
+      >
+        <div class="primary-tab">
+          <div class="tab-number">{{ index + 1 }}</div>
+          <div class="tab-title">{{ campaign.name }}</div>
         </div>
+        <div class="secondary-tab">
+          <div class="tab-description">{{ getCampaignDescription(campaign.id) }}</div>
+        </div>
+        <div class="tab-indicator" v-if="campaignProgress[campaign.id]?.hasUnread">●</div>
       </div>
     </div>
 
@@ -650,48 +651,88 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   color: var(--text-primary);
 }
 
-/* Vertical Campaign Tab */
-.vertical-tab {
-  width: 60px;
+/* Vertical Campaign Tabs - Like the image but vertical */
+.vertical-tabs {
+  width: 250px;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
-  transition: width 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.vertical-tab.expanded {
-  width: 200px;
-}
-
-.tab-header {
-  height: 60px;
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 8px;
+}
+
+.tab-set {
+  position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-bottom: 1px solid var(--border-color);
+  margin: 0 10px;
+}
+
+.tab-set:hover {
+  transform: translateX(5px);
+}
+
+.tab-set.active .primary-tab {
+  background: var(--keyword);
+  color: var(--bg-primary);
+}
+
+.tab-set.active .secondary-tab {
+  background: var(--keyword);
+  opacity: 0.8;
+}
+
+.tab-set.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary-tab {
+  background: var(--bg-accent);
+  border-radius: 8px 0 0 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   position: relative;
+  border-right: none;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
 }
 
-.tab-header:hover {
+.secondary-tab {
   background: var(--bg-hover);
+  border-radius: 0 8px 8px 0;
+  padding: 8px 16px 8px 36px;
+  margin-left: -20px;
+  position: relative;
+  z-index: -1;
+  clip-path: polygon(20px 0, 100% 0, 100% 100%, 20px 100%, 0 50%);
 }
 
-.tab-icon {
-  font-size: 20px;
-  margin-bottom: 4px;
+.tab-number {
+  width: 24px;
+  height: 24px;
+  background: var(--red);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
 }
 
-.tab-text {
-  font-size: 10px;
-  font-weight: 500;
+.tab-title {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.tab-description {
+  font-size: 11px;
   color: var(--text-secondary);
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
+  line-height: 1.3;
 }
 
 .tab-indicator {
@@ -700,69 +741,6 @@ watch(() => authService.isAuthenticated(), (isAuthenticated) => {
   right: 8px;
   color: var(--red);
   font-size: 12px;
-}
-
-.tab-content {
-  padding: 8px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.campaign-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.campaign-item:hover {
-  background: var(--bg-hover);
-}
-
-.campaign-item.active {
-  background: var(--keyword);
-  color: var(--bg-primary);
-}
-
-.campaign-item.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.campaign-item.has-unread {
-  border-left: 3px solid var(--red);
-}
-
-.campaign-icon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
-}
-
-.campaign-name {
-  font-size: 13px;
-  font-weight: 500;
-  flex: 1;
-}
-
-.campaign-status {
-  font-size: 12px;
-}
-
-.unread-dot {
-  color: var(--red);
-}
-
-.completed-check {
-  color: var(--keyword);
-}
-
-.locked-icon {
-  opacity: 0.6;
 }
 
 /* Clean Chat Area */
