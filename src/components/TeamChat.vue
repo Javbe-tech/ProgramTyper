@@ -141,6 +141,7 @@ function startConversation(trigger) {
 function showNextMessage(conversation) {
   if (currentMessageIndex.value >= conversation.messages.length) {
     // Show choices after all messages
+    console.log('Showing choices:', conversation.choices);
     showChoices.value = true;
     currentChoices.value = conversation.choices || [];
     return;
@@ -159,6 +160,7 @@ function showNextMessage(conversation) {
 }
 
 function makeChoice(choice) {
+  console.log('makeChoice called with:', choice);
   choiceHistory.value.push({
     campaign: currentCampaign.value,
     choice: choice,
@@ -180,7 +182,7 @@ function makeChoice(choice) {
   emit('choice-made', choice);
   
   // Show response based on choice
-    setTimeout(() => {
+  setTimeout(() => {
     const response = getChoiceResponse(choice);
     if (response) {
     messages.value.push({
