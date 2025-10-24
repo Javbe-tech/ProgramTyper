@@ -530,6 +530,7 @@ defineExpose({
   flex-direction: column;
   font-family: 'Consolas', monospace;
   position: relative;
+  overflow: hidden; /* Prevent container from scrolling */
 }
 
 .chat-header {
@@ -574,6 +575,25 @@ defineExpose({
   gap: 10px;
   scroll-behavior: smooth;
   min-height: 0; /* Important for flexbox scrolling */
+  padding-bottom: 120px; /* Add padding to account for fixed input section */
+}
+
+/* Custom scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--gray);
 }
 
 .message {
@@ -663,10 +683,12 @@ defineExpose({
   padding: 15px;
   border-top: 1px solid var(--border-color);
   background: var(--terminal-bg);
-  flex-shrink: 0; /* Don't shrink */
-  position: sticky;
+  position: absolute;
   bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .response-suggestions {
