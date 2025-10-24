@@ -731,8 +731,8 @@ defineExpose({
   padding: 15px;
   margin: 0 5px 5px 5px; /* Bottom margin only */
   flex-shrink: 0; /* Don't shrink */
-  max-height: 200px;
-  overflow: visible; /* Remove scrolling - everything should be visible */
+  overflow: hidden; /* Hide overflow but keep content visible */
+  min-height: 60px; /* Ensure minimum height for input */
 }
 
 /* Remove old chat-messages rule - now handled above */
