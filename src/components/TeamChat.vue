@@ -610,6 +610,10 @@ defineExpose({
   flex: 1;
   overflow: hidden;
   position: relative;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  margin: 5px;
+  background: var(--sidebar-bg);
 }
 
 .chat-messages {
@@ -625,18 +629,20 @@ defineExpose({
   scrollbar-color: var(--gray) var(--bg-color);
 }
 
-/* FIXED RESPONSE/INPUT BOX */
+/* FIXED RESPONSE/INPUT BOX - SEPARATE WINDOW */
 .response-input-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
   background: var(--terminal-bg);
-  border-top: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
   padding: 15px;
-  z-index: 10;
-  max-height: 200px; /* Limit height */
+  z-index: 1000;
+  max-height: 200px;
   overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Remove old chat-messages rule - now handled above */
@@ -689,6 +695,20 @@ defineExpose({
   display: inline-block;
   word-wrap: break-word;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+/* THEME-SPECIFIC FIXES */
+/* Matrix theme - make user text more white */
+[data-theme="matrix"] .message.user-message .message-text {
+  color: #ffffff !important;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+/* Black and White theme - make user text black */
+[data-theme="black-white"] .message.user-message .message-text {
+  color: #000000 !important;
+  background: #ffffff !important;
+  border: 1px solid #000000;
 }
 
 .message.user-message .message-avatar {
@@ -750,6 +770,8 @@ defineExpose({
   font-size: 0.85rem;
   line-height: 1.4;
   word-wrap: break-word;
+  white-space: pre-wrap; /* Preserve line breaks but collapse spaces */
+  text-indent: 0; /* Remove any text indentation */
 }
 
 /* Old chat-input-section removed - now using response-input-container */
