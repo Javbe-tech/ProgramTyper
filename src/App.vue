@@ -49,13 +49,21 @@ const miningRigState = reactive({
 let miningRigTimer = null;
 
 function startMiningRigTimer() {
+  // Stop any existing timer first
+  if (miningRigTimer) {
+    clearInterval(miningRigTimer);
+    miningRigTimer = null;
+  }
+  
+  console.log('Starting Mining Rig timer...');
   miningRigTimer = setInterval(() => {
     const oldCoins = miningRigState.currentColdCoins;
-    miningRigState.currentColdCoins += miningRigState.coinsPerSecond;
+    const incomeToAdd = miningRigState.coinsPerSecond;
+    miningRigState.currentColdCoins += incomeToAdd;
     const newCoins = miningRigState.currentColdCoins;
     
-    if (miningRigState.coinsPerSecond > 0) {
-      console.log(`Passive income: +${miningRigState.coinsPerSecond} coins (${oldCoins} → ${newCoins})`);
+    if (incomeToAdd > 0) {
+      console.log(`Timer tick: Adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)})`);
     }
     
     saveMiningRigState();
@@ -64,6 +72,7 @@ function startMiningRigTimer() {
 
 function stopMiningRigTimer() {
   if (miningRigTimer) {
+    console.log('Stopping Mining Rig timer...');
     clearInterval(miningRigTimer);
     miningRigTimer = null;
   }
@@ -115,6 +124,10 @@ function loadMiningRigState() {
 }
 
 function updateMiningRigCoinsPerSecond() {
+  console.log('=== UPDATING COINS PER SECOND ===');
+  console.log('Current hardware state:', miningRigState.hardware);
+  console.log('Current upgrades state:', miningRigState.upgrades);
+  
   const hardwareDefinitions = {
     cellphone: { coinsPerSecond: 0.1 },
     smartFridge: { coinsPerSecond: 1 },
@@ -134,9 +147,12 @@ function updateMiningRigCoinsPerSecond() {
   }
   
   const passiveMultiplier = miningRigState.upgrades.passiveMultiplier;
+  const oldCoinsPerSecond = miningRigState.coinsPerSecond;
   miningRigState.coinsPerSecond = total * passiveMultiplier;
   
   console.log(`Total passive income: ${total} × ${passiveMultiplier} = ${miningRigState.coinsPerSecond} coins/sec`);
+  console.log(`Previous coins/sec: ${oldCoinsPerSecond}, New coins/sec: ${miningRigState.coinsPerSecond}`);
+  console.log('=== END UPDATE ===');
 }
 
 // Visual feedback for coin earning
