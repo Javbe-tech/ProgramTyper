@@ -270,7 +270,7 @@ function resetGame() {
                   <h4>{{ hardware.name }}</h4>
                   <div class="catalog-stats">
                     <p class="owned-count">Owned: {{ gameState.hardware[key] }}</p>
-                    <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * gameState.upgrades.passiveMultiplier).toFixed(1) }} 💰/sec</p>
+                    <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * gameState.upgrades.passiveMultiplier).toFixed(2) }} 💰/sec</p>
                   </div>
                   <p v-if="unlockedHardware[key]" class="catalog-cost">
                     {{ calculateHardwareCost(key).toLocaleString() }} 💰
