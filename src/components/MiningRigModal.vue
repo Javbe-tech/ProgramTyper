@@ -199,7 +199,7 @@ function resetGame() {
 
       <!-- Main Content -->
       <div class="mining-content">
-        <!-- Left Sidebar - Catalog -->
+        <!-- Left Sidebar - Hardware Catalog -->
         <div class="catalog-sidebar">
           <div class="catalog-section">
             <h3>🛒 Hardware Catalog</h3>
@@ -231,33 +231,9 @@ function resetGame() {
               </div>
             </div>
           </div>
-
-          <div class="catalog-section">
-            <h3>🔧 Upgrade Store</h3>
-            <div class="upgrade-items">
-              <div 
-                v-for="(upgrade, key) in upgradesDefinitions" 
-                :key="key"
-                class="upgrade-item"
-                :class="{ 
-                  'affordable': canPurchaseUpgrade(key) && gameState.currentColdCoins >= calculateUpgradeCost(key)
-                }"
-                @click="canPurchaseUpgrade(key) ? purchaseUpgrade(key) : null"
-              >
-                <div class="upgrade-info">
-                  <h4>{{ upgrade.name }}</h4>
-                  <p>{{ upgrade.description }}</p>
-                  <p class="upgrade-level">Level: {{ getUpgradeLevel(key) }}/{{ upgrade.maxLevel }}</p>
-                  <p class="upgrade-cost">
-                    {{ canPurchaseUpgrade(key) ? calculateUpgradeCost(key).toLocaleString() + ' 💰' : 'Max Level' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Right Side - Collection Display -->
+        <!-- Center - Collection Display -->
         <div class="collection-display">
           <!-- Live Stats -->
           <div class="live-stats">
@@ -298,6 +274,33 @@ function resetGame() {
                   :class="image.position"
                 >
                   <img :src="image.src" :alt="hardware.name" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar - Upgrade Store -->
+        <div class="upgrade-sidebar">
+          <div class="upgrade-section">
+            <h3>🔧 Upgrade Store</h3>
+            <div class="upgrade-items">
+              <div 
+                v-for="(upgrade, key) in upgradesDefinitions" 
+                :key="key"
+                class="upgrade-item"
+                :class="{ 
+                  'affordable': canPurchaseUpgrade(key) && gameState.currentColdCoins >= calculateUpgradeCost(key)
+                }"
+                @click="canPurchaseUpgrade(key) ? purchaseUpgrade(key) : null"
+              >
+                <div class="upgrade-info">
+                  <h4>{{ upgrade.name }}</h4>
+                  <p>{{ upgrade.description }}</p>
+                  <p class="upgrade-level">Level: {{ getUpgradeLevel(key) }}/{{ upgrade.maxLevel }}</p>
+                  <p class="upgrade-cost">
+                    {{ canPurchaseUpgrade(key) ? calculateUpgradeCost(key).toLocaleString() + ' 💰' : 'Max Level' }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -405,9 +408,9 @@ function resetGame() {
   overflow: hidden;
 }
 
-/* Left Sidebar - Catalog */
+/* Left Sidebar - Hardware Catalog */
 .catalog-sidebar {
-  width: 300px;
+  width: 350px;
   background: var(--sidebar-bg);
   border-right: 3px solid var(--border-color);
   padding: 20px;
@@ -429,29 +432,29 @@ function resetGame() {
   border: 1px solid var(--border-color);
 }
 
-.catalog-items, .upgrade-items {
+.catalog-items {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
-.catalog-item, .upgrade-item {
-  padding: 15px;
+.catalog-item {
+  padding: 20px;
   background: var(--bg-color);
   border: 2px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
 }
 
-.catalog-item:hover, .upgrade-item:hover {
+.catalog-item:hover {
   border-color: var(--keyword);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.catalog-item.affordable, .upgrade-item.affordable {
+.catalog-item.affordable {
   border-color: #22c55e;
   background: rgba(34, 197, 94, 0.1);
 }
@@ -466,8 +469,8 @@ function resetGame() {
 }
 
 .catalog-image img {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   transition: all 0.3s ease;
 }
@@ -477,23 +480,24 @@ function resetGame() {
   opacity: 0.5;
 }
 
-.catalog-info h4, .upgrade-info h4 {
+.catalog-info h4 {
   color: var(--font-color);
-  margin: 0 0 5px 0;
-  font-size: 1rem;
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
   text-align: center;
 }
 
-.catalog-info p, .upgrade-info p {
+.catalog-info p {
   color: var(--gray);
-  margin: 2px 0;
-  font-size: 0.8rem;
+  margin: 4px 0;
+  font-size: 0.9rem;
   text-align: center;
 }
 
-.catalog-cost, .upgrade-cost {
+.catalog-cost {
   color: var(--keyword) !important;
   font-weight: bold;
+  font-size: 1rem;
 }
 
 .catalog-locked {
@@ -501,16 +505,87 @@ function resetGame() {
   font-weight: bold;
 }
 
-.upgrade-level {
-  color: var(--gray);
-  font-size: 0.7rem;
-}
-
-/* Right Side - Collection Display */
+/* Center - Collection Display */
 .collection-display {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+}
+
+/* Right Sidebar - Upgrade Store */
+.upgrade-sidebar {
+  width: 350px;
+  background: var(--sidebar-bg);
+  border-left: 3px solid var(--border-color);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.upgrade-section {
+  margin-bottom: 30px;
+}
+
+.upgrade-section h3 {
+  color: var(--font-color);
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 10px;
+  background: var(--active-line-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.upgrade-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.upgrade-item {
+  padding: 20px;
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.upgrade-item:hover {
+  border-color: var(--keyword);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.upgrade-item.affordable {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.upgrade-info h4 {
+  color: var(--font-color);
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.upgrade-info p {
+  color: var(--gray);
+  margin: 4px 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.upgrade-cost {
+  color: var(--keyword) !important;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.upgrade-level {
+  color: var(--gray);
+  font-size: 0.8rem;
 }
 
 .live-stats {
@@ -597,10 +672,10 @@ function resetGame() {
 }
 
 .collection-image img {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
 }
 
 .collection-image.low {
