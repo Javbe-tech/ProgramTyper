@@ -63,10 +63,9 @@ function startMiningRigTimer() {
     const newCoins = miningRigState.currentColdCoins;
     
     if (incomeToAdd > 0) {
-      console.log(`Timer tick: Adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)})`);
+      console.log(`Timer tick: Adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)}), calling saveMiningRigState`);
+      saveMiningRigState();
     }
-    
-    saveMiningRigState();
   }, 1000);
 }
 
@@ -84,8 +83,18 @@ function saveMiningRigState() {
     const user = authService.getUser();
     const storageKey = user && user.id ? `miningRigGameState_${user.id}` : 'miningRigGameState';
     
+    console.log('=== SAVING MINING RIG STATE ===');
+    console.log('User:', user);
+    console.log('Storage key:', storageKey);
+    console.log('State to save:', miningRigState);
+    
     localStorage.setItem(storageKey, JSON.stringify(miningRigState));
-    console.log(`Mining Rig state saved for ${user ? `user ${user.id}` : 'anonymous'}:`, miningRigState);
+    
+    // Verify save worked
+    const saved = localStorage.getItem(storageKey);
+    console.log('Verification - saved data:', saved);
+    console.log('Save successful:', saved === JSON.stringify(miningRigState));
+    console.log('=== END SAVE ===');
   } catch (error) {
     console.error('Failed to save Mining Rig state:', error);
   }
@@ -93,9 +102,13 @@ function saveMiningRigState() {
 
 function loadMiningRigState() {
   try {
+    console.log('=== LOADING MINING RIG STATE ===');
+    
     // Try user-specific storage first, then fall back to general storage
     const user = authService.getUser();
     let saved = null;
+    
+    console.log('Current user:', user);
     
     if (user && user.id) {
       const userStorageKey = `miningRigGameState_${user.id}`;
@@ -137,6 +150,8 @@ function loadMiningRigState() {
     } else {
       console.log('No saved Mining Rig state found, using defaults');
     }
+    
+    console.log('=== END LOAD ===');
   } catch (error) {
     console.error('Failed to load Mining Rig state:', error);
   }
@@ -202,6 +217,8 @@ function handleKeyPressed(keyData) {
   if (keyData.isCorrect) {
     const coinsEarned = miningRigState.coinsPerWord * miningRigState.upgrades.wordMultiplier;
     miningRigState.currentColdCoins += coinsEarned;
+    
+    console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);
     saveMiningRigState();
     
     // Add visual feedback
