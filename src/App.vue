@@ -943,6 +943,7 @@ function setupAuthListeners() {
       if (newAuthState) {
         // User logged in - restore pro status
         userStatsService.onUserLogin();
+        migrateAnonymousProgressToUser();
         console.log('User logged in successfully');
         
         // Check if this user has pro status
