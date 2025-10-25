@@ -33,10 +33,14 @@ const miningRigState = reactive({
   coinsPerSecond: 0,
   coinsPerWord: 1,
   hardware: {
-    cellphone: 0,
-    smartFridge: 0,
+    calculator: 0,
     smartDoorbells: 0,
+    macbooks: 0,
+    cellphone: 0,
+    kitchenAppliance: 0,
+    smartFridge: 0,
     gpuRig: 0,
+    aiChatGPU: 0,
     serverRack: 0
   },
   upgrades: {
@@ -135,10 +139,14 @@ function loadMiningRigState() {
       // Ensure all required properties exist
       if (!miningRigState.hardware) {
         miningRigState.hardware = {
-          cellphone: 0,
-          smartFridge: 0,
+          calculator: 0,
           smartDoorbells: 0,
+          macbooks: 0,
+          cellphone: 0,
+          kitchenAppliance: 0,
+          smartFridge: 0,
           gpuRig: 0,
+          aiChatGPU: 0,
           serverRack: 0
         };
       }
@@ -628,10 +636,14 @@ function resetMiningRigGame() {
   miningRigState.coinsPerSecond = 0;
   miningRigState.coinsPerWord = 1;
   miningRigState.hardware = {
-    cellphone: 0,
-    smartFridge: 0,
+    calculator: 0,
     smartDoorbells: 0,
+    macbooks: 0,
+    cellphone: 0,
+    kitchenAppliance: 0,
+    smartFridge: 0,
     gpuRig: 0,
+    aiChatGPU: 0,
     serverRack: 0
   };
   miningRigState.upgrades = {

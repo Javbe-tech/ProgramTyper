@@ -10,42 +10,70 @@ const emit = defineEmits(['close', 'update-game-state', 'reset-game']);
 // Use props gameState directly
 const gameState = props.gameState;
 
-// Hardware definitions with image paths
+// Hardware definitions with image paths - ordered by progression
 const hardwareDefinitions = {
-  cellphone: {
-    name: 'Cellphone Mining Rig',
-    image: '/images/Phones.png',
-    baseCost: 15,
-    coinsPerSecond: 0.1,
+  calculator: {
+    name: 'Calculator Mining Rig',
+    image: '/images/Calculator Mining Rig.png',
+    baseCost: 10,
+    coinsPerSecond: 0.05,
     unlockRequirement: null
-  },
-  smartFridge: {
-    name: 'Smart Fridge Miner',
-    image: '/images/Fridge.png',
-    baseCost: 100,
-    coinsPerSecond: 1,
-    unlockRequirement: { hardware: 'cellphone', quantity: 10 }
   },
   smartDoorbells: {
     name: 'Network of Smart Doorbells',
     image: '/images/Doorbells.png',
-    baseCost: 1000,
-    coinsPerSecond: 10,
-    unlockRequirement: { hardware: 'smartFridge', quantity: 15 }
+    baseCost: 50,
+    coinsPerSecond: 0.3,
+    unlockRequirement: { hardware: 'calculator', quantity: 8 }
+  },
+  macbooks: {
+    name: '3 Solar powered MacBooks',
+    image: '/images/3 Solar powered MacBooks.png',
+    baseCost: 200,
+    coinsPerSecond: 1.2,
+    unlockRequirement: { hardware: 'smartDoorbells', quantity: 10 }
+  },
+  cellphone: {
+    name: 'Cellphone Mining Rig',
+    image: '/images/Phones.png',
+    baseCost: 500,
+    coinsPerSecond: 2.5,
+    unlockRequirement: { hardware: 'macbooks', quantity: 8 }
+  },
+  kitchenAppliance: {
+    name: 'A Toaster, Coffee Maker, Microwave and 2009 "smart" Plasma TV assisted with Solar Panel',
+    image: '/images/A Toaster, Coffee Maker, Microwave and 2009 smart Plasma TV assisted with Solar Panel.png',
+    baseCost: 1500,
+    coinsPerSecond: 8,
+    unlockRequirement: { hardware: 'cellphone', quantity: 12 }
+  },
+  smartFridge: {
+    name: 'Smart Fridge Miner',
+    image: '/images/Fridge.png',
+    baseCost: 5000,
+    coinsPerSecond: 25,
+    unlockRequirement: { hardware: 'kitchenAppliance', quantity: 10 }
   },
   gpuRig: {
     name: 'Custom GPU Rig',
     image: '/images/Gpus.png',
-    baseCost: 10000,
+    baseCost: 20000,
     coinsPerSecond: 100,
-    unlockRequirement: { hardware: 'smartDoorbells', quantity: 12 }
+    unlockRequirement: { hardware: 'smartFridge', quantity: 8 }
+  },
+  aiChatGPU: {
+    name: 'AI Slop Custom ChatGPU',
+    image: '/images/AI Slop Custom ChatGPU.png',
+    baseCost: 100000,
+    coinsPerSecond: 500,
+    unlockRequirement: { hardware: 'gpuRig', quantity: 6 }
   },
   serverRack: {
     name: 'GPU Server Rack',
     image: '/images/SeverRig.png',
-    baseCost: 100000,
-    coinsPerSecond: 1000,
-    unlockRequirement: { hardware: 'gpuRig', quantity: 10 }
+    baseCost: 500000,
+    coinsPerSecond: 2500,
+    unlockRequirement: { hardware: 'aiChatGPU', quantity: 5 }
   }
 };
 
