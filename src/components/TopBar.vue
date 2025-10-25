@@ -7,7 +7,7 @@ const props = defineProps({
   terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'switch-campaign']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'switch-campaign', 'open-mining-rig']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 const user = ref(null);
@@ -52,8 +52,8 @@ function openHelp() {
   emit('open-help');
 }
 
-function openSettings() {
-  emit('open-settings');
+function openMiningRig() {
+  emit('open-mining-rig');
 }
 
 
@@ -142,6 +142,9 @@ onMounted(() => {
         </li>
         <li class="menu-run">
           Run
+        </li>
+        <li @click="openMiningRig" class="menu-mining-rig">
+          Mining Rig ⚡
         </li>
         <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
           Terminal {{ terminalVisible ? '▼' : '▶' }}
@@ -333,6 +336,16 @@ onMounted(() => {
 }
 
 .menu-run:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
+}
+
+.menu-mining-rig {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-mining-rig:hover {
   background: var(--active-line-bg);
   color: var(--font-color);
 }

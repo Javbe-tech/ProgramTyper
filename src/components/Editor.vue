@@ -14,7 +14,7 @@ const props = defineProps({
   getTabChallengeStats: Function,
 });
 
-const emitEvent = defineEmits(['update:activeTab', 'close-tab', 'initialize-tab-stats', 'update-tab-challenge-stats', 'file-completed']);
+const emitEvent = defineEmits(['update:activeTab', 'close-tab', 'initialize-tab-stats', 'update-tab-challenge-stats', 'file-completed', 'word-completed']);
 
 const editorContentRef = ref(null);
 const fileContents = reactive({});
@@ -559,6 +559,13 @@ function completeLine() {
     emitEvent('file-completed', props.activeTab, completionStats);
     console.log('File completion event emitted!');
   }
+  
+  // Emit word completion for mining rig
+  emitEvent('word-completed', {
+    wordCount: wordsInLine.length,
+    lineText: currentLine.text,
+    lineIndex: completedLineIndex
+  });
 }
 
 function updateSessionStats() {

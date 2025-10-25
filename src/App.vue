@@ -11,7 +11,7 @@ import FileCompletionAnimation from './components/FileCompletionAnimation.vue';
 import RemoveAdsModal from './components/RemoveAdsModal.vue';
 import HelpModal from './components/HelpModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
-import WelcomeModal from './components/WelcomeModal.vue';
+import MiningRigModal from './components/MiningRigModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
 import { userStatsService } from './services/userStatsService.js';
@@ -27,7 +27,81 @@ const fileChallengeRegeneration = reactive({}); // Track challenge regeneration 
 const challengeRegenerationTimer = ref(null);
 const showMatrixEffect = ref(false); // Matrix effect state
 const matrixText = ref(''); // Matrix effect text
-const showFileCompletion = ref(false); // File completion animation state
+// Mining Rig Game State
+const miningRigState = reactive({
+  currentColdCoins: 0,
+  coinsPerSecond: 0,
+  coinsPerWord: 1,
+  hardware: {
+    cellphone: 0,
+    smartFridge: 0,
+    smartDoorbells: 0,
+    gpuRig: 0,
+    serverRack: 0
+  },
+  upgrades: {
+    wordMultiplier: 1,
+    passiveMultiplier: 1
+  }
+});
+
+// Mining Rig Game Timer
+let miningRigTimer = null;
+
+function startMiningRigTimer() {
+  miningRigTimer = setInterval(() => {
+    miningRigState.currentColdCoins += miningRigState.coinsPerSecond;
+    saveMiningRigState();
+  }, 1000);
+}
+
+function stopMiningRigTimer() {
+  if (miningRigTimer) {
+    clearInterval(miningRigTimer);
+    miningRigTimer = null;
+  }
+}
+
+function saveMiningRigState() {
+  localStorage.setItem('miningRigGameState', JSON.stringify(miningRigState));
+}
+
+function loadMiningRigState() {
+  const saved = localStorage.getItem('miningRigGameState');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    Object.assign(miningRigState, parsed);
+  }
+}
+
+function updateMiningRigCoinsPerSecond() {
+  const hardwareDefinitions = {
+    cellphone: { coinsPerSecond: 0.1 },
+    smartFridge: { coinsPerSecond: 1 },
+    smartDoorbells: { coinsPerSecond: 10 },
+    gpuRig: { coinsPerSecond: 100 },
+    serverRack: { coinsPerSecond: 1000 }
+  };
+  
+  let total = 0;
+  for (const [hardwareType, quantity] of Object.entries(miningRigState.hardware)) {
+    const definition = hardwareDefinitions[hardwareType];
+    if (definition) {
+      total += quantity * definition.coinsPerSecond;
+    }
+  }
+  miningRigState.coinsPerSecond = total * miningRigState.upgrades.passiveMultiplier;
+}
+
+function handleWordCompleted(wordData) {
+  const coinsEarned = wordData.wordCount * miningRigState.coinsPerWord * miningRigState.upgrades.wordMultiplier;
+  miningRigState.currentColdCoins += coinsEarned;
+  saveMiningRigState();
+  
+  // TODO: Add visual feedback for coins earned
+  console.log(`Earned ${coinsEarned} ColdCoins for completing ${wordData.wordCount} words!`);
+}
+const showMiningRig = ref(false);
 const completedFileStats = ref({}); // Stats for completed file
 const completedFileName = ref(''); // Name of completed file
 
@@ -360,8 +434,12 @@ function handleFileCompleted(fileName, stats) {
   console.log('Completed file stats:', completedFileStats.value);
 }
 
-function openProUpgrade() {
-  showRemoveAdsModal.value = true;
+function openMiningRig() {
+  showMiningRig.value = true;
+}
+
+function closeMiningRig() {
+  showMiningRig.value = false;
 }
 
 function handleLogout() {
@@ -1019,6 +1097,11 @@ function regenerateOneChallenge(fileName) {
       // Challenge regenerated for ${fileName}
     }
   }
+  
+  // Initialize Mining Rig system
+  loadMiningRigState();
+  updateMiningRigCoinsPerSecond();
+  startMiningRigTimer();
 }
 
 // Clean up timer on unmount
@@ -1026,6 +1109,7 @@ onUnmounted(() => {
   if (challengeRegenerationTimer.value) {
     clearInterval(challengeRegenerationTimer.value);
   }
+  stopMiningRigTimer();
 });
 </script>
 
@@ -1039,6 +1123,7 @@ onUnmounted(() => {
       @open-pro-upgrade="openProUpgrade"
       @user-logout="handleLogout"
       @switch-campaign="handleSwitchCampaign"
+      @open-mining-rig="openMiningRig"
     />
     <div id="app-container">
       <Sidebar 
@@ -1063,8 +1148,9 @@ onUnmounted(() => {
           @update:activeTab="newTab => activeTab = newTab"
           @close-tab="closeTab"
           @initialize-tab-stats="initializeTabStats"
-          @update-tab-challenge-stats="updateTabChallengeStats"
-          @file-completed="handleFileCompleted"
+      @update-tab-challenge-stats="updateTabChallengeStats"
+      @file-completed="handleFileCompleted"
+      @word-completed="handleWordCompleted"
         />
         <div v-if="terminalVisible" class="resizer resizer-y" ref="resizerY"></div>
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
@@ -1090,6 +1176,14 @@ onUnmounted(() => {
       v-if="showSettingsModal" 
       @close="showSettingsModal = false"
       @open-pro-upgrade="openProUpgrade"
+    />
+    
+    <!-- Mining Rig Modal -->
+    <MiningRigModal 
+      v-if="showMiningRig" 
+      :game-state="miningRigState"
+      @close="closeMiningRig"
+      @update-game-state="updateMiningRigCoinsPerSecond"
     />
     
     <!-- Welcome Modal -->
