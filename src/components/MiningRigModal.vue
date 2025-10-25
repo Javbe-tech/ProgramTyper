@@ -133,9 +133,12 @@ const unlockedHardware = computed(() => {
     } else {
       const requiredHardware = definition.unlockRequirement.hardware;
       const requiredQuantity = definition.unlockRequirement.quantity;
-      unlocked[hardwareType] = gameState.hardware[requiredHardware] >= requiredQuantity;
+      const ownedQuantity = gameState.hardware[requiredHardware] || 0;
+      unlocked[hardwareType] = ownedQuantity >= requiredQuantity;
+      console.log(`Hardware ${hardwareType}: needs ${requiredQuantity} ${requiredHardware}, has ${ownedQuantity}, unlocked: ${unlocked[hardwareType]}`);
     }
   }
+  console.log('Unlocked hardware:', unlocked);
   return unlocked;
 });
 
