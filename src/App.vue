@@ -56,11 +56,14 @@ function startMiningRigTimer() {
   }
   
   console.log('Starting Mining Rig timer...');
+  console.log('Current coinsPerSecond:', miningRigState.coinsPerSecond);
   miningRigTimer = setInterval(() => {
     const oldCoins = miningRigState.currentColdCoins;
     const incomeToAdd = miningRigState.coinsPerSecond;
     miningRigState.currentColdCoins += incomeToAdd;
     const newCoins = miningRigState.currentColdCoins;
+    
+    console.log(`Timer tick: coinsPerSecond=${incomeToAdd}, adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)})`);
     
     if (incomeToAdd > 0) {
       console.log(`Timer tick: Adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)}), calling saveMiningRigState`);
@@ -590,17 +593,23 @@ function migrateAnonymousProgressToUser() {
       console.log('Migrating anonymous Mining Rig progress to user account');
       localStorage.setItem(userStorageKey, anonymousProgress);
       loadMiningRigState();
+      updateMiningRigCoinsPerSecond();
+      startMiningRigTimer();
       console.log('Anonymous progress successfully migrated to user account');
     }
     // If user has progress, always load it (don't skip loading!)
     else if (existingUserProgress) {
       console.log('User has existing Mining Rig progress, loading it');
       loadMiningRigState();
+      updateMiningRigCoinsPerSecond();
+      startMiningRigTimer();
     }
     // If neither exists, load defaults
     else {
       console.log('No Mining Rig progress found, loading defaults');
       loadMiningRigState();
+      updateMiningRigCoinsPerSecond();
+      startMiningRigTimer();
     }
     
     console.log('=== END MIGRATION CHECK ===');
