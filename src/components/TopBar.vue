@@ -53,6 +53,10 @@ function openHelp() {
   emit('open-help');
 }
 
+function openSettings() {
+  emit('open-settings');
+}
+
 function openMiningRig() {
   emit('open-mining-rig');
 }
