@@ -267,8 +267,9 @@ function resetGame() {
                   />
                 </div>
                 <div class="catalog-info">
-                  <h4>{{ hardware.name }}</h4>
-                  <div class="catalog-stats">
+                  <h4 v-if="unlockedHardware[key]">{{ hardware.name }}</h4>
+                  <h4 v-else class="locked-name">???</h4>
+                  <div class="catalog-stats" v-if="unlockedHardware[key]">
                     <p class="owned-count">Owned: {{ gameState.hardware[key] }}</p>
                     <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * gameState.upgrades.passiveMultiplier).toFixed(2) }} 💰/sec</p>
                   </div>
@@ -574,6 +575,13 @@ function resetGame() {
 .catalog-locked {
   color: #ff4444 !important;
   font-weight: bold;
+}
+
+.locked-name {
+  color: #666 !important;
+  font-weight: bold;
+  font-style: italic;
+  opacity: 0.7;
 }
 
 /* Center - Collection Display */
