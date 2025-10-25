@@ -5,7 +5,7 @@ const props = defineProps({
   gameState: Object
 });
 
-const emit = defineEmits(['close', 'update-game-state']);
+const emit = defineEmits(['close', 'update-game-state', 'reset-game']);
 
 // Use props gameState directly
 const gameState = props.gameState;
@@ -160,6 +160,14 @@ const unlockedHardware = computed(() => {
 function closeModal() {
   emit('close');
 }
+
+// Reset game
+function resetGame() {
+  if (confirm('Are you sure you want to reset your Mining Rig progress? This cannot be undone!')) {
+    emit('reset-game');
+    closeModal();
+  }
+}
 </script>
 
 <template>
@@ -168,7 +176,10 @@ function closeModal() {
       <!-- Header -->
       <div class="mining-header">
         <h2>⚡ Mining Rig ⚡</h2>
-        <button @click="closeModal" class="close-btn">×</button>
+        <div class="header-buttons">
+          <button @click="resetGame" class="reset-btn" title="Reset Game">🔄 Reset</button>
+          <button @click="closeModal" class="close-btn">×</button>
+        </div>
       </div>
 
       <!-- Live Stats -->
@@ -288,6 +299,29 @@ function closeModal() {
   color: var(--font-color);
   margin: 0;
   font-size: 1.8rem;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.reset-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: #cc0000;
+  transform: translateY(-1px);
 }
 
 .close-btn {

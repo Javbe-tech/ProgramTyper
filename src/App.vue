@@ -70,14 +70,47 @@ function stopMiningRigTimer() {
 }
 
 function saveMiningRigState() {
-  localStorage.setItem('miningRigGameState', JSON.stringify(miningRigState));
+  try {
+    localStorage.setItem('miningRigGameState', JSON.stringify(miningRigState));
+    console.log('Mining Rig state saved:', miningRigState);
+  } catch (error) {
+    console.error('Failed to save Mining Rig state:', error);
+  }
 }
 
 function loadMiningRigState() {
-  const saved = localStorage.getItem('miningRigGameState');
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    Object.assign(miningRigState, parsed);
+  try {
+    const saved = localStorage.getItem('miningRigGameState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      console.log('Loading Mining Rig state:', parsed);
+      
+      // Merge saved state with current state to preserve reactivity
+      Object.assign(miningRigState, parsed);
+      
+      // Ensure all required properties exist
+      if (!miningRigState.hardware) {
+        miningRigState.hardware = {
+          cellphone: 0,
+          smartFridge: 0,
+          smartDoorbells: 0,
+          gpuRig: 0,
+          serverRack: 0
+        };
+      }
+      if (!miningRigState.upgrades) {
+        miningRigState.upgrades = {
+          wordMultiplier: 1,
+          passiveMultiplier: 1
+        };
+      }
+      
+      console.log('Mining Rig state loaded successfully:', miningRigState);
+    } else {
+      console.log('No saved Mining Rig state found, using defaults');
+    }
+  } catch (error) {
+    console.error('Failed to load Mining Rig state:', error);
   }
 }
 
@@ -481,8 +514,28 @@ function openMiningRig() {
   showMiningRig.value = true;
 }
 
-function closeMiningRig() {
-  showMiningRig.value = false;
+function resetMiningRigGame() {
+  // Reset all game state to initial values
+  miningRigState.currentColdCoins = 0;
+  miningRigState.coinsPerSecond = 0;
+  miningRigState.coinsPerWord = 1;
+  miningRigState.hardware = {
+    cellphone: 0,
+    smartFridge: 0,
+    smartDoorbells: 0,
+    gpuRig: 0,
+    serverRack: 0
+  };
+  miningRigState.upgrades = {
+    wordMultiplier: 1,
+    passiveMultiplier: 1
+  };
+  
+  // Update coins per second and save
+  updateMiningRigCoinsPerSecond();
+  saveMiningRigState();
+  
+  console.log('Mining Rig game reset!');
 }
 
 function handleLogout() {
@@ -1228,6 +1281,7 @@ onUnmounted(() => {
       :game-state="miningRigState"
       @close="closeMiningRig"
       @update-game-state="updateMiningRigCoinsPerSecond"
+      @reset-game="resetMiningRigGame"
     />
     
     <!-- Welcome Modal -->
