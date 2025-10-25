@@ -54,14 +54,16 @@ const upgradesDefinitions = {
   wordMultiplier: {
     name: 'Word Efficiency',
     description: 'Double coins per word',
-    baseCost: 50,
-    multiplier: 2
+    baseCost: 1000,
+    multiplier: 2,
+    maxLevel: 5 // Limit to 5 levels
   },
   passiveMultiplier: {
     name: 'Passive Boost',
     description: 'Double passive income',
-    baseCost: 200,
-    multiplier: 2
+    baseCost: 5000,
+    multiplier: 2,
+    maxLevel: 3 // Limit to 3 levels
   }
 };
 
@@ -70,6 +72,27 @@ function calculateHardwareCost(hardwareType) {
   const definition = hardwareDefinitions[hardwareType];
   const owned = gameState.hardware[hardwareType];
   return Math.floor(definition.baseCost * Math.pow(1.15, owned));
+}
+
+// Calculate upgrade cost with geometric progression
+function calculateUpgradeCost(upgradeType) {
+  const definition = upgradesDefinitions[upgradeType];
+  const currentLevel = getUpgradeLevel(upgradeType);
+  return Math.floor(definition.baseCost * Math.pow(2, currentLevel));
+}
+
+// Get current upgrade level
+function getUpgradeLevel(upgradeType) {
+  const baseMultiplier = upgradesDefinitions[upgradeType].multiplier;
+  const currentMultiplier = gameState.upgrades[upgradeType];
+  return Math.log2(currentMultiplier);
+}
+
+// Check if upgrade can be purchased (not at max level)
+function canPurchaseUpgrade(upgradeType) {
+  const definition = upgradesDefinitions[upgradeType];
+  const currentLevel = getUpgradeLevel(upgradeType);
+  return currentLevel < definition.maxLevel;
 }
 
 // Check if hardware is unlocked
@@ -94,12 +117,16 @@ function purchaseHardware(hardwareType) {
 
 // Purchase upgrade
 function purchaseUpgrade(upgradeType) {
-  const definition = upgradesDefinitions[upgradeType];
-  const cost = definition.baseCost;
+  if (!canPurchaseUpgrade(upgradeType)) {
+    console.log(`Upgrade ${upgradeType} is at max level`);
+    return;
+  }
+  
+  const cost = calculateUpgradeCost(upgradeType);
   
   if (gameState.currentColdCoins >= cost) {
     gameState.currentColdCoins -= cost;
-    gameState.upgrades[upgradeType] *= definition.multiplier;
+    gameState.upgrades[upgradeType] *= upgradesDefinitions[upgradeType].multiplier;
     emit('update-game-state');
   }
 }
@@ -111,6 +138,22 @@ const totalCoinsPerSecond = computed(() => {
 
 const totalCoinsPerWord = computed(() => {
   return gameState.coinsPerWord * gameState.upgrades.wordMultiplier;
+});
+
+// Computed property for hardware unlocking
+const unlockedHardware = computed(() => {
+  const unlocked = {};
+  for (const hardwareType of Object.keys(hardwareDefinitions)) {
+    const definition = hardwareDefinitions[hardwareType];
+    if (!definition.unlockRequirement) {
+      unlocked[hardwareType] = true;
+    } else {
+      const requiredHardware = definition.unlockRequirement.hardware;
+      const requiredQuantity = definition.unlockRequirement.quantity;
+      unlocked[hardwareType] = gameState.hardware[requiredHardware] >= requiredQuantity;
+    }
+  }
+  return unlocked;
 });
 
 // Close modal
@@ -156,14 +199,15 @@ function closeModal() {
             <div class="upgrade-info">
               <h4>{{ upgrade.name }}</h4>
               <p>{{ upgrade.description }}</p>
-              <p class="upgrade-cost">Cost: {{ upgrade.baseCost }} ColdCoins</p>
+              <p class="upgrade-level">Level: {{ getUpgradeLevel(key) }}/{{ upgrade.maxLevel }}</p>
+              <p class="upgrade-cost">Cost: {{ calculateUpgradeCost(key).toLocaleString() }} ColdCoins</p>
             </div>
             <button 
               @click="purchaseUpgrade(key)"
-              :disabled="gameState.currentColdCoins < upgrade.baseCost"
+              :disabled="!canPurchaseUpgrade(key) || gameState.currentColdCoins < calculateUpgradeCost(key)"
               class="purchase-btn"
             >
-              Buy
+              {{ canPurchaseUpgrade(key) ? 'Buy' : 'Max Level' }}
             </button>
           </div>
         </div>
@@ -176,7 +220,7 @@ function closeModal() {
           <div 
             v-for="(hardware, key) in hardwareDefinitions" 
             :key="key"
-            v-show="isHardwareUnlocked(key)"
+            v-show="unlockedHardware[key]"
             class="hardware-item"
           >
             <div class="hardware-info">
@@ -357,6 +401,12 @@ function closeModal() {
 .upgrade-cost, .hardware-cost {
   color: var(--keyword) !important;
   font-weight: bold;
+}
+
+.upgrade-level {
+  color: var(--gray);
+  font-size: 0.8rem;
+  margin: 2px 0;
 }
 
 .purchase-btn {
