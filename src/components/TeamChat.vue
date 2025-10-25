@@ -1190,9 +1190,9 @@ defineExpose({
 }
 
 /* THEME-SPECIFIC FIXES */
-/* Matrix theme - make user text more white */
+/* Matrix theme - make user text black */
 [data-theme="matrix"] .message.user-message .message-text {
-  color: #ffffff !important;
+  color: #000000 !important;
   text-shadow: 0 0 5px #00ff00;
 }
 
