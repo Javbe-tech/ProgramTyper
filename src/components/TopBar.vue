@@ -4,11 +4,10 @@ import { authService } from '../services/authService.js';
 import Dashboard from './Dashboard.vue';
 
 const props = defineProps({
-  terminalVisible: { type: Boolean, default: true },
-  runButtonActive: { type: Boolean, default: false }
+  terminalVisible: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'run-button', 'switch-campaign']);
+const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'switch-campaign']);
 
 const theme = ref(localStorage.getItem('pt_theme') || 'default');
 const user = ref(null);
@@ -57,9 +56,6 @@ function openSettings() {
   emit('open-settings');
 }
 
-function handleRunButton() {
-  emit('run-button');
-}
 
 async function handleLogin() {
   try {
@@ -143,9 +139,6 @@ onMounted(() => {
             <button @click="applyTheme('psychedelic')">Psychedelic</button>
             <button @click="applyTheme('cyberpunk')">Cyberpunk</button>
           </div>
-        </li>
-        <li @click="handleRunButton" class="menu-run" :class="{ 'active': runButtonActive }">
-          Run {{ runButtonActive ? '⚡' : '' }}
         </li>
         <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
           Terminal {{ terminalVisible ? '▼' : '▶' }}
@@ -345,21 +338,6 @@ onMounted(() => {
   color: var(--font-color);
 }
 
-.menu-run {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.menu-run:hover {
-  background: var(--active-line-bg);
-  color: var(--font-color);
-}
-
-.menu-run.active {
-  background: var(--completed-green);
-  color: white;
-  animation: runButtonGlow 2s ease-in-out infinite alternate;
-}
 
 .menu-help {
   cursor: pointer;
@@ -501,14 +479,6 @@ onMounted(() => {
   background-color: #6d28d9; /* A cooler purple on hover */
 }
 
-@keyframes runButtonGlow {
-  from { 
-    box-shadow: 0 0 5px var(--completed-green), 0 0 10px var(--completed-green);
-  }
-  to { 
-    box-shadow: 0 0 10px var(--completed-green), 0 0 20px var(--completed-green), 0 0 30px var(--completed-green);
-  }
-}
 
 .menu-team-chat { position: relative; }
 .menu-team-chat .dropdown {

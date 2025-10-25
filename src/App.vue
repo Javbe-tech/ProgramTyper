@@ -25,8 +25,6 @@ const userCreatedFiles = ref([]);
 const tabChallengeStats = reactive({}); // Track challenge completion per tab
 const fileChallengeRegeneration = reactive({}); // Track challenge regeneration per file
 const challengeRegenerationTimer = ref(null);
-const completedFiles = ref(0); // Track completed files for Run button
-const runButtonActive = ref(false); // Run button state
 const showMatrixEffect = ref(false); // Matrix effect state
 const matrixText = ref(''); // Matrix effect text
 const showFileCompletion = ref(false); // File completion animation state
@@ -288,178 +286,6 @@ Welcome to the matrix, programmer!`,
     ╚═══════════════════════════════════════╝`
 ];
 
-// Run button functionality
-function handleRunButton() {
-  if (!runButtonActive.value) return;
-  
-  runButtonActive.value = false;
-  showMatrixEffect.value = true;
-  
-  // Start the enhanced run sequence
-  startRunSequence();
-}
-
-function startRunSequence() {
-  let currentStep = 0;
-  const totalSteps = 5;
-  
-  // Different challenge sets for different themes
-  const challengeSets = {
-    hacker: [
-      "sudo rm -rf /",
-      "git push --force", 
-      "npm install --global",
-      "chmod 777 *",
-      "dd if=/dev/zero of=/dev/sda"
-    ],
-    eye: [
-      "watch -n 1 ps aux",
-      "strace -f -e trace=network",
-      "tcpdump -i any -n",
-      "netstat -tulpn",
-      "ss -tulpn"
-    ],
-    skull: [
-      "kill -9 -1",
-      "rm -rf /boot",
-      "dd if=/dev/urandom of=/dev/sda",
-      "mkfs.ext4 /dev/sda",
-      "shutdown -h now"
-    ],
-    spider: [
-      "curl -X POST http://target.com",
-      "wget --spider -r http://site.com",
-      "nmap -sS -O target.com",
-      "nikto -h target.com",
-      "sqlmap -u 'http://target.com'"
-    ],
-    crystal: [
-      "tarot --spread celtic-cross",
-      "fortune -s",
-      "crystal ball --predict",
-      "divine --future",
-      "prophesy --destiny"
-    ]
-  };
-  
-  let currentChallenge = '';
-  let userInput = '';
-  let isWaitingForInput = false;
-  
-  // Randomly select 5 different effects for this run
-  const selectedEffects = [];
-  const availableEffects = [...matrixEffects];
-  
-  for (let i = 0; i < totalSteps; i++) {
-    const randomIndex = Math.floor(Math.random() * availableEffects.length);
-    selectedEffects.push(availableEffects[randomIndex]);
-    availableEffects.splice(randomIndex, 1); // Remove to avoid duplicates
-  }
-  
-  // Determine which challenge set to use based on the first effect
-  let challengeSet = 'hacker'; // default
-  const firstEffect = selectedEffects[0];
-  if (firstEffect.includes('👁️')) {
-    challengeSet = 'eye';
-  } else if (firstEffect.includes('💀')) {
-    challengeSet = 'skull';
-  } else if (firstEffect.includes('🕷️')) {
-    challengeSet = 'spider';
-  } else if (firstEffect.includes('🔮')) {
-    challengeSet = 'crystal';
-  }
-  
-  const challenges = challengeSets[challengeSet];
-  
-  function nextStep() {
-    if (currentStep >= totalSteps) {
-      // Final glitch effect
-      showGlitchEffect();
-      return;
-    }
-    
-    // Show randomly selected matrix effect
-    const effect = selectedEffects[currentStep];
-    matrixText.value = effect;
-    
-    // Show typing challenge after matrix effect
-    setTimeout(() => {
-      showTypingChallenge(currentStep);
-      currentStep++;
-    }, 2000);
-  }
-  
-  function showTypingChallenge(step) {
-    // Ensure step is within bounds
-    const safeStep = Math.min(step, challenges.length - 1);
-    console.log('showTypingChallenge called with step:', step, 'safeStep:', safeStep);
-    console.log('challenges array:', challenges);
-    console.log('challenge at safeStep:', challenges[safeStep]);
-    
-    currentChallenge = challenges[safeStep];
-    userInput = '';
-    isWaitingForInput = true;
-    
-    console.log('currentChallenge set to:', currentChallenge);
-    
-    matrixText.value = `\n\n> ${currentChallenge}\n> Type this command to continue...\n\n`;
-    
-    // Add keydown listener for typing
-    document.addEventListener('keydown', handleRunTyping);
-  }
-  
-  function handleRunTyping(event) {
-    if (!isWaitingForInput) return;
-    
-    if (event.key === 'Enter') {
-      if (userInput.trim() === currentChallenge) {
-        // Correct input
-        matrixText.value += `\n> Command executed successfully!\n`;
-        isWaitingForInput = false;
-        document.removeEventListener('keydown', handleRunTyping);
-        setTimeout(nextStep, 1000);
-      } else {
-        // Wrong input
-        matrixText.value += `\n> Error: Command not found. Try again.\n`;
-        userInput = '';
-      }
-    } else if (event.key === 'Backspace') {
-      if (userInput.length > 0) {
-        userInput = userInput.slice(0, -1);
-      }
-    } else if (event.key.length === 1) {
-      userInput += event.key;
-    }
-    
-    // Update display with current input
-    if (isWaitingForInput) {
-      const cursor = '_';
-      const displayText = `\n\n> ${currentChallenge}\n> Type this command to continue...\n\n> ${userInput}${cursor}`;
-      matrixText.value = displayText;
-    }
-  }
-  
-  function showGlitchEffect() {
-    // Glitch effect with random characters
-    let glitchText = '';
-    const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
-    
-    for (let i = 0; i < 20; i++) {
-      glitchText += chars[Math.floor(Math.random() * chars.length)];
-    }
-    
-    matrixText.value = `\n\nSYSTEM ERROR: ${glitchText}\nCORRUPTION DETECTED\nRETURNING TO MAIN INTERFACE...\n\n`;
-    
-    // Hide effect and return to main screen
-    setTimeout(() => {
-      showMatrixEffect.value = false;
-      document.removeEventListener('keydown', handleRunTyping);
-    }, 3000);
-  }
-  
-  // Start the sequence
-  nextStep();
-}
 
 function closeFileCompletion() {
   showFileCompletion.value = false;
@@ -516,14 +342,6 @@ function handleFileCompleted(fileName, stats) {
   console.log('=== FILE COMPLETION EVENT RECEIVED ===');
   console.log('FileName:', fileName);
   console.log('Stats:', stats);
-  console.log('Current completedFiles:', completedFiles.value);
-  
-  // Track completed files for Run button
-  completedFiles.value++;
-  if (completedFiles.value % 2 === 0) {
-    runButtonActive.value = true;
-    console.log('Run button activated!');
-  }
   
   // Show file completion animation
   completedFileName.value = fileName;
@@ -1215,13 +1033,11 @@ onUnmounted(() => {
   <div id="full-app-container">
     <TopBar 
       :terminal-visible="terminalVisible"
-      :run-button-active="runButtonActive"
       @toggle-terminal="toggleTerminal"
       @open-help="openHelp"
       @open-settings="openSettings"
       @open-pro-upgrade="openProUpgrade"
       @user-logout="handleLogout"
-      @run-button="handleRunButton"
       @switch-campaign="handleSwitchCampaign"
     />
     <div id="app-container">
