@@ -174,11 +174,15 @@ function updateMiningRigCoinsPerSecond() {
   console.log('Current upgrades state:', miningRigState.upgrades);
   
   const hardwareDefinitions = {
-    cellphone: { coinsPerSecond: 0.1 },
-    smartFridge: { coinsPerSecond: 1 },
-    smartDoorbells: { coinsPerSecond: 10 },
+    calculator: { coinsPerSecond: 0.05 },
+    smartDoorbells: { coinsPerSecond: 0.3 },
+    macbooks: { coinsPerSecond: 1.2 },
+    cellphone: { coinsPerSecond: 2.5 },
+    kitchenAppliance: { coinsPerSecond: 8 },
+    smartFridge: { coinsPerSecond: 25 },
     gpuRig: { coinsPerSecond: 100 },
-    serverRack: { coinsPerSecond: 1000 }
+    aiChatGPU: { coinsPerSecond: 500 },
+    serverRack: { coinsPerSecond: 2500 }
   };
   
   let total = 0;
