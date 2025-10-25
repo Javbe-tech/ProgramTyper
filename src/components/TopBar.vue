@@ -4,7 +4,8 @@ import { authService } from '../services/authService.js';
 import Dashboard from './Dashboard.vue';
 
 const props = defineProps({
-  terminalVisible: { type: Boolean, default: true }
+  terminalVisible: { type: Boolean, default: true },
+  miningRigState: { type: Object, default: () => ({ currentColdCoins: 0 }) }
 });
 
 const emit = defineEmits(['toggle-terminal', 'open-help', 'open-settings', 'open-pro-upgrade', 'user-logout', 'switch-campaign', 'open-mining-rig']);
@@ -160,6 +161,12 @@ onMounted(() => {
       </ul>
     </div>
     <div class="right-section">
+      <!-- Live Wallet Counter -->
+      <div class="wallet-counter" title="ColdCoins Balance">
+        <span class="wallet-icon">💰</span>
+        <span class="wallet-amount">{{ Math.floor(miningRigState?.currentColdCoins || 0).toLocaleString() }}</span>
+      </div>
+      
       <!-- Mining Rig Button -->
       <button @click="openMiningRig" class="mining-rig-btn" title="Mining Rig">
         <span class="mining-rig-icon">⚡</span>
@@ -477,6 +484,31 @@ onMounted(() => {
   font-size: 0.6rem;
 }
 
+
+.wallet-counter {
+  background: var(--sidebar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--font-color);
+  margin-right: 10px;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.wallet-icon {
+  font-size: 1rem;
+}
+
+.wallet-amount {
+  color: var(--keyword);
+  font-family: 'Courier New', monospace;
+}
 
 .mining-rig-btn {
   background: var(--keyword);

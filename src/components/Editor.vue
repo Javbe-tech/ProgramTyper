@@ -14,7 +14,7 @@ const props = defineProps({
   getTabChallengeStats: Function,
 });
 
-const emitEvent = defineEmits(['update:activeTab', 'close-tab', 'initialize-tab-stats', 'update-tab-challenge-stats', 'file-completed', 'word-completed']);
+const emitEvent = defineEmits(['update:activeTab', 'close-tab', 'initialize-tab-stats', 'update-tab-challenge-stats', 'file-completed', 'key-pressed']);
 
 const editorContentRef = ref(null);
 const fileContents = reactive({});
@@ -375,9 +375,23 @@ function handleKeyDown(e) {
     sessionCorrectStrokes.value++;
     currentLine.statuses[currentCharacterIndex.value] = 'correct';
     currentCharacterIndex.value++;
+    
+    // Emit key press for mining rig (only correct keys earn coins)
+    emitEvent('key-pressed', {
+      key: e.key,
+      isCorrect: true,
+      characterIndex: currentCharacterIndex.value - 1
+    });
   } else {
     currentLine.statuses[currentCharacterIndex.value] = 'incorrect';
     sessionMistakes.value++;
+    
+    // Emit key press for mining rig (incorrect keys don't earn coins)
+    emitEvent('key-pressed', {
+      key: e.key,
+      isCorrect: false,
+      characterIndex: currentCharacterIndex.value
+    });
   }
   if (currentCharacterIndex.value >= currentLine.text.length) {
     completeLine();
@@ -559,13 +573,6 @@ function completeLine() {
     emitEvent('file-completed', props.activeTab, completionStats);
     console.log('File completion event emitted!');
   }
-  
-  // Emit word completion for mining rig
-  emitEvent('word-completed', {
-    wordCount: wordsInLine.length,
-    lineText: currentLine.text,
-    lineIndex: completedLineIndex
-  });
 }
 
 function updateSessionStats() {

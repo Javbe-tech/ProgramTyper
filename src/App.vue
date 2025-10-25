@@ -93,13 +93,15 @@ function updateMiningRigCoinsPerSecond() {
   miningRigState.coinsPerSecond = total * miningRigState.upgrades.passiveMultiplier;
 }
 
-function handleWordCompleted(wordData) {
-  const coinsEarned = wordData.wordCount * miningRigState.coinsPerWord * miningRigState.upgrades.wordMultiplier;
-  miningRigState.currentColdCoins += coinsEarned;
-  saveMiningRigState();
-  
-  // TODO: Add visual feedback for coins earned
-  console.log(`Earned ${coinsEarned} ColdCoins for completing ${wordData.wordCount} words!`);
+function handleKeyPressed(keyData) {
+  // Only correct key presses earn coins
+  if (keyData.isCorrect) {
+    const coinsEarned = miningRigState.coinsPerWord * miningRigState.upgrades.wordMultiplier;
+    miningRigState.currentColdCoins += coinsEarned;
+    saveMiningRigState();
+    
+    console.log(`Earned ${coinsEarned} ColdCoins for correct key press: ${keyData.key}`);
+  }
 }
 const showMiningRig = ref(false);
 const completedFileStats = ref({}); // Stats for completed file
@@ -1117,6 +1119,7 @@ onUnmounted(() => {
   <div id="full-app-container">
     <TopBar 
       :terminal-visible="terminalVisible"
+      :mining-rig-state="miningRigState"
       @toggle-terminal="toggleTerminal"
       @open-help="openHelp"
       @open-settings="openSettings"
@@ -1150,7 +1153,7 @@ onUnmounted(() => {
           @initialize-tab-stats="initializeTabStats"
       @update-tab-challenge-stats="updateTabChallengeStats"
       @file-completed="handleFileCompleted"
-      @word-completed="handleWordCompleted"
+      @key-pressed="handleKeyPressed"
         />
         <div v-if="terminalVisible" class="resizer resizer-y" ref="resizerY"></div>
         <Terminal v-if="terminalVisible" ref="terminalRef" :show-ads="showAds" @remove-ads="openRemoveAds" />
