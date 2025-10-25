@@ -276,6 +276,10 @@ function openSettings() {
   showSettingsModal.value = true;
 }
 
+function openProUpgrade() {
+  showRemoveAdsModal.value = true;
+}
+
 // Matrix effect texts
 const matrixEffects = [
   `01001000 01100001 01100011 01101011 01100101 01110010 00100000 01001101 01101111 01100100 01100101
