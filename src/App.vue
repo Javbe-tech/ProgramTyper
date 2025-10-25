@@ -514,6 +514,10 @@ function openMiningRig() {
   showMiningRig.value = true;
 }
 
+function closeMiningRig() {
+  showMiningRig.value = false;
+}
+
 function resetMiningRigGame() {
   // Reset all game state to initial values
   miningRigState.currentColdCoins = 0;
