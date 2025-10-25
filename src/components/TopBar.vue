@@ -140,6 +140,9 @@ onMounted(() => {
             <button @click="applyTheme('cyberpunk')">Cyberpunk</button>
           </div>
         </li>
+        <li class="menu-run">
+          Run
+        </li>
         <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
           Terminal {{ terminalVisible ? '▼' : '▶' }}
         </li>
@@ -321,6 +324,17 @@ onMounted(() => {
 }
 .menu-view .dropdown button:hover {
   background: var(--active-line-bg);
+}
+
+.menu-run {
+  cursor: default;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.menu-run:hover {
+  background: var(--active-line-bg);
+  color: var(--font-color);
 }
 
 .menu-terminal {
