@@ -190,7 +190,24 @@ function resetGame() {
     <div class="mining-rig-modal" @click.stop>
       <!-- Header -->
       <div class="mining-header">
-        <h2>⚡ Mining Rig ⚡</h2>
+        <div class="header-left">
+          <h2>⚡ Mining Rig ⚡</h2>
+          <!-- Live Stats -->
+          <div class="header-stats">
+            <div class="stat-item">
+              <span class="stat-label">ColdCoins:</span>
+              <span class="stat-value">{{ Math.floor(gameState.currentColdCoins).toLocaleString() }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Income:</span>
+              <span class="stat-value">{{ totalCoinsPerSecond.toFixed(1) }}/sec</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Per Word:</span>
+              <span class="stat-value">{{ totalCoinsPerWord }}</span>
+            </div>
+          </div>
+        </div>
         <div class="header-buttons">
           <button @click="resetGame" class="reset-btn" title="Reset Game">🔄 Reset</button>
           <button @click="closeModal" class="close-btn">×</button>
@@ -239,22 +256,6 @@ function resetGame() {
 
         <!-- Center - Collection Display -->
         <div class="collection-display">
-          <!-- Live Stats -->
-          <div class="live-stats">
-            <div class="stat-item">
-              <span class="stat-label">ColdCoins:</span>
-              <span class="stat-value">{{ Math.floor(gameState.currentColdCoins).toLocaleString() }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Total Income:</span>
-              <span class="stat-value">{{ totalCoinsPerSecond.toFixed(1) }}/sec</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Per Word:</span>
-              <span class="stat-value">{{ totalCoinsPerWord }}</span>
-            </div>
-          </div>
-
           <!-- Hardware Collection Rows -->
           <div class="collection-rows">
             <div 
@@ -353,6 +354,18 @@ function resetGame() {
   padding: 20px 30px;
   border-bottom: 3px solid var(--border-color);
   background: linear-gradient(135deg, var(--sidebar-bg), var(--active-line-bg));
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.header-stats {
+  display: flex;
+  gap: 25px;
+  align-items: center;
 }
 
 .mining-header h2 {
@@ -617,16 +630,6 @@ function resetGame() {
   font-size: 0.8rem;
 }
 
-.live-stats {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: linear-gradient(135deg, var(--sidebar-bg), var(--active-line-bg));
-  border-radius: 12px;
-  border: 2px solid var(--border-color);
-}
-
 .stat-item {
   display: flex;
   flex-direction: column;
@@ -634,10 +637,19 @@ function resetGame() {
   flex: 1;
 }
 
+.header-stats .stat-item {
+  flex: none;
+  min-width: 120px;
+}
+
 .stat-label {
   color: var(--gray);
-  font-size: 0.9rem;
-  margin-bottom: 5px;
+  font-size: 0.8rem;
+  margin-bottom: 3px;
+}
+
+.header-stats .stat-label {
+  font-size: 0.7rem;
 }
 
 .stat-value {
@@ -645,6 +657,10 @@ function resetGame() {
   font-size: 1.4rem;
   font-weight: bold;
   text-shadow: 0 0 5px var(--keyword);
+}
+
+.header-stats .stat-value {
+  font-size: 1.1rem;
 }
 
 .collection-rows {
