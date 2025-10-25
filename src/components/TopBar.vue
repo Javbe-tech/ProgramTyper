@@ -143,9 +143,6 @@ onMounted(() => {
         <li class="menu-run">
           Run
         </li>
-        <li @click="openMiningRig" class="menu-mining-rig">
-          Mining Rig ⚡
-        </li>
         <li @click="toggleTerminal" class="menu-terminal" :class="{ 'active': terminalVisible }">
           Terminal {{ terminalVisible ? '▼' : '▶' }}
         </li>
@@ -163,6 +160,12 @@ onMounted(() => {
       </ul>
     </div>
     <div class="right-section">
+      <!-- Mining Rig Button -->
+      <button @click="openMiningRig" class="mining-rig-btn" title="Mining Rig">
+        <span class="mining-rig-icon">⚡</span>
+        <span class="mining-rig-text">Mining Rig</span>
+      </button>
+      
       <!-- Dashboard Component -->
       <Dashboard v-if="isAuthenticated" />
       
@@ -340,15 +343,6 @@ onMounted(() => {
   color: var(--font-color);
 }
 
-.menu-mining-rig {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.menu-mining-rig:hover {
-  background: var(--active-line-bg);
-  color: var(--font-color);
-}
 
 .menu-terminal {
   cursor: pointer;
@@ -483,6 +477,35 @@ onMounted(() => {
   font-size: 0.6rem;
 }
 
+
+.mining-rig-btn {
+  background: var(--keyword);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  margin-right: 10px;
+}
+
+.mining-rig-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+
+.mining-rig-icon {
+  font-size: 1rem;
+}
+
+.mining-rig-text {
+  font-size: 0.8rem;
+}
 
 .right-section {
   display: flex;
