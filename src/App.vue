@@ -50,7 +50,14 @@ let miningRigTimer = null;
 
 function startMiningRigTimer() {
   miningRigTimer = setInterval(() => {
+    const oldCoins = miningRigState.currentColdCoins;
     miningRigState.currentColdCoins += miningRigState.coinsPerSecond;
+    const newCoins = miningRigState.currentColdCoins;
+    
+    if (miningRigState.coinsPerSecond > 0) {
+      console.log(`Passive income: +${miningRigState.coinsPerSecond} coins (${oldCoins} → ${newCoins})`);
+    }
+    
     saveMiningRigState();
   }, 1000);
 }
@@ -86,11 +93,40 @@ function updateMiningRigCoinsPerSecond() {
   let total = 0;
   for (const [hardwareType, quantity] of Object.entries(miningRigState.hardware)) {
     const definition = hardwareDefinitions[hardwareType];
-    if (definition) {
-      total += quantity * definition.coinsPerSecond;
+    if (definition && quantity > 0) {
+      const contribution = quantity * definition.coinsPerSecond;
+      total += contribution;
+      console.log(`${hardwareType}: ${quantity} × ${definition.coinsPerSecond} = ${contribution} coins/sec`);
     }
   }
-  miningRigState.coinsPerSecond = total * miningRigState.upgrades.passiveMultiplier;
+  
+  const passiveMultiplier = miningRigState.upgrades.passiveMultiplier;
+  miningRigState.coinsPerSecond = total * passiveMultiplier;
+  
+  console.log(`Total passive income: ${total} × ${passiveMultiplier} = ${miningRigState.coinsPerSecond} coins/sec`);
+}
+
+// Visual feedback for coin earning
+const coinAnimations = ref([]);
+
+function addCoinAnimation(coinsEarned, x, y) {
+  const animation = {
+    id: Date.now() + Math.random(),
+    coins: coinsEarned,
+    x: x,
+    y: y,
+    opacity: 1,
+    scale: 1
+  };
+  coinAnimations.value.push(animation);
+  
+  // Remove animation after 2 seconds
+  setTimeout(() => {
+    const index = coinAnimations.value.findIndex(a => a.id === animation.id);
+    if (index !== -1) {
+      coinAnimations.value.splice(index, 1);
+    }
+  }, 2000);
 }
 
 function handleKeyPressed(keyData) {
@@ -99,6 +135,11 @@ function handleKeyPressed(keyData) {
     const coinsEarned = miningRigState.coinsPerWord * miningRigState.upgrades.wordMultiplier;
     miningRigState.currentColdCoins += coinsEarned;
     saveMiningRigState();
+    
+    // Add visual feedback
+    const randomX = Math.random() * window.innerWidth;
+    const randomY = Math.random() * window.innerHeight;
+    addCoinAnimation(coinsEarned, randomX, randomY);
     
     console.log(`Earned ${coinsEarned} ColdCoins for correct key press: ${keyData.key}`);
   }
@@ -1192,6 +1233,23 @@ onUnmounted(() => {
     <!-- Welcome Modal -->
     <WelcomeModal @close="handleWelcomeClose" />
     
+    <!-- Coin Animations -->
+    <div class="coin-animations">
+      <div 
+        v-for="animation in coinAnimations" 
+        :key="animation.id"
+        class="coin-animation"
+        :style="{
+          left: animation.x + 'px',
+          top: animation.y + 'px',
+          opacity: animation.opacity,
+          transform: `scale(${animation.scale})`
+        }"
+      >
+        +{{ animation.coins }} 💰
+      </div>
+    </div>
+    
     <!-- Matrix Effect Overlay -->
     <div v-if="showMatrixEffect" class="matrix-overlay">
       <div class="matrix-text">
@@ -1255,6 +1313,42 @@ onUnmounted(() => {
   }
   to { 
     text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  }
+}
+
+/* Coin Animation Styles */
+.coin-animations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.coin-animation {
+  position: absolute;
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px #ffd700;
+  animation: coinFloat 2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes coinFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
   }
 }
 </style>
