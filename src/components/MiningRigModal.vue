@@ -242,7 +242,7 @@ function resetGame() {
                   <h4>{{ hardware.name }}</h4>
                   <div class="catalog-stats">
                     <p class="owned-count">Owned: {{ gameState.hardware[key] }}</p>
-                    <p class="earnings">Earns: {{ getHardwareIncome(key).toFixed(1) }} 💰/sec</p>
+                    <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * gameState.upgrades.passiveMultiplier).toFixed(1) }} 💰/sec</p>
                   </div>
                   <p v-if="unlockedHardware[key]" class="catalog-cost">
                     {{ calculateHardwareCost(key).toLocaleString() }} 💰
@@ -359,13 +359,14 @@ function resetGame() {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 40px;
 }
 
 .header-stats {
   display: flex;
-  gap: 25px;
+  gap: 30px;
   align-items: center;
+  justify-content: center;
 }
 
 .mining-header h2 {
