@@ -13,14 +13,14 @@ const gameState = props.gameState;
 // Hardware definitions with image paths
 const hardwareDefinitions = {
   cellphone: {
-    name: 'Cellphone',
+    name: 'Cellphone Mining Rig',
     image: '/images/Phones.png',
     baseCost: 15,
     coinsPerSecond: 0.1,
     unlockRequirement: null
   },
   smartFridge: {
-    name: 'Smart Fridge',
+    name: 'Smart Fridge Miner',
     image: '/images/Fridge.png',
     baseCost: 100,
     coinsPerSecond: 1,
@@ -41,7 +41,7 @@ const hardwareDefinitions = {
     unlockRequirement: { hardware: 'smartDoorbells', quantity: 12 }
   },
   serverRack: {
-    name: 'Server Rack',
+    name: 'GPU Server Rack',
     image: '/images/SeverRig.png',
     baseCost: 100000,
     coinsPerSecond: 1000,
@@ -203,7 +203,7 @@ function resetGame() {
         <div class="catalog-sidebar">
           <div class="catalog-section">
             <h3>🛒 Hardware Catalog</h3>
-            <div class="catalog-items">
+            <div class="catalog-grid">
               <div 
                 v-for="(hardware, key) in hardwareDefinitions" 
                 :key="key"
@@ -223,6 +223,10 @@ function resetGame() {
                 </div>
                 <div class="catalog-info">
                   <h4>{{ hardware.name }}</h4>
+                  <div class="catalog-stats">
+                    <p class="owned-count">Owned: {{ gameState.hardware[key] }}</p>
+                    <p class="earnings">Earns: {{ getHardwareIncome(key).toFixed(1) }} 💰/sec</p>
+                  </div>
                   <p v-if="unlockedHardware[key]" class="catalog-cost">
                     {{ calculateHardwareCost(key).toLocaleString() }} 💰
                   </p>
@@ -410,7 +414,7 @@ function resetGame() {
 
 /* Left Sidebar - Hardware Catalog */
 .catalog-sidebar {
-  width: 350px;
+  width: 400px;
   background: var(--sidebar-bg);
   border-right: 3px solid var(--border-color);
   padding: 20px;
@@ -432,20 +436,24 @@ function resetGame() {
   border: 1px solid var(--border-color);
 }
 
-.catalog-items {
-  display: flex;
-  flex-direction: column;
+.catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
 
 .catalog-item {
-  padding: 20px;
+  padding: 15px;
   background: var(--bg-color);
   border: 2px solid var(--border-color);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .catalog-item:hover {
@@ -483,8 +491,29 @@ function resetGame() {
 .catalog-info h4 {
   color: var(--font-color);
   margin: 0 0 8px 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   text-align: center;
+}
+
+.catalog-stats {
+  margin: 8px 0;
+}
+
+.catalog-stats p {
+  color: var(--gray);
+  margin: 2px 0;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.owned-count {
+  color: var(--keyword) !important;
+  font-weight: bold;
+}
+
+.earnings {
+  color: #22c55e !important;
+  font-weight: bold;
 }
 
 .catalog-info p {
@@ -497,7 +526,7 @@ function resetGame() {
 .catalog-cost {
   color: var(--keyword) !important;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .catalog-locked {
@@ -514,7 +543,7 @@ function resetGame() {
 
 /* Right Sidebar - Upgrade Store */
 .upgrade-sidebar {
-  width: 350px;
+  width: 280px;
   background: var(--sidebar-bg);
   border-left: 3px solid var(--border-color);
   padding: 20px;
