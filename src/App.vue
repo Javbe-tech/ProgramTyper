@@ -576,26 +576,34 @@ function migrateAnonymousProgressToUser() {
     const user = authService.getUser();
     if (!user || !user.id) return;
     
-    // Check if user already has progress
     const userStorageKey = `miningRigGameState_${user.id}`;
     const existingUserProgress = localStorage.getItem(userStorageKey);
-    
-    if (existingUserProgress) {
-      console.log('User already has Mining Rig progress, no migration needed');
-      return;
-    }
-    
-    // Check if there's anonymous progress to migrate
     const anonymousProgress = localStorage.getItem('miningRigGameState');
-    if (anonymousProgress) {
+    
+    console.log('=== MIGRATION CHECK ===');
+    console.log('User ID:', user.id);
+    console.log('Existing user progress:', existingUserProgress);
+    console.log('Anonymous progress:', anonymousProgress);
+    
+    // If user has no progress but anonymous does, migrate it
+    if (!existingUserProgress && anonymousProgress) {
       console.log('Migrating anonymous Mining Rig progress to user account');
       localStorage.setItem(userStorageKey, anonymousProgress);
-      
-      // Load the migrated progress
       loadMiningRigState();
-      
       console.log('Anonymous progress successfully migrated to user account');
     }
+    // If user has progress, always load it (don't skip loading!)
+    else if (existingUserProgress) {
+      console.log('User has existing Mining Rig progress, loading it');
+      loadMiningRigState();
+    }
+    // If neither exists, load defaults
+    else {
+      console.log('No Mining Rig progress found, loading defaults');
+      loadMiningRigState();
+    }
+    
+    console.log('=== END MIGRATION CHECK ===');
   } catch (error) {
     console.error('Failed to migrate anonymous progress:', error);
   }
