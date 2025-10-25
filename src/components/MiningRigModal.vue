@@ -10,39 +10,39 @@ const emit = defineEmits(['close', 'update-game-state', 'reset-game']);
 // Use props gameState directly
 const gameState = props.gameState;
 
-// Hardware definitions with base costs
+// Hardware definitions with image paths
 const hardwareDefinitions = {
   cellphone: {
     name: 'Cellphone',
-    icon: '📱',
+    image: '/images/Phones.png',
     baseCost: 15,
     coinsPerSecond: 0.1,
     unlockRequirement: null
   },
   smartFridge: {
     name: 'Smart Fridge',
-    icon: '🧊',
+    image: '/images/Fridge.png',
     baseCost: 100,
     coinsPerSecond: 1,
     unlockRequirement: { hardware: 'cellphone', quantity: 10 }
   },
   smartDoorbells: {
     name: 'Network of Smart Doorbells',
-    icon: '🚪',
+    image: '/images/Doorbells.png',
     baseCost: 1000,
     coinsPerSecond: 10,
     unlockRequirement: { hardware: 'smartFridge', quantity: 15 }
   },
   gpuRig: {
     name: 'Custom GPU Rig',
-    icon: '🖥️',
+    image: '/images/Gpus.png',
     baseCost: 10000,
     coinsPerSecond: 100,
     unlockRequirement: { hardware: 'smartDoorbells', quantity: 12 }
   },
   serverRack: {
     name: 'Server Rack',
-    icon: '🗄️',
+    image: '/images/SeverRig.png',
     baseCost: 100000,
     coinsPerSecond: 1000,
     unlockRequirement: { hardware: 'gpuRig', quantity: 10 }
@@ -56,14 +56,14 @@ const upgradesDefinitions = {
     description: 'Double coins per word',
     baseCost: 1000,
     multiplier: 2,
-    maxLevel: 5 // Limit to 5 levels
+    maxLevel: 5
   },
   passiveMultiplier: {
     name: 'Passive Boost',
     description: 'Double passive income',
     baseCost: 5000,
     multiplier: 2,
-    maxLevel: 3 // Limit to 3 levels
+    maxLevel: 3
   }
 };
 
@@ -95,15 +95,21 @@ function canPurchaseUpgrade(upgradeType) {
   return currentLevel < definition.maxLevel;
 }
 
-// Check if hardware is unlocked
-function isHardwareUnlocked(hardwareType) {
-  const definition = hardwareDefinitions[hardwareType];
-  if (!definition.unlockRequirement) return true;
-  
-  const requiredHardware = definition.unlockRequirement.hardware;
-  const requiredQuantity = definition.unlockRequirement.quantity;
-  return gameState.hardware[requiredHardware] >= requiredQuantity;
-}
+// Computed property for hardware unlocking
+const unlockedHardware = computed(() => {
+  const unlocked = {};
+  for (const hardwareType of Object.keys(hardwareDefinitions)) {
+    const definition = hardwareDefinitions[hardwareType];
+    if (!definition.unlockRequirement) {
+      unlocked[hardwareType] = true;
+    } else {
+      const requiredHardware = definition.unlockRequirement.hardware;
+      const requiredQuantity = definition.unlockRequirement.quantity;
+      unlocked[hardwareType] = gameState.hardware[requiredHardware] >= requiredQuantity;
+    }
+  }
+  return unlocked;
+});
 
 // Purchase hardware
 function purchaseHardware(hardwareType) {
@@ -140,21 +146,30 @@ const totalCoinsPerWord = computed(() => {
   return gameState.coinsPerWord * gameState.upgrades.wordMultiplier;
 });
 
-// Computed property for hardware unlocking
-const unlockedHardware = computed(() => {
-  const unlocked = {};
-  for (const hardwareType of Object.keys(hardwareDefinitions)) {
-    const definition = hardwareDefinitions[hardwareType];
-    if (!definition.unlockRequirement) {
-      unlocked[hardwareType] = true;
-    } else {
-      const requiredHardware = definition.unlockRequirement.hardware;
-      const requiredQuantity = definition.unlockRequirement.quantity;
-      unlocked[hardwareType] = gameState.hardware[requiredHardware] >= requiredQuantity;
-    }
+// Calculate income per hardware type
+function getHardwareIncome(hardwareType) {
+  const definition = hardwareDefinitions[hardwareType];
+  const owned = gameState.hardware[hardwareType];
+  const passiveMultiplier = gameState.upgrades.passiveMultiplier;
+  return owned * definition.coinsPerSecond * passiveMultiplier;
+}
+
+// Generate collection images for each hardware type
+function getCollectionImages(hardwareType) {
+  const owned = gameState.hardware[hardwareType];
+  const images = [];
+  const definition = hardwareDefinitions[hardwareType];
+  
+  for (let i = 0; i < Math.floor(owned / 5); i++) {
+    images.push({
+      id: i,
+      src: definition.image,
+      position: i % 2 === 0 ? 'low' : 'high' // Alternate between low and high positions
+    });
   }
-  return unlocked;
-});
+  
+  return images;
+}
 
 // Close modal
 function closeModal() {
@@ -182,74 +197,110 @@ function resetGame() {
         </div>
       </div>
 
-      <!-- Live Stats -->
-      <div class="live-stats">
-        <div class="stat-item">
-          <span class="stat-label">ColdCoins:</span>
-          <span class="stat-value">{{ Math.floor(gameState.currentColdCoins).toLocaleString() }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Coins/Second:</span>
-          <span class="stat-value">{{ totalCoinsPerSecond.toFixed(1) }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Coins/Word:</span>
-          <span class="stat-value">{{ totalCoinsPerWord }}</span>
-        </div>
-      </div>
-
-      <!-- Upgrades Store -->
-      <div class="upgrades-section">
-        <h3>🔧 Upgrades Store</h3>
-        <div class="upgrades-grid">
-          <div 
-            v-for="(upgrade, key) in upgradesDefinitions" 
-            :key="key"
-            class="upgrade-item"
-          >
-            <div class="upgrade-info">
-              <h4>{{ upgrade.name }}</h4>
-              <p>{{ upgrade.description }}</p>
-              <p class="upgrade-level">Level: {{ getUpgradeLevel(key) }}/{{ upgrade.maxLevel }}</p>
-              <p class="upgrade-cost">Cost: {{ calculateUpgradeCost(key).toLocaleString() }} ColdCoins</p>
-            </div>
-            <button 
-              @click="purchaseUpgrade(key)"
-              :disabled="!canPurchaseUpgrade(key) || gameState.currentColdCoins < calculateUpgradeCost(key)"
-              class="purchase-btn"
-            >
-              {{ canPurchaseUpgrade(key) ? 'Buy' : 'Max Level' }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Hardware Store -->
-      <div class="hardware-section">
-        <h3>🛒 Hardware Store</h3>
-        <div class="hardware-grid">
-          <div 
-            v-for="(hardware, key) in hardwareDefinitions" 
-            :key="key"
-            v-show="unlockedHardware[key]"
-            class="hardware-item"
-          >
-            <div class="hardware-info">
-              <div class="hardware-icon">{{ hardware.icon }}</div>
-              <div class="hardware-details">
-                <h4>{{ hardware.name }}</h4>
-                <p>Owned: {{ gameState.hardware[key] }}</p>
-                <p>Produces: {{ hardware.coinsPerSecond }} coins/sec each</p>
-                <p class="hardware-cost">Next: {{ calculateHardwareCost(key).toLocaleString() }} ColdCoins</p>
+      <!-- Main Content -->
+      <div class="mining-content">
+        <!-- Left Sidebar - Catalog -->
+        <div class="catalog-sidebar">
+          <div class="catalog-section">
+            <h3>🛒 Hardware Catalog</h3>
+            <div class="catalog-items">
+              <div 
+                v-for="(hardware, key) in hardwareDefinitions" 
+                :key="key"
+                class="catalog-item"
+                :class="{ 
+                  'unlocked': unlockedHardware[key],
+                  'affordable': unlockedHardware[key] && gameState.currentColdCoins >= calculateHardwareCost(key)
+                }"
+                @click="unlockedHardware[key] ? purchaseHardware(key) : null"
+              >
+                <div class="catalog-image">
+                  <img 
+                    :src="hardware.image" 
+                    :alt="hardware.name"
+                    :class="{ 'outlined': !unlockedHardware[key] }"
+                  />
+                </div>
+                <div class="catalog-info">
+                  <h4>{{ hardware.name }}</h4>
+                  <p v-if="unlockedHardware[key]" class="catalog-cost">
+                    {{ calculateHardwareCost(key).toLocaleString() }} 💰
+                  </p>
+                  <p v-else class="catalog-locked">Locked</p>
+                </div>
               </div>
             </div>
-            <button 
-              @click="purchaseHardware(key)"
-              :disabled="gameState.currentColdCoins < calculateHardwareCost(key)"
-              class="purchase-btn"
+          </div>
+
+          <div class="catalog-section">
+            <h3>🔧 Upgrade Store</h3>
+            <div class="upgrade-items">
+              <div 
+                v-for="(upgrade, key) in upgradesDefinitions" 
+                :key="key"
+                class="upgrade-item"
+                :class="{ 
+                  'affordable': canPurchaseUpgrade(key) && gameState.currentColdCoins >= calculateUpgradeCost(key)
+                }"
+                @click="canPurchaseUpgrade(key) ? purchaseUpgrade(key) : null"
+              >
+                <div class="upgrade-info">
+                  <h4>{{ upgrade.name }}</h4>
+                  <p>{{ upgrade.description }}</p>
+                  <p class="upgrade-level">Level: {{ getUpgradeLevel(key) }}/{{ upgrade.maxLevel }}</p>
+                  <p class="upgrade-cost">
+                    {{ canPurchaseUpgrade(key) ? calculateUpgradeCost(key).toLocaleString() + ' 💰' : 'Max Level' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side - Collection Display -->
+        <div class="collection-display">
+          <!-- Live Stats -->
+          <div class="live-stats">
+            <div class="stat-item">
+              <span class="stat-label">ColdCoins:</span>
+              <span class="stat-value">{{ Math.floor(gameState.currentColdCoins).toLocaleString() }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Income:</span>
+              <span class="stat-value">{{ totalCoinsPerSecond.toFixed(1) }}/sec</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Per Word:</span>
+              <span class="stat-value">{{ totalCoinsPerWord }}</span>
+            </div>
+          </div>
+
+          <!-- Hardware Collection Rows -->
+          <div class="collection-rows">
+            <div 
+              v-for="(hardware, key) in hardwareDefinitions" 
+              :key="key"
+              v-show="unlockedHardware[key]"
+              class="collection-row"
             >
-              Buy
-            </button>
+              <div class="row-header">
+                <h3>{{ hardware.name }}</h3>
+                <div class="row-income">
+                  {{ getHardwareIncome(key).toFixed(1) }} 💰/sec
+                </div>
+              </div>
+              
+              <div class="collection-images">
+                <div 
+                  v-for="image in getCollectionImages(key)" 
+                  :key="image.id"
+                  class="collection-image"
+                  :class="image.position"
+                >
+                  <img :src="image.src" :alt="hardware.name" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -264,8 +315,8 @@ function resetGame() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -275,35 +326,38 @@ function resetGame() {
 
 .mining-rig-modal {
   background: var(--bg-color);
-  border: 2px solid var(--keyword);
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 800px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 3px solid var(--keyword);
+  border-radius: 15px;
+  padding: 0;
+  width: 95%;
+  height: 90%;
+  max-width: 1400px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   animation: slideIn 0.4s ease-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .mining-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 10px;
+  padding: 20px 30px;
+  border-bottom: 3px solid var(--border-color);
+  background: linear-gradient(135deg, var(--sidebar-bg), var(--active-line-bg));
 }
 
 .mining-header h2 {
   color: var(--font-color);
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  text-shadow: 0 0 10px var(--keyword);
 }
 
 .header-buttons {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   align-items: center;
 }
 
@@ -311,47 +365,162 @@ function resetGame() {
   background: #ff4444;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: bold;
   transition: all 0.2s ease;
 }
 
 .reset-btn:hover {
   background: #cc0000;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .close-btn {
   background: none;
   border: none;
   color: var(--font-color);
-  font-size: 2rem;
+  font-size: 2.5rem;
   cursor: pointer;
   padding: 0;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .close-btn:hover {
   background: var(--active-line-bg);
+  transform: scale(1.1);
+}
+
+.mining-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Sidebar - Catalog */
+.catalog-sidebar {
+  width: 300px;
+  background: var(--sidebar-bg);
+  border-right: 3px solid var(--border-color);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.catalog-section {
+  margin-bottom: 30px;
+}
+
+.catalog-section h3 {
+  color: var(--font-color);
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 10px;
+  background: var(--active-line-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.catalog-items, .upgrade-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.catalog-item, .upgrade-item {
+  padding: 15px;
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.catalog-item:hover, .upgrade-item:hover {
+  border-color: var(--keyword);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.catalog-item.affordable, .upgrade-item.affordable {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.catalog-item.unlocked {
+  border-color: var(--keyword);
+}
+
+.catalog-image {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.catalog-image img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+.catalog-image img.outlined {
+  filter: grayscale(100%) brightness(0.3);
+  opacity: 0.5;
+}
+
+.catalog-info h4, .upgrade-info h4 {
+  color: var(--font-color);
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.catalog-info p, .upgrade-info p {
+  color: var(--gray);
+  margin: 2px 0;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.catalog-cost, .upgrade-cost {
+  color: var(--keyword) !important;
+  font-weight: bold;
+}
+
+.catalog-locked {
+  color: #ff4444 !important;
+  font-weight: bold;
+}
+
+.upgrade-level {
+  color: var(--gray);
+  font-size: 0.7rem;
+}
+
+/* Right Side - Collection Display */
+.collection-display {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .live-stats {
   display: flex;
   gap: 20px;
   margin-bottom: 30px;
-  padding: 15px;
-  background: var(--sidebar-bg);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  padding: 20px;
+  background: linear-gradient(135deg, var(--sidebar-bg), var(--active-line-bg));
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
 }
 
 .stat-item {
@@ -369,103 +538,88 @@ function resetGame() {
 
 .stat-value {
   color: var(--keyword);
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
+  text-shadow: 0 0 5px var(--keyword);
 }
 
-.upgrades-section, .hardware-section {
-  margin-bottom: 30px;
+.collection-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
-.upgrades-section h3, .hardware-section h3 {
-  color: var(--font-color);
-  margin-bottom: 15px;
-  font-size: 1.3rem;
+.collection-row {
+  background: var(--sidebar-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 15px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.upgrades-grid, .hardware-grid {
-  display: grid;
-  gap: 15px;
-}
-
-.upgrade-item, .hardware-item {
+.row-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background: var(--sidebar-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
 }
 
-.upgrade-item:hover, .hardware-item:hover {
-  background: var(--active-line-bg);
-  border-color: var(--keyword);
-}
-
-.upgrade-info, .hardware-info {
-  flex: 1;
-}
-
-.hardware-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.hardware-icon {
-  font-size: 2rem;
-  min-width: 60px;
-  text-align: center;
-}
-
-.upgrade-info h4, .hardware-details h4 {
+.row-header h3 {
   color: var(--font-color);
-  margin: 0 0 5px 0;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.row-income {
+  color: var(--keyword);
   font-size: 1.1rem;
-}
-
-.upgrade-info p, .hardware-details p {
-  color: var(--gray);
-  margin: 2px 0;
-  font-size: 0.9rem;
-}
-
-.upgrade-cost, .hardware-cost {
-  color: var(--keyword) !important;
   font-weight: bold;
+  background: var(--bg-color);
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--keyword);
 }
 
-.upgrade-level {
-  color: var(--gray);
-  font-size: 0.8rem;
-  margin: 2px 0;
+.collection-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 80px;
+  align-items: flex-end;
 }
 
-.purchase-btn {
-  background: var(--keyword);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.2s ease;
-  min-width: 80px;
+.collection-image {
+  position: relative;
+  transition: all 0.3s ease;
 }
 
-.purchase-btn:hover:not(:disabled) {
-  background: #6d28d9;
-  transform: translateY(-1px);
+.collection-image img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
 
-.purchase-btn:disabled {
-  background: var(--gray);
-  cursor: not-allowed;
-  opacity: 0.6;
+.collection-image.low {
+  transform: translateY(20px);
 }
 
+.collection-image.high {
+  transform: translateY(0px);
+}
+
+.collection-image:nth-child(even) {
+  margin-left: -15px;
+}
+
+.collection-image:nth-child(odd) {
+  margin-left: 0px;
+}
+
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -474,7 +628,7 @@ function resetGame() {
 @keyframes slideIn {
   from { 
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-30px) scale(0.9);
   }
   to { 
     opacity: 1;
@@ -485,66 +639,67 @@ function resetGame() {
 /* Theme-specific overrides */
 [data-theme="matrix"] .mining-rig-modal {
   border-color: #00ff00;
+  box-shadow: 0 25px 50px rgba(0, 255, 0, 0.3);
 }
 
-[data-theme="matrix"] .stat-value {
+[data-theme="matrix"] .stat-value,
+[data-theme="matrix"] .row-income {
   color: #00ff00;
+  text-shadow: 0 0 10px #00ff00;
 }
 
-[data-theme="matrix"] .upgrade-cost,
-[data-theme="matrix"] .hardware-cost {
+[data-theme="matrix"] .catalog-cost,
+[data-theme="matrix"] .upgrade-cost {
   color: #00ff00 !important;
 }
 
-[data-theme="matrix"] .purchase-btn {
-  background: #00ff00;
-  color: #000000;
-}
-
-[data-theme="matrix"] .purchase-btn:hover:not(:disabled) {
-  background: #00cc00;
+[data-theme="matrix"] .catalog-item.affordable,
+[data-theme="matrix"] .upgrade-item.affordable {
+  border-color: #00ff00;
+  background: rgba(0, 255, 0, 0.1);
 }
 
 [data-theme="black-red"] .mining-rig-modal {
   border-color: #ff2d2d;
+  box-shadow: 0 25px 50px rgba(255, 45, 45, 0.3);
 }
 
-[data-theme="black-red"] .stat-value {
+[data-theme="black-red"] .stat-value,
+[data-theme="black-red"] .row-income {
   color: #ff2d2d;
+  text-shadow: 0 0 10px #ff2d2d;
 }
 
-[data-theme="black-red"] .upgrade-cost,
-[data-theme="black-red"] .hardware-cost {
+[data-theme="black-red"] .catalog-cost,
+[data-theme="black-red"] .upgrade-cost {
   color: #ff2d2d !important;
 }
 
-[data-theme="black-red"] .purchase-btn {
-  background: #ff2d2d;
-}
-
-[data-theme="black-red"] .purchase-btn:hover:not(:disabled) {
-  background: #cc0000;
+[data-theme="black-red"] .catalog-item.affordable,
+[data-theme="black-red"] .upgrade-item.affordable {
+  border-color: #ff2d2d;
+  background: rgba(255, 45, 45, 0.1);
 }
 
 [data-theme="cyberpunk"] .mining-rig-modal {
   border-color: #ff2bd6;
+  box-shadow: 0 25px 50px rgba(255, 43, 214, 0.3);
 }
 
-[data-theme="cyberpunk"] .stat-value {
+[data-theme="cyberpunk"] .stat-value,
+[data-theme="cyberpunk"] .row-income {
   color: #ff2bd6;
+  text-shadow: 0 0 10px #ff2bd6;
 }
 
-[data-theme="cyberpunk"] .upgrade-cost,
-[data-theme="cyberpunk"] .hardware-cost {
+[data-theme="cyberpunk"] .catalog-cost,
+[data-theme="cyberpunk"] .upgrade-cost {
   color: #ff2bd6 !important;
 }
 
-[data-theme="cyberpunk"] .purchase-btn {
-  background: #ff2bd6;
-  color: #000000;
-}
-
-[data-theme="cyberpunk"] .purchase-btn:hover:not(:disabled) {
-  background: #cc00aa;
+[data-theme="cyberpunk"] .catalog-item.affordable,
+[data-theme="cyberpunk"] .upgrade-item.affordable {
+  border-color: #ff2bd6;
+  background: rgba(255, 43, 214, 0.1);
 }
 </style>
