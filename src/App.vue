@@ -80,8 +80,12 @@ function stopMiningRigTimer() {
 
 function saveMiningRigState() {
   try {
-    localStorage.setItem('miningRigGameState', JSON.stringify(miningRigState));
-    console.log('Mining Rig state saved:', miningRigState);
+    // Save to user-specific storage if authenticated, otherwise general storage
+    const user = authService.getUser();
+    const storageKey = user && user.id ? `miningRigGameState_${user.id}` : 'miningRigGameState';
+    
+    localStorage.setItem(storageKey, JSON.stringify(miningRigState));
+    console.log(`Mining Rig state saved for ${user ? `user ${user.id}` : 'anonymous'}:`, miningRigState);
   } catch (error) {
     console.error('Failed to save Mining Rig state:', error);
   }
@@ -89,10 +93,25 @@ function saveMiningRigState() {
 
 function loadMiningRigState() {
   try {
-    const saved = localStorage.getItem('miningRigGameState');
+    // Try user-specific storage first, then fall back to general storage
+    const user = authService.getUser();
+    let saved = null;
+    
+    if (user && user.id) {
+      const userStorageKey = `miningRigGameState_${user.id}`;
+      saved = localStorage.getItem(userStorageKey);
+      console.log(`Loading Mining Rig state for user ${user.id}:`, saved);
+    }
+    
+    // If no user-specific data, try general storage
+    if (!saved) {
+      saved = localStorage.getItem('miningRigGameState');
+      console.log('Loading general Mining Rig state:', saved);
+    }
+    
     if (saved) {
       const parsed = JSON.parse(saved);
-      console.log('Loading Mining Rig state:', parsed);
+      console.log('Parsed Mining Rig state:', parsed);
       
       // Merge saved state with current state to preserve reactivity
       Object.assign(miningRigState, parsed);
@@ -114,7 +133,7 @@ function loadMiningRigState() {
         };
       }
       
-      console.log('Mining Rig state loaded successfully:', miningRigState);
+      console.log(`Mining Rig state loaded successfully for ${user ? `user ${user.id}` : 'anonymous'}:`, miningRigState);
     } else {
       console.log('No saved Mining Rig state found, using defaults');
     }
@@ -534,6 +553,37 @@ function closeMiningRig() {
   showMiningRig.value = false;
 }
 
+// Migrate anonymous progress to user account when logging in
+function migrateAnonymousProgressToUser() {
+  try {
+    const user = authService.getUser();
+    if (!user || !user.id) return;
+    
+    // Check if user already has progress
+    const userStorageKey = `miningRigGameState_${user.id}`;
+    const existingUserProgress = localStorage.getItem(userStorageKey);
+    
+    if (existingUserProgress) {
+      console.log('User already has Mining Rig progress, no migration needed');
+      return;
+    }
+    
+    // Check if there's anonymous progress to migrate
+    const anonymousProgress = localStorage.getItem('miningRigGameState');
+    if (anonymousProgress) {
+      console.log('Migrating anonymous Mining Rig progress to user account');
+      localStorage.setItem(userStorageKey, anonymousProgress);
+      
+      // Load the migrated progress
+      loadMiningRigState();
+      
+      console.log('Anonymous progress successfully migrated to user account');
+    }
+  } catch (error) {
+    console.error('Failed to migrate anonymous progress:', error);
+  }
+}
+
 function resetMiningRigGame() {
   // Reset all game state to initial values
   miningRigState.currentColdCoins = 0;
@@ -873,6 +923,8 @@ function initializeAuth() {
   // Initialize user stats service
   if (isAuthenticated.value) {
     userStatsService.onUserLogin();
+    // Migrate anonymous Mining Rig progress to user account
+    migrateAnonymousProgressToUser();
   }
 }
 
