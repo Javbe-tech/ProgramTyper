@@ -278,6 +278,24 @@ onMounted(() => {
             </div>
           </div>
         </div>
+
+        <!-- Game Settings -->
+        <div class="settings-section">
+          <h3>🎮 Game Settings</h3>
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label class="setting-label">
+                <input 
+                  type="checkbox" 
+                  v-model="settings.showCoinAnimations"
+                  class="setting-checkbox"
+                />
+                <span class="setting-text">Show coin earning animations</span>
+              </label>
+              <div class="setting-description">Display floating coin animations while typing in speed tests</div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
       

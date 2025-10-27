@@ -15,6 +15,7 @@ import MiningRigModal from './components/MiningRigModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
 import { userStatsService } from './services/userStatsService.js';
+import { settingsService } from './services/settingsService.js';
 
 // --- STATE ---
 const openTabs = ref(['main.js']); 
@@ -208,6 +209,12 @@ function updateMiningRigCoinsPerSecond() {
 const coinAnimations = ref([]);
 
 function addCoinAnimation(coinsEarned, x, y) {
+  // Check if coin animations are enabled in settings
+  const settings = settingsService.getSettings();
+  if (!settings.showCoinAnimations) {
+    return; // Don't add animation if disabled
+  }
+  
   const animation = {
     id: Date.now() + Math.random(),
     coins: coinsEarned,

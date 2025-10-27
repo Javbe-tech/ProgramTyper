@@ -429,7 +429,10 @@ class UserStatsService {
 
   calculateWpm(correctStrokes, timeInSeconds) {
     if (timeInSeconds === 0) return 0;
-    const words = correctStrokes / 5; // Average word length is 5 characters
+    // Hybrid approach: Count all correct characters and convert to WPM
+    // WPM = (Correct Characters / 5) / Time in minutes
+    const correctCharacters = correctStrokes; // correctStrokes counts all characters typed correctly
+    const words = correctCharacters / 5; // Convert to words (standard word = 5 chars)
     const minutes = timeInSeconds / 60;
     return Math.round(words / minutes);
   }

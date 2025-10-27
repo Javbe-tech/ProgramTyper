@@ -11,7 +11,8 @@ class SettingsService {
       errorSoundId: 2,
       soundVolume: 0.5,
       enableTypingSound: true,
-      enableErrorSound: true
+      enableErrorSound: true,
+      showCoinAnimations: true
     };
     this.settings = { ...this.defaultSettings };
     this.loadSettings();
