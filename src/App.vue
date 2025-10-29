@@ -12,6 +12,7 @@ import RemoveAdsModal from './components/RemoveAdsModal.vue';
 import HelpModal from './components/HelpModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
 import MiningRigModal from './components/MiningRigModal.vue';
+import RealEstateModal from './components/RealEstateModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
 import { userStatsService } from './services/userStatsService.js';
@@ -45,8 +46,22 @@ const miningRigState = reactive({
     serverRack: 0
   },
   upgrades: {
-    wordMultiplier: 1,
-    passiveMultiplier: 1
+    // New upgrade model: levels instead of multipliers
+    wordEfficiencyLevel: 0, // +0.5 coins per correct key per level
+    passiveBoostLevel: 0    // +25% multiplicative per level
+  },
+  // Wattage system
+  currentWattage: 0,
+  maxWattage: 100,
+  // Real estate progression (purchase flags in order; fortress unlocked after 6)
+  realEstate: {
+    parentsBasement: false,
+    studioApartment: false,
+    suburbanHouse: false,
+    downtownLoft: false,
+    techMansion: false,
+    corporateOffice: false,
+    dataFortress: false
   }
 });
 
@@ -196,7 +211,8 @@ function updateMiningRigCoinsPerSecond() {
     }
   }
   
-  const passiveMultiplier = miningRigState.upgrades.passiveMultiplier;
+  // Passive multiplier is 1.25 ^ level
+  const passiveMultiplier = Math.pow(1.25, miningRigState.upgrades.passiveBoostLevel || 0);
   const oldCoinsPerSecond = miningRigState.coinsPerSecond;
   miningRigState.coinsPerSecond = total * passiveMultiplier;
   
@@ -237,7 +253,8 @@ function addCoinAnimation(coinsEarned, x, y) {
 function handleKeyPressed(keyData) {
   // Only correct key presses earn coins
   if (keyData.isCorrect) {
-    const coinsEarned = miningRigState.coinsPerWord * miningRigState.upgrades.wordMultiplier;
+    const level = miningRigState.upgrades.wordEfficiencyLevel || 0;
+    const coinsEarned = miningRigState.coinsPerWord + 0.5 * level;
     miningRigState.currentColdCoins += coinsEarned;
     
     console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);
@@ -252,6 +269,7 @@ function handleKeyPressed(keyData) {
   }
 }
 const showMiningRig = ref(false);
+const showRealEstate = ref(false);
 const showFileCompletion = ref(false);
 const completedFileStats = ref({}); // Stats for completed file
 const completedFileName = ref(''); // Name of completed file
@@ -1415,8 +1433,18 @@ onUnmounted(() => {
       v-if="showMiningRig" 
       :game-state="miningRigState"
       @close="closeMiningRig"
+      @open-real-estate="showRealEstate = true"
       @update-game-state="updateMiningRigCoinsPerSecond"
       @reset-game="resetMiningRigGame"
+    />
+
+    <!-- Real Estate Modal -->
+    <RealEstateModal
+      v-if="showRealEstate"
+      :show="showRealEstate"
+      :game-state="miningRigState"
+      @close="showRealEstate = false"
+      @purchased="updateMiningRigCoinsPerSecond"
     />
     
     <!-- Welcome Modal -->

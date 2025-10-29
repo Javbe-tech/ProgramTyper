@@ -17,6 +17,7 @@ const hardwareDefinitions = {
     image: '/images/Calculator Mining Rig.png',
     baseCost: 10,
     coinsPerSecond: 0.05,
+    wattage: 1,
     unlockRequirement: null
   },
   smartDoorbells: {
@@ -24,6 +25,7 @@ const hardwareDefinitions = {
     image: '/images/Doorbells.png',
     baseCost: 50,
     coinsPerSecond: 0.3,
+    wattage: 4,
     unlockRequirement: { hardware: 'calculator', quantity: 8 }
   },
   macbooks: {
@@ -31,6 +33,7 @@ const hardwareDefinitions = {
     image: '/images/3 Solar powered MacBooks.png',
     baseCost: 200,
     coinsPerSecond: 1.2,
+    wattage: 10,
     unlockRequirement: { hardware: 'smartDoorbells', quantity: 10 }
   },
   cellphone: {
@@ -38,6 +41,7 @@ const hardwareDefinitions = {
     image: '/images/Phones.png',
     baseCost: 500,
     coinsPerSecond: 2.5,
+    wattage: 20,
     unlockRequirement: { hardware: 'macbooks', quantity: 8 }
   },
   kitchenAppliance: {
@@ -45,6 +49,7 @@ const hardwareDefinitions = {
     image: '/images/A Toaster, Coffee Maker, Microwave and 2009 smart Plasma TV assisted with Solar Panel.png',
     baseCost: 1500,
     coinsPerSecond: 8,
+    wattage: 50,
     unlockRequirement: { hardware: 'cellphone', quantity: 12 }
   },
   smartFridge: {
@@ -52,6 +57,7 @@ const hardwareDefinitions = {
     image: '/images/Fridge.png',
     baseCost: 5000,
     coinsPerSecond: 25,
+    wattage: 120,
     unlockRequirement: { hardware: 'kitchenAppliance', quantity: 10 }
   },
   gpuRig: {
@@ -59,6 +65,7 @@ const hardwareDefinitions = {
     image: '/images/Gpus.png',
     baseCost: 20000,
     coinsPerSecond: 100,
+    wattage: 300,
     unlockRequirement: { hardware: 'smartFridge', quantity: 8 }
   },
   aiChatGPU: {
@@ -66,6 +73,7 @@ const hardwareDefinitions = {
     image: '/images/AI Slop Custom ChatGPU.png',
     baseCost: 100000,
     coinsPerSecond: 500,
+    wattage: 1000,
     unlockRequirement: { hardware: 'gpuRig', quantity: 6 }
   },
   serverRack: {
@@ -73,25 +81,26 @@ const hardwareDefinitions = {
     image: '/images/SeverRig.png',
     baseCost: 500000,
     coinsPerSecond: 2500,
+    wattage: 4000,
     unlockRequirement: { hardware: 'aiChatGPU', quantity: 5 }
   }
 };
 
-// Upgrades definitions
+// Upgrades definitions (rebalanced)
 const upgradesDefinitions = {
-  wordMultiplier: {
+  wordEfficiency: {
     name: 'Word Efficiency',
-    description: 'Double coins per word',
-    baseCost: 1000,
-    multiplier: 2,
-    maxLevel: 5
+    description: '+0.5 coins per correct key per level',
+    baseCost: 250,
+    costGrowth: 1.20,
+    maxLevel: 50
   },
-  passiveMultiplier: {
+  passiveBoost: {
     name: 'Passive Boost',
-    description: 'Double passive income',
-    baseCost: 5000,
-    multiplier: 2,
-    maxLevel: 3
+    description: '+25% total passive income per level (multiplicative)',
+    baseCost: 1000,
+    costGrowth: 1.80,
+    maxLevel: 20
   }
 };
 
@@ -102,18 +111,18 @@ function calculateHardwareCost(hardwareType) {
   return Math.floor(definition.baseCost * Math.pow(1.15, owned));
 }
 
-// Calculate upgrade cost with geometric progression
+// Calculate upgrade cost with new growth
 function calculateUpgradeCost(upgradeType) {
   const definition = upgradesDefinitions[upgradeType];
   const currentLevel = getUpgradeLevel(upgradeType);
-  return Math.floor(definition.baseCost * Math.pow(2, currentLevel));
+  return Math.floor(definition.baseCost * Math.pow(definition.costGrowth, Math.max(0, currentLevel - 0)));
 }
 
 // Get current upgrade level
 function getUpgradeLevel(upgradeType) {
-  const baseMultiplier = upgradesDefinitions[upgradeType].multiplier;
-  const currentMultiplier = gameState.upgrades[upgradeType];
-  return Math.log2(currentMultiplier);
+  if (upgradeType === 'wordEfficiency') return gameState.upgrades.wordEfficiencyLevel || 0;
+  if (upgradeType === 'passiveBoost') return gameState.upgrades.passiveBoostLevel || 0;
+  return 0;
 }
 
 // Check if upgrade can be purchased (not at max level)
@@ -145,11 +154,18 @@ const unlockedHardware = computed(() => {
 // Purchase hardware
 function purchaseHardware(hardwareType) {
   const cost = calculateHardwareCost(hardwareType);
-  if (gameState.currentColdCoins >= cost) {
-    gameState.currentColdCoins -= cost;
-    gameState.hardware[hardwareType]++;
-    emit('update-game-state');
+  // Check power capacity if wattage is defined
+  const def = hardwareDefinitions[hardwareType];
+  const watt = def.wattage || 0;
+  if (gameState.currentColdCoins < cost) return;
+  if (gameState.currentWattage + watt > gameState.maxWattage) {
+    alert('Not enough power capacity. Buy Real Estate to increase max wattage.');
+    return;
   }
+  gameState.currentColdCoins -= cost;
+  gameState.hardware[hardwareType]++;
+  gameState.currentWattage += watt;
+  emit('update-game-state');
 }
 
 // Purchase upgrade
@@ -161,11 +177,14 @@ function purchaseUpgrade(upgradeType) {
   
   const cost = calculateUpgradeCost(upgradeType);
   
-  if (gameState.currentColdCoins >= cost) {
-    gameState.currentColdCoins -= cost;
-    gameState.upgrades[upgradeType] *= upgradesDefinitions[upgradeType].multiplier;
-    emit('update-game-state');
+  if (gameState.currentColdCoins < cost) return;
+  gameState.currentColdCoins -= cost;
+  if (upgradeType === 'wordEfficiency') {
+    gameState.upgrades.wordEfficiencyLevel = (gameState.upgrades.wordEfficiencyLevel || 0) + 1;
+  } else if (upgradeType === 'passiveBoost') {
+    gameState.upgrades.passiveBoostLevel = (gameState.upgrades.passiveBoostLevel || 0) + 1;
   }
+  emit('update-game-state');
 }
 
 // Computed properties for UI
@@ -174,14 +193,15 @@ const totalCoinsPerSecond = computed(() => {
 });
 
 const totalCoinsPerWord = computed(() => {
-  return gameState.coinsPerWord * gameState.upgrades.wordMultiplier;
+  const level = gameState.upgrades.wordEfficiencyLevel || 0;
+  return (gameState.coinsPerWord + 0.5 * level).toFixed(1);
 });
 
 // Calculate income per hardware type
 function getHardwareIncome(hardwareType) {
   const definition = hardwareDefinitions[hardwareType];
   const owned = gameState.hardware[hardwareType];
-  const passiveMultiplier = gameState.upgrades.passiveMultiplier;
+  const passiveMultiplier = Math.pow(1.25, gameState.upgrades.passiveBoostLevel || 0);
   return owned * definition.coinsPerSecond * passiveMultiplier;
 }
 
@@ -237,9 +257,14 @@ function resetGame() {
               <span class="stat-label">Per Word:</span>
               <span class="stat-value">{{ totalCoinsPerWord }}</span>
             </div>
+            <div class="stat-item">
+              <span class="stat-label">Power Usage:</span>
+              <span class="stat-value">{{ gameState.currentWattage }}/{{ gameState.maxWattage }}W</span>
+            </div>
           </div>
         </div>
         <div class="header-buttons">
+          <button @click="$emit('open-real-estate')" class="reset-btn" title="Real Estate">🏠 Real Estate</button>
           <button @click="resetGame" class="reset-btn" title="Reset Game">🔄 Reset</button>
           <button @click="closeModal" class="close-btn">×</button>
         </div>
@@ -274,7 +299,7 @@ function resetGame() {
                   <h4 v-else class="locked-name">???</h4>
                   <div class="catalog-stats" v-if="unlockedHardware[key]">
                     <p class="owned-count">Owned: {{ gameState.hardware[key] }}</p>
-                    <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * gameState.upgrades.passiveMultiplier).toFixed(2) }} 💰/sec</p>
+                    <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * Math.pow(1.25, gameState.upgrades.passiveBoostLevel || 0)).toFixed(2) }} 💰/sec</p>
                   </div>
                   <p v-if="unlockedHardware[key]" class="catalog-cost">
                     {{ calculateHardwareCost(key).toLocaleString() }} 💰
