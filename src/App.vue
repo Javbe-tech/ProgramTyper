@@ -290,8 +290,8 @@ function handleKeyPressed(keyData) {
     }
     const level = miningRigState.upgrades.wordEfficiencyLevel || 0;
     const base = miningRigState.coinsPerWord + 0.5 * level;
-    const kbLevel = miningRigState.upgrades.ergonomicKeyboardLevel || 0;
-    const typingMultiplier = Math.pow(1.1, kbLevel); // +10% per level, compounding
+    const kbLevel = Math.min(100, miningRigState.upgrades.ergonomicKeyboardLevel || 0);
+    const typingMultiplier = Math.pow(1.07, kbLevel); // ~+7%/level, compounding up to 100
     const coinsEarned = base * typingMultiplier;
     miningRigState.currentColdCoins += coinsEarned;
     

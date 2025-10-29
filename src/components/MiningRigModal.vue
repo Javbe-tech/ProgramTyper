@@ -93,21 +93,21 @@ const upgradesDefinitions = {
     description: '+0.5 coins per correct key per level',
     baseCost: 250,
     costGrowth: 1.20,
-    maxLevel: 50
+    maxLevel: 100
   },
   passiveBoost: {
     name: 'Passive Boost',
     description: '+25% total passive income per level (multiplicative)',
     baseCost: 1000,
     costGrowth: 1.80,
-    maxLevel: 20
+    maxLevel: 100
   },
   ergonomicKeyboard: {
     name: 'Ergonomic Keyboard',
-    description: 'Typing multiplier (+10% per level)',
-    baseCost: 5000,
-    costGrowth: 1.6,
-    maxLevel: 30
+    description: 'Typing multiplier (grows exponentially)',
+    baseCost: 200,
+    costGrowth: 1.22,
+    maxLevel: 100
   }
 };
 
