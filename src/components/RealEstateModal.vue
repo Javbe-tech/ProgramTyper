@@ -376,9 +376,9 @@ const monthlyPayment = computed(() => {
                 <div class="mortgage">
                   <button class="mortgage-toggle aside-buy locked-look" @click="showMortgage = !showMortgage">Mortgage Options</button>
                   <div v-if="showMortgage" class="mortgage-body">
-                    <div class="mort-row"><label>Down Payment %</label><input type="number" v-model.number="mortDownPct" min="0" max="99" /></div>
-                    <div class="mort-row"><label>Annual Rate %</label><input type="number" v-model.number="mortRateAnnual" min="1" step="0.1" /></div>
-                    <div class="mort-row"><label>Years</label><input type="number" v-model.number="mortYears" min="10" /></div>
+                    <div class="mort-row"><label>Down Payment %</label><input type="number" v-model.number="mortDownPct" min="0" max="99" @keydown.stop @keyup.stop @keypress.stop /></div>
+                    <div class="mort-row"><label>Annual Rate %</label><input type="number" v-model.number="mortRateAnnual" min="1" step="0.1" @keydown.stop @keyup.stop @keypress.stop /></div>
+                    <div class="mort-row"><label>Years</label><input type="number" v-model.number="mortYears" min="10" @keydown.stop @keyup.stop @keypress.stop /></div>
                     <div class="mort-result">Monthly: <strong>{{ monthlyPayment.toLocaleString() }}</strong> 💰</div>
                     <div class="mort-disclaimer">Assumes compounding monthly. Rates are intentionally absurd.</div>
                   </div>
