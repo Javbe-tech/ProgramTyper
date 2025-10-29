@@ -111,6 +111,18 @@ function calculateHardwareCost(hardwareType) {
   return Math.floor(definition.baseCost * Math.pow(1.15, owned));
 }
 
+// Cost of the most recently purchased unit (for selling)
+function currentUnitCost(hardwareType) {
+  const definition = hardwareDefinitions[hardwareType];
+  const owned = gameState.hardware[hardwareType];
+  if (owned <= 0) return 0;
+  return Math.floor(definition.baseCost * Math.pow(1.15, owned - 1));
+}
+
+function calculateSellPrice(hardwareType) {
+  return Math.floor(currentUnitCost(hardwareType) * 0.5);
+}
+
 // Calculate upgrade cost with new growth
 function calculateUpgradeCost(upgradeType) {
   const definition = upgradesDefinitions[upgradeType];
@@ -165,6 +177,19 @@ function purchaseHardware(hardwareType) {
   gameState.currentColdCoins -= cost;
   gameState.hardware[hardwareType]++;
   gameState.currentWattage += watt;
+  emit('update-game-state');
+}
+
+// Sell hardware: refund ~50% of the last unit's cost and free wattage
+function sellHardware(hardwareType) {
+  const owned = gameState.hardware[hardwareType];
+  if (!owned || owned <= 0) return;
+  const def = hardwareDefinitions[hardwareType];
+  const watt = def.wattage || 0;
+  const refund = calculateSellPrice(hardwareType);
+  gameState.hardware[hardwareType]--;
+  gameState.currentWattage = Math.max(0, gameState.currentWattage - watt);
+  gameState.currentColdCoins += refund;
   emit('update-game-state');
 }
 
@@ -300,10 +325,16 @@ function resetGame() {
                   <div class="catalog-stats" v-if="unlockedHardware[key]">
                     <p class="owned-count">Owned: {{ gameState.hardware[key] }}</p>
                     <p class="earnings">Per Unit: {{ (hardware.coinsPerSecond * Math.pow(1.25, gameState.upgrades.passiveBoostLevel || 0)).toFixed(2) }} 💰/sec</p>
+                    <p class="wattage">Wattage: {{ hardware.wattage || 0 }}W</p>
                   </div>
                   <p v-if="unlockedHardware[key]" class="catalog-cost">
                     {{ calculateHardwareCost(key).toLocaleString() }} 💰
                   </p>
+                  <div v-if="unlockedHardware[key] && gameState.hardware[key] > 0" class="catalog-sell">
+                    <button class="sell-btn" @click.stop="sellHardware(key)">
+                      Sell ({{ calculateSellPrice(key).toLocaleString() }} 💰)
+                    </button>
+                  </div>
                   <p v-else class="catalog-locked">Locked</p>
                 </div>
               </div>
@@ -585,6 +616,23 @@ function resetGame() {
 .earnings {
   color: #22c55e !important;
   font-weight: bold;
+}
+.wattage {
+  color: var(--font-color);
+  opacity: 0.85;
+}
+.catalog-sell { margin-top: 8px; }
+.sell-btn {
+  background: transparent;
+  color: #f97316; /* orange for sell */
+  border: 1px solid #f97316;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.sell-btn:hover {
+  background: rgba(249, 115, 22, 0.12);
 }
 
 .catalog-info p {
