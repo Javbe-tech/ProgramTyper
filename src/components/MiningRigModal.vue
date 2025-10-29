@@ -447,7 +447,7 @@ function resetGame() {
         <div class="upgrade-sidebar">
           <div class="upgrade-section">
             <h3>🔧 Upgrade Store</h3>
-            <div class="upgrade-items">
+            <div class="upgrade-items scrollable">
               <div 
                 v-for="(upgrade, key) in upgradesDefinitions" 
                 :key="key"
@@ -468,13 +468,17 @@ function resetGame() {
               </div>
             </div>
           </div>
+          <!-- Current property display (fixed area below upgrades) -->
+          <div class="estate-panel" v-if="currentEstate">
+            <div class="estate-thumb">
+              <img :src="currentEstate.image" :alt="currentEstate.name" />
+            </div>
+            <div class="estate-meta">
+              <div class="estate-label">Current Property</div>
+              <div class="estate-name">{{ currentEstate.name }}</div>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <!-- Bottom-right current estate badge -->
-      <div v-if="currentEstate" class="estate-badge">
-        <img :src="currentEstate.image" :alt="currentEstate.name" />
-        <div class="estate-name">{{ currentEstate.name }}</div>
       </div>
     </div>
   </div>
@@ -749,7 +753,9 @@ function resetGame() {
   background: var(--sidebar-bg);
   border-left: 3px solid var(--border-color);
   padding: 20px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .upgrade-section {
@@ -772,6 +778,7 @@ function resetGame() {
   flex-direction: column;
   gap: 15px;
 }
+.upgrade-items.scrollable { flex: 1; overflow-y: auto; }
 
 .upgrade-item {
   padding: 20px;
@@ -794,36 +801,26 @@ function resetGame() {
   background: rgba(34, 197, 94, 0.1);
 }
 
-/* Estate badge */
-.estate-badge {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
+/* Estate panel */
+.estate-panel {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0,0,0,0.5);
+  background: var(--sidebar-bg);
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  padding: 8px 10px;
-  z-index: 5;
+  padding: 10px;
 }
-.estate-badge img {
-  width: 56px;
-  height: 56px;
+.estate-thumb img {
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   border-radius: 6px;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
 }
-.estate-name {
-  color: var(--font-color);
-  font-size: 0.85rem;
-  max-width: 220px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.estate-meta .estate-label { color: var(--gray); font-size: 0.75rem; }
+.estate-meta .estate-name { color: var(--font-color); font-size: 0.95rem; font-weight: 600; }
 
 .upgrade-info h4 {
   color: var(--font-color);
