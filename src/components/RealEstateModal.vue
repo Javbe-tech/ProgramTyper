@@ -16,7 +16,7 @@ const properties = [
     cost: 15000,
     wattage: 150,
     blurb: 'A fixer-upper bursting with "character" and questionable odors. As-is; bring tools and optimism.',
-    details: `🔥 Hot Property Alert! 🔥 Your Dream "Opportunity" Awaits in [Neighborhood Name]!
+    details: `🔥 Hot Property Alert! 🔥 Your Dream "Opportunity" Awaits!
 Address: 123 Main Street, Anytown, USA
 Price: $15,000 (Because we believe in transparency, even when it hurts a little)
 Bedrooms: 2 (Potentially 3, if you're good with a hammer and have no regard for building codes)
@@ -385,10 +385,11 @@ function closeDetails() { selectedIndex.value = -1; }
 
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
 .re-details { width: 90%; max-width: 1100px; max-height: 88%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-.details-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--menu-bar-bg); border-bottom: 1px solid var(--border-color); }
-.details-hero { width: 100%; height: 260px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
+.details-header { position: absolute; inset: 0 auto auto 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); border-bottom: none; z-index: 2; }
+.details-hero { position: relative; width: 100%; height: 260px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
+.details-hero::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 80px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); pointer-events: none; z-index: 1; }
 .details-hero img { width: 100%; height: 100%; object-fit: cover; }
-.details-content { display: grid; grid-template-columns: 1.8fr 1fr; gap: 16px; padding: 16px; overflow: auto; }
+.details-content { display: grid; grid-template-columns: 1.8fr 1fr; gap: 16px; padding: 16px; overflow: auto; margin-top: 0; }
 .details-main { min-width: 0; }
 .summary-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
 .summary-item { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; }
