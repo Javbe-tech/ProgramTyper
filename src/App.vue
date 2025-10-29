@@ -48,7 +48,8 @@ const miningRigState = reactive({
   upgrades: {
     // New upgrade model: levels instead of multipliers
     wordEfficiencyLevel: 0, // +0.5 coins per correct key per level
-    passiveBoostLevel: 0    // +25% multiplicative per level
+    passiveBoostLevel: 0,    // +25% multiplicative per level
+    ergonomicKeyboardLevel: 0 // typing multiplier, modest per-level boost
   },
   // Wattage system
   currentWattage: 0,
@@ -184,6 +185,10 @@ function loadMiningRigState() {
           passiveMultiplier: 1
         };
       }
+      // Backfill new upgrades with defaults if missing
+      if (typeof miningRigState.upgrades.wordEfficiencyLevel !== 'number') miningRigState.upgrades.wordEfficiencyLevel = 0;
+      if (typeof miningRigState.upgrades.passiveBoostLevel !== 'number') miningRigState.upgrades.passiveBoostLevel = 0;
+      if (typeof miningRigState.upgrades.ergonomicKeyboardLevel !== 'number') miningRigState.upgrades.ergonomicKeyboardLevel = 0;
       // Ensure unlocked flags exist
       if (!miningRigState.unlocked) {
         miningRigState.unlocked = {
@@ -284,7 +289,10 @@ function handleKeyPressed(keyData) {
       return;
     }
     const level = miningRigState.upgrades.wordEfficiencyLevel || 0;
-    const coinsEarned = miningRigState.coinsPerWord + 0.5 * level;
+    const base = miningRigState.coinsPerWord + 0.5 * level;
+    const kbLevel = miningRigState.upgrades.ergonomicKeyboardLevel || 0;
+    const typingMultiplier = Math.pow(1.1, kbLevel); // +10% per level, compounding
+    const coinsEarned = base * typingMultiplier;
     miningRigState.currentColdCoins += coinsEarned;
     
     console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);

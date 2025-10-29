@@ -101,6 +101,13 @@ const upgradesDefinitions = {
     baseCost: 1000,
     costGrowth: 1.80,
     maxLevel: 20
+  },
+  ergonomicKeyboard: {
+    name: 'Ergonomic Keyboard',
+    description: 'Typing multiplier (+10% per level)',
+    baseCost: 5000,
+    costGrowth: 1.6,
+    maxLevel: 30
   }
 };
 
@@ -134,6 +141,7 @@ function calculateUpgradeCost(upgradeType) {
 function getUpgradeLevel(upgradeType) {
   if (upgradeType === 'wordEfficiency') return gameState.upgrades.wordEfficiencyLevel || 0;
   if (upgradeType === 'passiveBoost') return gameState.upgrades.passiveBoostLevel || 0;
+  if (upgradeType === 'ergonomicKeyboard') return gameState.upgrades.ergonomicKeyboardLevel || 0;
   return 0;
 }
 
@@ -213,6 +221,8 @@ function purchaseUpgrade(upgradeType) {
     gameState.upgrades.wordEfficiencyLevel = (gameState.upgrades.wordEfficiencyLevel || 0) + 1;
   } else if (upgradeType === 'passiveBoost') {
     gameState.upgrades.passiveBoostLevel = (gameState.upgrades.passiveBoostLevel || 0) + 1;
+  } else if (upgradeType === 'ergonomicKeyboard') {
+    gameState.upgrades.ergonomicKeyboardLevel = (gameState.upgrades.ergonomicKeyboardLevel || 0) + 1;
   }
   emit('update-game-state');
 }
