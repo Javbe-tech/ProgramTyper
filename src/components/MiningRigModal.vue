@@ -439,6 +439,12 @@ function resetGame() {
                   :class="image.position"
                 >
                   <img :src="image.src" :alt="hardware.name" />
+                  <div class="image-tooltip">
+                    <div class="tooltip-title">{{ hardware.name }}</div>
+                    <button class="tooltip-sell" @click.stop="sellHardware(key)">
+                      Sell 1 ({{ calculateSellPrice(key).toLocaleString() }} 💰)
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -957,6 +963,42 @@ function resetGame() {
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
 }
+
+/* Hover tooltip to sell one unit */
+.image-tooltip {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 3;
+  min-width: 180px;
+}
+.collection-image:hover .image-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+.tooltip-title {
+  color: var(--font-color);
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+.tooltip-sell {
+  background: transparent;
+  color: #f97316;
+  border: 1px solid #f97316;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.tooltip-sell:hover { background: rgba(249, 115, 22, 0.12); }
 
 .collection-image.low {
   transform: translateY(20px);
