@@ -158,28 +158,31 @@ function startMatrixScanning() {
   animationTimer.value = setInterval(() => {
     currentStep++;
     
-    // Calculate which line to scan based on progress
-    const progress = currentStep / totalSteps;
+    // Calculate which line to scan based on progress (continuous loop)
+    const progress = (currentStep % totalSteps) / totalSteps;
     const targetLineIndex = Math.floor(progress * highlightedLines.value.length);
     
-        // Scan the current line if it hasn't been scanned yet
-        if (targetLineIndex > currentLineIndex && currentLineIndex < highlightedLines.value.length) {
-          const line = highlightedLines.value[currentLineIndex];
-          if (!line.scanned) {
-            line.scanned = true;
-            scanLine(line.element);
-          }
-          currentLineIndex++;
-        }
+    // Scan the current line if it hasn't been scanned yet in this pass
+    if (targetLineIndex > currentLineIndex && currentLineIndex < highlightedLines.value.length) {
+      const line = highlightedLines.value[currentLineIndex];
+      if (!line.scanned) {
+        line.scanned = true;
+        scanLine(line.element);
+      }
+      currentLineIndex++;
+    }
     
-    if (currentStep >= totalSteps) {
-      clearInterval(animationTimer.value);
-      // Clear all scan effects
+    // When we complete a full pass, reset and let it loop
+    if (currentStep % totalSteps === 0) {
+      // Reset for next loop
+      currentLineIndex = 0;
+      // Clear scan effects to start fresh
       highlightedLines.value.forEach(line => {
         clearLineScan(line.element);
+        line.scanned = false;
       });
-      // Also clear any lingering effects
-      clearAllGlowingEffects();
+      // Scroll back to top for the next pass
+      editorElement.scrollTop = 0;
     }
   }, scanInterval);
 }
