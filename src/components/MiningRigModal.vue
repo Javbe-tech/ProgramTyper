@@ -438,7 +438,7 @@ function resetGame() {
                   class="collection-image"
                   :class="image.position"
                 >
-                  <img :src="image.src" :alt="hardware.name" />
+                  <img :src="image.src" :alt="hardware.name" @click.stop="sellHardware(key)" />
                   <div class="image-tooltip">
                     <div class="tooltip-title">{{ hardware.name }}</div>
                     <button class="tooltip-sell" @click.stop="sellHardware(key)">
