@@ -280,6 +280,22 @@ function buy(idx) {
 function openDetails(i) { selectedIndex.value = i; }
 function closeDetails() { selectedIndex.value = -1; }
 
+// Ridiculous mortgage calculator (toggle per-details)
+const showMortgage = ref(false);
+const mortDownPct = ref(0);
+const mortRateAnnual = ref(12); // 12% default, ridiculous
+const mortYears = ref(50); // 50-year mortgage
+const monthlyPayment = computed(() => {
+  if (!selected.value) return 0;
+  const price = selected.value.cost;
+  const down = Math.max(0, Math.min(99, mortDownPct.value)) / 100 * price;
+  const L = Math.max(0, price - down);
+  const r = (Math.max(0.01, mortRateAnnual.value) / 100) / 12; // monthly rate
+  const n = Math.max(12, mortYears.value * 12);
+  const payment = L * r / (1 - Math.pow(1 + r, -n));
+  return isFinite(payment) ? Math.ceil(payment) : 0;
+});
+
 </script>
 
 <template>
@@ -355,6 +371,17 @@ function closeDetails() { selectedIndex.value = -1; }
                   {{ purchasedMap[selected.key] ? 'Owned' : (canBuyProperty(selectedIndex) ? 'Buy Property' : 'Locked') }}
                 </button>
                 <div class="aside-note">Purchases are permanent and unlock in order.</div>
+
+                <div class="mortgage">
+                  <button class="mortgage-toggle" @click="showMortgage = !showMortgage">Ridiculous Mortgage Calculator</button>
+                  <div v-if="showMortgage" class="mortgage-body">
+                    <div class="mort-row"><label>Down Payment %</label><input type="number" v-model.number="mortDownPct" min="0" max="99" /></div>
+                    <div class="mort-row"><label>Annual Rate %</label><input type="number" v-model.number="mortRateAnnual" min="1" step="0.1" /></div>
+                    <div class="mort-row"><label>Years</label><input type="number" v-model.number="mortYears" min="10" /></div>
+                    <div class="mort-result">Monthly: <strong>{{ monthlyPayment.toLocaleString() }}</strong> 💰</div>
+                    <div class="mort-disclaimer">Assumes compounding monthly. Rates are intentionally absurd.</div>
+                  </div>
+                </div>
               </div>
             </aside>
           </div>
@@ -386,8 +413,8 @@ function closeDetails() { selectedIndex.value = -1; }
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
 .re-details { width: 90%; max-width: 1100px; max-height: 88%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
 .details-header { position: absolute; inset: 0 auto auto 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); border-bottom: none; z-index: 2; }
-.details-hero { position: relative; width: 100%; height: 260px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
-.details-hero::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 80px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); pointer-events: none; z-index: 1; }
+.details-hero { position: relative; width: 100%; height: 520px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
+.details-hero::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 140px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); pointer-events: none; z-index: 1; }
 .details-hero img { width: 100%; height: 100%; object-fit: cover; }
 .details-content { display: grid; grid-template-columns: 1.8fr 1fr; gap: 16px; padding: 16px; overflow: auto; margin-top: 0; }
 .details-main { min-width: 0; }
@@ -404,5 +431,13 @@ function closeDetails() { selectedIndex.value = -1; }
 .aside-buy { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: var(--keyword); color: #fff; font-weight: bold; font-size: 1rem; }
 .aside-buy:disabled { background: #444; color: #bbb; cursor: not-allowed; }
 .aside-note { color: var(--gray); font-size: 0.8rem; margin-top: 10px; }
+.mortgage { margin-top: 14px; }
+.mortgage-toggle { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--font-color); cursor: pointer; font-weight: 600; }
+.mortgage-body { margin-top: 10px; display: grid; gap: 8px; }
+.mort-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+.mort-row label { color: var(--gray); font-size: 0.85rem; }
+.mort-row input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--font-color); }
+.mort-result { color: var(--font-color); font-size: 1rem; }
+.mort-disclaimer { color: var(--gray); font-size: 0.75rem; }
 </style>
 
