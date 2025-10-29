@@ -229,7 +229,13 @@ function closeDetails() { selectedIndex.value = -1; }
               </div>
             </div>
             <div class="re-actions">
-              <button @click="openDetails(i)">Details</button>
+              <button class="details-btn" @click="openDetails(i)">Details</button>
+              <button 
+                class="purchase-btn"
+                :disabled="purchasedMap[p.key] || !canBuyProperty(i)"
+                @click="buy(i)">
+                {{ purchasedMap[p.key] ? 'Owned' : (canBuyProperty(i) ? 'Purchase' : 'Locked') }}
+              </button>
             </div>
           </div>
         </div>
@@ -277,8 +283,9 @@ function closeDetails() { selectedIndex.value = -1; }
 .re-info h3 { margin: 0 0 6px 0; color: var(--font-color); font-size: 1rem; }
 .blurb { color: var(--gray); font-size: 0.85rem; min-height: 44px; }
 .meta { display: flex; justify-content: space-between; color: var(--font-color); margin-top: 8px; font-weight: bold; }
-.re-actions { padding: 12px; }
-.re-actions button { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; background: var(--keyword); color: #fff; font-weight: bold; }
+.re-actions { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.re-actions .details-btn { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: var(--bg-color); color: var(--font-color); font-weight: 600; }
+.re-actions .purchase-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: var(--keyword); color: #fff; font-weight: bold; font-size: 1rem; }
 .re-actions button:disabled { background: #444; color: #bbb; cursor: not-allowed; }
 
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
