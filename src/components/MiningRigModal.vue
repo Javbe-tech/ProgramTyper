@@ -104,7 +104,7 @@ const upgradesDefinitions = {
   },
   ergonomicKeyboard: {
     name: 'Ergonomic Keyboard',
-    description: 'Typing multiplier (grows exponentially)',
+    description: 'Typing multiplier',
     baseCost: 200,
     costGrowth: 1.22,
     maxLevel: 100
@@ -143,6 +143,25 @@ function getUpgradeLevel(upgradeType) {
   if (upgradeType === 'passiveBoost') return gameState.upgrades.passiveBoostLevel || 0;
   if (upgradeType === 'ergonomicKeyboard') return gameState.upgrades.ergonomicKeyboardLevel || 0;
   return 0;
+}
+
+function getUpgradeDescription(upgradeType) {
+  if (upgradeType === 'ergonomicKeyboard') {
+    const level = gameState.upgrades.ergonomicKeyboardLevel || 0;
+    const bonusPct = Math.max(0, (Math.pow(1.07, Math.min(100, level)) - 1) * 100);
+    return `Typing multiplier bonus: +${bonusPct.toFixed(0)}%`;
+  }
+  if (upgradeType === 'wordEfficiency') {
+    const level = gameState.upgrades.wordEfficiencyLevel || 0;
+    const bonus = (0.5 * level).toFixed(1);
+    return `Adds +${bonus} coins per correct key`;
+  }
+  if (upgradeType === 'passiveBoost') {
+    const level = gameState.upgrades.passiveBoostLevel || 0;
+    const mult = Math.pow(1.25, level).toFixed(2);
+    return `Passive income ×${mult}`;
+  }
+  return upgradesDefinitions[upgradeType]?.description || '';
 }
 
 // Check if upgrade can be purchased (not at max level)
@@ -404,7 +423,7 @@ function resetGame() {
               >
                 <div class="upgrade-info">
                   <h4>{{ upgrade.name }}</h4>
-                  <p>{{ upgrade.description }}</p>
+                  <p>{{ getUpgradeDescription(key) }}</p>
                   <p class="upgrade-level">Level: {{ getUpgradeLevel(key) }}/{{ upgrade.maxLevel }}</p>
                   <p class="upgrade-cost">
                     {{ canPurchaseUpgrade(key) ? calculateUpgradeCost(key).toLocaleString() + ' 💰' : 'Max Level' }}
