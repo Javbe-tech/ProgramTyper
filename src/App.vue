@@ -301,7 +301,7 @@ function handleKeyPressed(keyData) {
     // Add visual feedback
     const randomX = Math.random() * window.innerWidth;
     const randomY = Math.random() * window.innerHeight;
-    addCoinAnimation(coinsEarned, randomX, randomY);
+    addCoinAnimation(parseFloat(coinsEarned.toFixed(2)), randomX, randomY);
     
     console.log(`Earned ${coinsEarned} ColdCoins for correct key press: ${keyData.key}`);
   }

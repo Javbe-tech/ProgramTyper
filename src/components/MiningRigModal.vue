@@ -253,7 +253,10 @@ const totalCoinsPerSecond = computed(() => {
 
 const totalCoinsPerWord = computed(() => {
   const level = gameState.upgrades.wordEfficiencyLevel || 0;
-  return (gameState.coinsPerWord + 0.5 * level).toFixed(1);
+  const base = gameState.coinsPerWord + 0.5 * level;
+  const kbLevel = Math.min(100, gameState.upgrades.ergonomicKeyboardLevel || 0);
+  const typingMultiplier = Math.pow(1.07, kbLevel);
+  return (base * typingMultiplier).toFixed(2);
 });
 
 // Calculate income per hardware type
@@ -262,6 +265,12 @@ function getHardwareIncome(hardwareType) {
   const owned = gameState.hardware[hardwareType];
   const passiveMultiplier = Math.pow(1.25, gameState.upgrades.passiveBoostLevel || 0);
   return owned * definition.coinsPerSecond * passiveMultiplier;
+}
+
+function getHardwareWattage(hardwareType) {
+  const definition = hardwareDefinitions[hardwareType];
+  const owned = gameState.hardware[hardwareType];
+  return owned * (definition.wattage || 0);
 }
 
 // Generate collection images for each hardware type
@@ -388,8 +397,13 @@ function resetGame() {
             >
               <div class="row-header">
                 <h3>{{ hardware.name }}</h3>
-                <div class="row-income">
-                  {{ getHardwareIncome(key).toFixed(1) }} 💰/sec
+                <div class="row-stats">
+                  <div class="row-income">
+                    {{ getHardwareIncome(key).toFixed(1) }} 💰/sec
+                  </div>
+                  <div class="row-wattage">
+                    {{ getHardwareWattage(key) }}W
+                  </div>
                 </div>
               </div>
               
@@ -840,6 +854,12 @@ function resetGame() {
   font-size: 1.3rem;
 }
 
+.row-stats {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
 .row-income {
   color: var(--keyword);
   font-size: 1.1rem;
@@ -848,6 +868,16 @@ function resetGame() {
   padding: 8px 15px;
   border-radius: 20px;
   border: 1px solid var(--keyword);
+}
+
+.row-wattage {
+  color: var(--parameter);
+  font-size: 1rem;
+  font-weight: bold;
+  background: var(--bg-color);
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--parameter);
 }
 
 .collection-images {
