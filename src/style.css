@@ -324,3 +324,87 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) var(--sidebar-bg);
 }
+
+/* THEME: Summer (orange and blue summer vibe) */
+[data-theme="summer"] {
+  --bg-color: #0f1419;
+  --font-color: #ffeaa7;
+  --border-color: #2d3436;
+  --sidebar-bg: #151c22;
+  --terminal-bg: #151c22;
+  --menu-bar-bg: #1a2331;
+  --active-line-bg: #1e2a3a;
+  --keyword: #ff7675;
+  --function: #74b9ff;
+  --string: #ffa502;
+  --parameter: #fd79a8;
+  --number: #55efc4;
+  --operator: #ffeaa7;
+  --variable: #fab1a0;
+  --gray: #636e72;
+  --red: #d63031;
+  --completed-green: #00b894;
+}
+
+/* THEME: Synthwave (80s retro synthwave) */
+[data-theme="synthwave"] {
+  --bg-color: #1a103d;
+  --font-color: #ff2fa7;
+  --border-color: #2d1b69;
+  --sidebar-bg: #150e2e;
+  --terminal-bg: #150e2e;
+  --menu-bar-bg: #201446;
+  --active-line-bg: #251a50;
+  --keyword: #00f5ff;
+  --function: #ff3fa4;
+  --string: #f600ff;
+  --parameter: #00ffff;
+  --number: #00ffd9;
+  --operator: #ff2fa7;
+  --variable: #ff6b9d;
+  --gray: #8b6fa8;
+  --red: #ff006e;
+  --completed-green: #00ffb3;
+}
+
+/* THEME: Forest (nature green vibes) */
+[data-theme="forest"] {
+  --bg-color: #0d1b0f;
+  --font-color: #b8e6b8;
+  --border-color: #1a3a1f;
+  --sidebar-bg: #0f1e11;
+  --terminal-bg: #0f1e11;
+  --menu-bar-bg: #122517;
+  --active-line-bg: #152a1b;
+  --keyword: #52c97c;
+  --function: #8ae6b3;
+  --string: #90ee90;
+  --parameter: #70d49f;
+  --number: #66d9ac;
+  --operator: #b8e6b8;
+  --variable: #a9d49a;
+  --gray: #6b9b6b;
+  --red: #e74747;
+  --completed-green: #2dd869;
+}
+
+/* THEME: Ocean (deep sea blues and teals) */
+[data-theme="ocean"] {
+  --bg-color: #0c1222;
+  --font-color: #a8d8ff;
+  --border-color: #1a2641;
+  --sidebar-bg: #0e1525;
+  --terminal-bg: #0e1525;
+  --menu-bar-bg: #131c31;
+  --active-line-bg: #16233d;
+  --keyword: #5fb3ff;
+  --function: #6ee2ff;
+  --string: #00d9ff;
+  --parameter: #4dc3d9;
+  --number: #00ffcc;
+  --operator: #a8d8ff;
+  --variable: #7cc4ff;
+  --gray: #5b8db8;
+  --red: #ff6b6b;
+  --completed-green: #00ffb3;
+}

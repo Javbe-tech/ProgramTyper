@@ -95,7 +95,11 @@ const themeNames = computed(() => {
     'black-red': 'Crimson',
     'white': 'Luna',
     'psychedelic': 'Rainbow',
-    'cyberpunk': 'Cyber'
+    'cyberpunk': 'Cyber',
+    'summer': 'Beach Day',
+    'synthwave': 'Vaporwave',
+    'forest': 'Nature',
+    'ocean': 'Deep Blue'
   };
   return names[theme.value] || 'James Dark';
 });
@@ -143,6 +147,10 @@ onMounted(() => {
             <button @click="applyTheme('white')">White</button>
             <button @click="applyTheme('psychedelic')">Psychedelic</button>
             <button @click="applyTheme('cyberpunk')">Cyberpunk</button>
+            <button @click="applyTheme('summer')">Summer</button>
+            <button @click="applyTheme('synthwave')">Synthwave</button>
+            <button @click="applyTheme('forest')">Forest</button>
+            <button @click="applyTheme('ocean')">Ocean</button>
           </div>
         </li>
         <li class="menu-run">

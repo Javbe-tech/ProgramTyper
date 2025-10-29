@@ -201,6 +201,10 @@ function scanLine(lineElement) {
     'black-red': { color: '#ff2d2d', shadow: '#ff2d2d', bg: 'rgba(255, 45, 45, 0.1)' },
     'black-white': { color: '#ffffff', shadow: '#ffffff', bg: 'rgba(255, 255, 255, 0.1)' },
     'white': { color: '#7c3aed', shadow: '#7c3aed', bg: 'rgba(124, 58, 237, 0.1)' },
+    'summer': { color: '#ffa502', shadow: '#74b9ff', bg: 'rgba(255, 165, 2, 0.1)' },
+    'synthwave': { color: '#00f5ff', shadow: '#ff3fa4', bg: 'rgba(0, 245, 255, 0.1)' },
+    'forest': { color: '#52c97c', shadow: '#8ae6b3', bg: 'rgba(82, 201, 124, 0.1)' },
+    'ocean': { color: '#00d9ff', shadow: '#5fb3ff', bg: 'rgba(0, 217, 255, 0.1)' },
     'default': { color: '#7c3aed', shadow: '#7c3aed', bg: 'rgba(124, 58, 237, 0.1)' }
   };
   
