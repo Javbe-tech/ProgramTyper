@@ -10,6 +10,28 @@ const emit = defineEmits(['close', 'update-game-state', 'reset-game']);
 // Use props gameState directly
 const gameState = props.gameState;
 
+// Real estate display (matches keys/order in RealEstateModal)
+const realEstateCatalog = [
+  { key: 'parentsBasement', name: '123 Main Street', image: '/home1.png' },
+  { key: 'studioApartment', name: 'Apt 7B, Urban Solitude Tower', image: '/home2.png' },
+  { key: 'suburbanHouse', name: '456 Suburban Dream Lane', image: '/home3.png' },
+  { key: 'downtownLoft', name: 'Penthouse Loft, The Zenith', image: '/home4.png' },
+  { key: 'techMansion', name: 'The "Alpha Nerd" Estate', image: '/home5.png' },
+  { key: 'corporateOffice', name: 'The "Soul Crusher" Tower', image: '/home6.png' },
+  { key: 'dataFortress', name: 'The "Omni-Vault"', image: '/home7.png' }
+];
+
+const currentEstate = computed(() => {
+  const estateFlags = gameState.realEstate || {};
+  // Find highest owned property in order
+  for (let i = realEstateCatalog.length - 1; i >= 0; i--) {
+    const e = realEstateCatalog[i];
+    if (estateFlags[e.key]) return e;
+  }
+  // If none owned, show the first as target with dim overlay
+  return null;
+});
+
 // Hardware definitions with image paths - ordered by progression
 const hardwareDefinitions = {
   calculator: {
@@ -448,6 +470,12 @@ function resetGame() {
           </div>
         </div>
       </div>
+      
+      <!-- Bottom-right current estate badge -->
+      <div v-if="currentEstate" class="estate-badge">
+        <img :src="currentEstate.image" :alt="currentEstate.name" />
+        <div class="estate-name">{{ currentEstate.name }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -764,6 +792,37 @@ function resetGame() {
 .upgrade-item.affordable {
   border-color: #22c55e;
   background: rgba(34, 197, 94, 0.1);
+}
+
+/* Estate badge */
+.estate-badge {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 10px;
+  z-index: 5;
+}
+.estate-badge img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+}
+.estate-name {
+  color: var(--font-color);
+  font-size: 0.85rem;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .upgrade-info h4 {
