@@ -577,6 +577,15 @@ onUnmounted(() => {
   text-shadow: 0 0 10px #000000;
 }
 
+[data-theme="black-white"] .start-next-btn {
+  background: #ffffff;
+  color: #000000;
+}
+
+[data-theme="black-white"] .start-next-btn:hover {
+  background: #e0e0e0;
+}
+
 /* Black-Red theme overrides */
 [data-theme="black-red"] .completion-popup {
   border-color: #ff2d2d;
