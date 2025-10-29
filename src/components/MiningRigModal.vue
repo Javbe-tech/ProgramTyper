@@ -416,7 +416,7 @@ function resetGame() {
             <div 
               v-for="(hardware, key) in hardwareDefinitions" 
               :key="key"
-              v-show="unlockedHardware[key] && (gameState.hardware[key] || 0) > 0"
+              v-if="unlockedHardware[key] && (gameState.hardware[key] || 0) > 0"
               class="collection-row"
             >
               <div class="row-header">
