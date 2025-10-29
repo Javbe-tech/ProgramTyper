@@ -715,8 +715,33 @@ function resetMiningRigGame() {
     serverRack: 0
   };
   miningRigState.upgrades = {
-    wordMultiplier: 1,
-    passiveMultiplier: 1
+    wordEfficiencyLevel: 0,
+    passiveBoostLevel: 0,
+    ergonomicKeyboardLevel: 0
+  };
+  // Reset power and real estate
+  miningRigState.currentWattage = 0;
+  miningRigState.maxWattage = 100;
+  miningRigState.realEstate = {
+    parentsBasement: false,
+    studioApartment: false,
+    suburbanHouse: false,
+    downtownLoft: false,
+    techMansion: false,
+    corporateOffice: false,
+    dataFortress: false
+  };
+  // Reset sticky unlock flags
+  miningRigState.unlocked = {
+    calculator: true,
+    smartDoorbells: false,
+    macbooks: false,
+    cellphone: false,
+    kitchenAppliance: false,
+    smartFridge: false,
+    gpuRig: false,
+    aiChatGPU: false,
+    serverRack: false
   };
   
   // Update coins per second and save
