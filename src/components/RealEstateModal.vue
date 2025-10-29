@@ -121,7 +121,23 @@ Bedrooms: 2 (One for sleeping, one for your ever-expanding collection of artisan
 Bathrooms: 2.5 (Because waiting for a toilet is for commoners)
 Square Footage: Approx. 3,500 sq ft (Enough space to walk around wondering why you're still not truly happy)
 
-Are you tired of associating with the unwashed masses? ...
+Are you tired of associating with the unwashed masses? Does your current living situation lack that crucial "I'm better than you" vibe? Have you always wanted to spend more on rent than most people make in a decade? Then prepare to have your wildest, most materialistic dreams realized! The Penthouse Loft at The Zenith isn't just an apartment; it's a statement. A very loud, very expensive statement.
+
+What You'll Be Obligated to Appreciate:
+Soaring Ceilings & Exposed Brick: Because nothing says "authentic urban experience" like carefully preserved industrial-chic aesthetics that cost more than a small country's GDP to install.
+Panoramic City Views: Perfect for surveying your kingdom, judging the traffic below, and contemplating your next extravagant purchase. Also great for those Instagram stories where you "casually" show off your view.
+Chef's Kitchen (Because You'll Never Actually Cook): Equipped with state-of-the-art appliances you'll probably only use to reheat takeout from that Michelin-starred restaurant downstairs.
+Concierge Service: They'll fetch your dry cleaning, sign for your obscure online orders, and politely pretend not to judge your life choices.
+Fitness Center & Rooftop Pool: So you can work out and swim without having to rub shoulders with the general public. Because germs, darling.
+Prime Downtown Location: You're literally in the thick of it – the noise, the crowds, the endless opportunities to spend even more money.
+
+What You Should Already Know (Because if you're buying this, you already know everything):
+The Price Tag is Just the Beginning: Factor in absurd HOA fees, property taxes, and the cost of maintaining your lavish lifestyle. It's a never-ending financial commitment!
+The Neighbors: A mix of trust-fund babies, crypto bros, and a few old money types who probably bought their loft when it was actually affordable. They'll mostly ignore you, which is ideal.
+Authenticity is an Illusion: While it looks gritty and urban, it's meticulously curated to appear that way. Don't worry, your organic, cold-pressed juice delivery will still reach you on time.
+The Unavoidable Existential Crisis: After acquiring everything, you might find yourself asking, "Is this all there is?" (The answer is yes, if you only measure happiness in square footage and thread count).
+Parking is an Adventure: Even with valet, navigating downtown is a special kind of hell. But hey, that's what your personal driver is for, right?
+
 If you're ready to achieve peak materialism and enjoy the fleeting satisfaction of conspicuous consumption, then welcome home!`
   },
   {
@@ -138,7 +154,26 @@ Bedrooms: 8 (Plus 4 "Incubator Pods" for your start-up bros)
 Bathrooms: 12 (One for every mood, and then some for pure excess)
 Square Footage: Approx. 25,000 sq ft (So vast, you'll need a golf cart to get from the "think tank" to the "bio-hacking lab")
 
-Have you successfully leveraged blockchain, AI, or some other buzzword-compliant tech to amass a fortune beyond human comprehension? ...
+Have you successfully leveraged blockchain, AI, or some other buzzword-compliant tech to amass a fortune beyond human comprehension? Do you yearn for a home that screams, "I invented the future, and also, I'm slightly socially awkward"? Behold, The "Alpha Nerd" Estate! This isn't just a house; it's a monument to unfathomable wealth and questionable taste, meticulously designed to validate your unparalleled success.
+
+What Your Inner Tech-Bro Will Salivate Over:
+Fully AI-Integrated Smart Home (That Secretly Judges You): Every light, every temperature, every toilet flush is optimized by an advanced AI that probably knows your search history better than you do. It's not spying, it's anticipating your needs.
+"Disruptive" Architecture: A seamless blend of brutalist concrete, expansive glass, and sustainable (read: obscenely expensive) materials, ensuring it looks both imposing and vaguely dystopian.
+Zero-Gravity Meditation Chamber: Because even multi-millionaires need to find their inner peace, ideally while floating in a sound-proof pod that cost more than a traditional house.
+Quantum Computing Lab (for "Personal Projects"): Perfect for dabbling in theoretical physics, mining obscure cryptocurrencies, or just showing off to your equally rich friends.
+Indoor/Outdoor Augmented Reality "Holodeck": Why go outside when you can simulate the Amazon rainforest, the surface of Mars, or even a normal conversation with non-tech people, all from the comfort of your living room?
+Autonomous Vehicle Charging Station (Naturally): With a dedicated drone landing pad for your Amazon Prime same-minute deliveries.
+Olympic-Sized Infinity Pool (with underwater Sonos): Because splashing around in regular water is for normies.
+Bio-Hacking & Wellness Wing: Complete with a cryotherapy chamber, hyperbaric oxygen therapy, and a personal genome sequencing lab. You're not just living; you're optimizing your existence.
+24/7 On-Site IT Support & Security Detail: For when the Wi-Fi glitches, or when the outside world tries to remind you it exists.
+
+What You'll Need to Justify (But Won't):
+The Cost of "Innovation": Every gadget, every sensor, every artisanally sourced piece of reclaimed wood contributes to a price tag that will make your accountant weep.
+The Echoing Emptiness: Despite 25,000 sq ft, you'll often find yourself alone, perhaps debating the merits of sentient toasters with your AI.
+The Pressure to Perform: With all this tech, you'd better be curing cancer or launching a new social media platform, not just binge-watching sci-fi docs.
+The Inevitable Obsolescence: That $500,000 gadget you bought last year? It's already outdated. Embrace the never-ending upgrade cycle.
+The Sheer Inability to Relate to Anyone Not Worth Nine Figures: Your dinner party conversations will solely revolve around IPOs, venture capital, and the latest iteration of your personal assistant bot.
+
 If your net worth has more zeros than your social calendar has actual dates, then this is your forever home! Step into the future (and a hefty mortgage) today!`
   },
   {
@@ -153,8 +188,28 @@ Address: The Apex of Avarice, 100 Corporate Overlord Plaza, Megalopolis, USA
 Price: $300,000,000 (A paltry sum for absolute market dominance and an unparalleled view of your competitors' demise)
 Floors: 80 (Enough vertical real estate to ensure you never have to look your employees in the eye)
 Total Square Footage: 1,200,000 sq ft (Roughly the size of a small country, but with significantly less joy)
+Employee Capacity: Up to 10,000 (Or 5,000 if you're promoting "open-plan misery")
 
-Has your company achieved a level of unchecked power that demands a physical manifestation of its hubris? ...
+Has your company achieved a level of unchecked power that demands a physical manifestation of its hubris? Do you yearn for an office space where innovation is stifled, creativity is optional, and the coffee is always just "okay"? Welcome to The "Soul Crusher" Tower! This isn't just a corporate office; it's a gilded cage for your workforce, meticulously designed to extract maximum shareholder value while minimally acknowledging human dignity.
+
+What Your Board (and your Ego) Will Love:
+Imposing, Monolithic Architecture: A testament to your company's unyielding dominance, designed to make every competitor's building look like a shack. Because intimidation is a valid business strategy.
+"Synergy-Optimized" Open-Plan Layouts: Rows upon rows of identical desks, ensuring maximum distraction, minimal privacy, and a constant low hum of despair. Collaboration is mandatory, personal space is a myth.
+"Innovation Hubs" (aka, brightly colored rooms with beanbag chairs): Where employees are encouraged to "think outside the box" for precisely 30 minutes before returning to their cubicles to meet impossible deadlines.
+Executive Sky Lounge & Private Helipad: Because plebians take elevators. Your ascent to the top should be as swift and isolated as possible.
+Propaganda Art Installations: Giant, abstract sculptures that vaguely symbolize "growth" and "teamwork," strategically placed to distract from the 60-hour work weeks.
+"Wellness Pods" (aka, glorified napping booths): For when your employees inevitably burn out. They're not for actual rest, just for brief recharges before getting back to the grind.
+AI-Powered Employee Monitoring System: Not for surveillance, of course! It's to "enhance productivity" and "identify areas for improvement" (read: track bathroom breaks).
+Cafeteria with "Curated" Menu: Offering overpriced, slightly bland food options designed to keep employees on-site and minimize lunch break duration. Gluten-free and vegan options available, because we're not monsters (just ruthless capitalists).
+Automated Climate Control (that you can't actually control): The building decides the temperature, not you. Embrace the chilly, productivity-enhancing air conditioning!
+
+What Your Employees Will Silently Endure:
+The Commute: Hours spent battling traffic, all to arrive at a building that feels like a mausoleum.
+The Fluorescent Lights: They just never seem to turn off, much like the expectations of your superiors.
+The Constant Pressure: To innovate, to collaborate, to "circle back," to "think outside the box," to "leverage synergies"—all while wondering if they'll ever afford a down payment on a house.
+The Meaningless Perks: Free stale bagels on Fridays, ping-pong tables, and "casual Fridays" where everyone still dresses business casual.
+The Existential Dread: The slow realization that their entire working life is being spent contributing to someone else's yacht fund.
+
 If you're ready to solidify your corporate empire and provide a fittingly soul-crushing environment for your workforce, then acquire The "Soul Crusher" Tower today! Your shareholders will thank you (probably).`
   },
   {
@@ -171,7 +226,25 @@ Total Square Footage: 5,000,000 sq ft (Mostly subterranean, for optimal existent
 Data Storage Capacity: Beyond human comprehension (It holds the internet, your deepest fears, and probably your grandmother's secret cookie recipe)
 Occupants: A handful of highly-paid, paranoid technicians and an unfathomable number of servers.
 
-Has your company achieved total, unquestionable dominance over every facet of human existence, from social media trends to global financial markets? ...
+Has your company achieved total, unquestionable dominance over every facet of human existence, from social media trends to global financial markets? Do you require a facility so utterly impenetrable and vast that it makes Fort Knox look like a piggy bank? Then welcome, supreme digital architects, to the "Omni-Vault"! This isn't just a data center; it's the nerve center of the new world, where every byte has a purpose, and that purpose is probably yours.
+
+What Your Digital Empire Will Worship:
+Subterranean Citadel Design: Hidden deep within a mountain range (or under the Mariana Trench, details are classified), ensuring maximum protection from meteorites, EMPs, and disgruntled former employees.
+Military-Grade Security (and then some): Multi-layered biometric scanners, laser grids, armed drone patrols, and a philosophical AI that can predict threats before they exist. Getting in is impossible; getting out is even harder (if you're a data packet).
+Self-Sustaining Eco-System: Powered by geothermal vents, quantum fusion, and the collective sighs of humanity as it scrolls through endless feeds. Capable of operating for centuries without external contact.
+Cold Aisle Containment Pods for Servers (and occasionally, rogue employees): Thousands upon thousands of blinking lights, meticulously organized, representing the digital echoes of billions of lives. It's beautiful in a terrifying, sterile way.
+The "Global Consciousness" Interface Room: A vast, dark chamber with holographic displays, allowing a select few to visualize, analyze, and subtly manipulate every data stream flowing through the planet. It's not control, it's optimization.
+Automated Maintenance Drones: Thousands of spider-like robots tirelessly crawl the server racks, repairing, optimizing, and occasionally whispering existential questions to each other.
+Zero-Trust Architecture (and Zero-Trust for its human operators): Every action, every access attempt is logged, cross-referenced, and audited by a superior AI. Because trust is for weak algorithms.
+Geopolitically Neutral Territory (allegedly): So secure and independent, it makes Switzerland look like a bustling marketplace.
+Employee Micro-Apartments (Optional): For those few, dedicated souls who live here. Spartan, functional, and equipped with a direct neural interface for continuous productivity.
+
+What Humanity Will Unwittingly Provide (and you will profit from):
+Every Click, Every Like, Every Purchase: It all flows here, aggregated, analyzed, and monetized.
+Your Deepest Secrets and Desires: Unbeknownst to you, this facility holds the key to your every motivation.
+The Future Itself: Because whoever controls the data, controls the narrative, and therefore, controls everything.
+A Continuous Stream of Energy: The sheer effort of billions of humans living their digital lives powers this behemoth. It's a closed loop system!
+
 If you're ready to transcend mere commerce and become a literal custodian of civilization's digital soul (and all its exploitable data), then acquire the "Omni-Vault" today! It's not just an asset; it's destiny.`
   }
 ];
@@ -278,7 +351,7 @@ function closeDetails() { selectedIndex.value = -1; }
 .re-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
 .re-card { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
 .re-card.owned { border-color: #22c55e; box-shadow: 0 0 0 1px rgba(34,197,94,0.3); }
-.re-card img { width: 100%; height: 150px; object-fit: cover; }
+.re-card img { width: 100%; height: 180px; object-fit: contain; background: var(--bg-color); }
 .re-info { padding: 12px; }
 .re-info h3 { margin: 0 0 6px 0; color: var(--font-color); font-size: 1rem; }
 .blurb { color: var(--gray); font-size: 0.85rem; min-height: 44px; }
@@ -291,7 +364,7 @@ function closeDetails() { selectedIndex.value = -1; }
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
 .re-details { width: 90%; max-width: 900px; max-height: 85%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
 .details-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--menu-bar-bg); border-bottom: 1px solid var(--border-color); }
-.re-details img { width: 100%; height: 220px; object-fit: cover; }
+.re-details img { width: 100%; max-height: 260px; object-fit: contain; background: var(--bg-color); }
 .details-body { padding: 12px 16px; overflow: auto; }
 .details-text { white-space: pre-wrap; color: var(--font-color); font-family: inherit; }
 .details-actions { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); }
