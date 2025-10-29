@@ -62,6 +62,18 @@ const miningRigState = reactive({
     techMansion: false,
     corporateOffice: false,
     dataFortress: false
+  },
+  // Persistent hardware unlock flags (once unlocked, stays unlocked)
+  unlocked: {
+    calculator: true,
+    smartDoorbells: false,
+    macbooks: false,
+    cellphone: false,
+    kitchenAppliance: false,
+    smartFridge: false,
+    gpuRig: false,
+    aiChatGPU: false,
+    serverRack: false
   }
 });
 
@@ -170,6 +182,20 @@ function loadMiningRigState() {
         miningRigState.upgrades = {
           wordMultiplier: 1,
           passiveMultiplier: 1
+        };
+      }
+      // Ensure unlocked flags exist
+      if (!miningRigState.unlocked) {
+        miningRigState.unlocked = {
+          calculator: true,
+          smartDoorbells: false,
+          macbooks: false,
+          cellphone: false,
+          kitchenAppliance: false,
+          smartFridge: false,
+          gpuRig: false,
+          aiChatGPU: false,
+          serverRack: false
         };
       }
       

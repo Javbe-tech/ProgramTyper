@@ -144,23 +144,28 @@ function canPurchaseUpgrade(upgradeType) {
   return currentLevel < definition.maxLevel;
 }
 
-// Computed property for hardware unlocking
+// Computed property for hardware unlocking (sticky once unlocked)
 const unlockedHardware = computed(() => {
-  const unlocked = {};
+  const result = {};
   for (const hardwareType of Object.keys(hardwareDefinitions)) {
     const definition = hardwareDefinitions[hardwareType];
+    const previously = (gameState.unlocked && gameState.unlocked[hardwareType]) || false;
     if (!definition.unlockRequirement) {
-      unlocked[hardwareType] = true;
-    } else {
-      const requiredHardware = definition.unlockRequirement.hardware;
-      const requiredQuantity = definition.unlockRequirement.quantity;
-      const ownedQuantity = gameState.hardware[requiredHardware] || 0;
-      unlocked[hardwareType] = ownedQuantity >= requiredQuantity;
-      console.log(`Hardware ${hardwareType}: needs ${requiredQuantity} ${requiredHardware}, has ${ownedQuantity}, unlocked: ${unlocked[hardwareType]}`);
+      result[hardwareType] = true;
+      if (gameState.unlocked) gameState.unlocked[hardwareType] = true;
+      continue;
+    }
+    const req = definition.unlockRequirement;
+    const ownedQuantity = gameState.hardware[req.hardware] || 0;
+    const nowUnlocked = ownedQuantity >= req.quantity;
+    const sticky = previously || nowUnlocked;
+    result[hardwareType] = sticky;
+    if (sticky) {
+      if (!gameState.unlocked) gameState.unlocked = {};
+      gameState.unlocked[hardwareType] = true;
     }
   }
-  console.log('Unlocked hardware:', unlocked);
-  return unlocked;
+  return result;
 });
 
 // Purchase hardware
