@@ -80,6 +80,9 @@ const miningRigState = reactive({
 
 // Mining Rig Game Timer
 let miningRigTimer = null;
+let lastTickMs = 0;
+let lastSavedMs = 0;
+const SAVE_INTERVAL_MS = 10000; // throttle saves to every 10s
 
 function startMiningRigTimer() {
   // Stop any existing timer first
@@ -87,27 +90,38 @@ function startMiningRigTimer() {
     clearInterval(miningRigTimer);
     miningRigTimer = null;
   }
-  
-  console.log('Starting Mining Rig timer...');
-  console.log('Current coinsPerSecond:', miningRigState.coinsPerSecond);
+
+  lastTickMs = performance.now();
+  lastSavedMs = lastTickMs;
+
+  if (!import.meta.env.DEV) {
+    // reduce console spam in production
+    console.log('Starting Mining Rig timer');
+  }
+
+  // Smaller interval with delta-time prevents drift and keeps UI responsive
   miningRigTimer = setInterval(() => {
-    const oldCoins = miningRigState.currentColdCoins;
-    const incomeToAdd = miningRigState.coinsPerSecond;
-    miningRigState.currentColdCoins += incomeToAdd;
-    const newCoins = miningRigState.currentColdCoins;
-    
-    console.log(`Timer tick: coinsPerSecond=${incomeToAdd}, adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)})`);
-    
-    if (incomeToAdd > 0) {
-      console.log(`Timer tick: Adding ${incomeToAdd} coins (${oldCoins.toFixed(1)} → ${newCoins.toFixed(1)}), calling saveMiningRigState`);
+    const now = performance.now();
+    const dtSeconds = Math.max(0, (now - lastTickMs) / 1000);
+    lastTickMs = now;
+
+    const incomePerSecond = miningRigState.coinsPerSecond;
+    if (incomePerSecond > 0 && dtSeconds > 0) {
+      const incomeToAdd = incomePerSecond * dtSeconds;
+      miningRigState.currentColdCoins += incomeToAdd;
+    }
+
+    // Throttle persistence to reduce main-thread work
+    if (now - lastSavedMs >= SAVE_INTERVAL_MS) {
+      lastSavedMs = now;
       saveMiningRigState();
     }
-  }, 1000);
+  }, 250);
 }
 
 function stopMiningRigTimer() {
   if (miningRigTimer) {
-    console.log('Stopping Mining Rig timer...');
+    if (import.meta.env.DEV) console.log('Stopping Mining Rig timer...');
     clearInterval(miningRigTimer);
     miningRigTimer = null;
   }
@@ -118,19 +132,8 @@ function saveMiningRigState() {
     // Save to user-specific storage if authenticated, otherwise general storage
     const user = authService.getUser();
     const storageKey = user && user.id ? `miningRigGameState_${user.id}` : 'miningRigGameState';
-    
-    console.log('=== SAVING MINING RIG STATE ===');
-    console.log('User:', user);
-    console.log('Storage key:', storageKey);
-    console.log('State to save:', miningRigState);
-    
+
     localStorage.setItem(storageKey, JSON.stringify(miningRigState));
-    
-    // Verify save worked
-    const saved = localStorage.getItem(storageKey);
-    console.log('Verification - saved data:', saved);
-    console.log('Save successful:', saved === JSON.stringify(miningRigState));
-    console.log('=== END SAVE ===');
   } catch (error) {
     console.error('Failed to save Mining Rig state:', error);
   }
@@ -271,6 +274,10 @@ function addCoinAnimation(coinsEarned, x, y) {
     scale: 1
   };
   coinAnimations.value.push(animation);
+  // Prevent unbounded growth
+  if (coinAnimations.value.length > 30) {
+    coinAnimations.value.splice(0, coinAnimations.value.length - 30);
+  }
   
   // Remove animation after 2 seconds
   setTimeout(() => {
@@ -1041,6 +1048,16 @@ onMounted(() => {
     showAds.value = false;
   }
   
+  // Persist on tab hide/close without spamming every second
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      saveMiningRigState();
+    }
+  });
+  window.addEventListener('beforeunload', () => {
+    saveMiningRigState();
+  });
+
   // Initialize faded words opacity from settings
   const savedSettings = localStorage.getItem('pt_typing_settings');
   if (savedSettings) {
