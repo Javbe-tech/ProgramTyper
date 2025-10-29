@@ -301,7 +301,9 @@ function getCollectionImages(hardwareType) {
   const images = [];
   const definition = hardwareDefinitions[hardwareType];
   
-  for (let i = 0; i < Math.floor(owned / 5); i++) {
+  // Show first image when owned >= 1, then +1 image for every 5 additional units
+  const count = owned > 0 ? 1 + Math.floor((owned - 1) / 5) : 0;
+  for (let i = 0; i < count; i++) {
     images.push({
       id: i,
       src: definition.image,
@@ -414,7 +416,7 @@ function resetGame() {
             <div 
               v-for="(hardware, key) in hardwareDefinitions" 
               :key="key"
-              v-show="unlockedHardware[key]"
+              v-show="unlockedHardware[key] && (gameState.hardware[key] || 0) > 0"
               class="collection-row"
             >
               <div class="row-header">
