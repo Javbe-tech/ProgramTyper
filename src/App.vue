@@ -252,6 +252,7 @@ function handleKeyPressed(keyData) {
   }
 }
 const showMiningRig = ref(false);
+const showFileCompletion = ref(false);
 const completedFileStats = ref({}); // Stats for completed file
 const completedFileName = ref(''); // Name of completed file
 
