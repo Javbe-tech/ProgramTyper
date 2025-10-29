@@ -281,6 +281,13 @@ const totalCoinsPerWord = computed(() => {
   return (base * typingMultiplier).toFixed(2);
 });
 
+// Filter hardware that should be shown in collection (unlocked and owned > 0)
+const visibleHardware = computed(() => {
+  return Object.keys(hardwareDefinitions).filter(key => {
+    return unlockedHardware.value[key] && (gameState.hardware[key] || 0) > 0;
+  });
+});
+
 // Calculate income per hardware type
 function getHardwareIncome(hardwareType) {
   const definition = hardwareDefinitions[hardwareType];
@@ -414,13 +421,12 @@ function resetGame() {
           <!-- Hardware Collection Rows -->
           <div class="collection-rows">
             <div 
-              v-for="(hardware, key) in hardwareDefinitions" 
+              v-for="key in visibleHardware" 
               :key="key"
-              v-if="unlockedHardware[key] && (gameState.hardware[key] || 0) > 0"
               class="collection-row"
             >
               <div class="row-header">
-                <h3>{{ hardware.name }}</h3>
+                <h3>{{ hardwareDefinitions[key].name }}</h3>
                 <div class="row-stats">
                   <div class="row-income">
                     {{ getHardwareIncome(key).toFixed(1) }} 💰/sec
@@ -438,9 +444,9 @@ function resetGame() {
                   class="collection-image"
                   :class="image.position"
                 >
-                  <img :src="image.src" :alt="hardware.name" @click.stop="sellHardware(key)" />
+                  <img :src="image.src" :alt="hardwareDefinitions[key].name" @click.stop="sellHardware(key)" />
                   <div class="image-tooltip">
-                    <div class="tooltip-title">{{ hardware.name }}</div>
+                    <div class="tooltip-title">{{ hardwareDefinitions[key].name }}</div>
                     <button class="tooltip-sell" @click.stop="sellHardware(key)">
                       Sell 1 ({{ calculateSellPrice(key).toLocaleString() }} 💰)
                     </button>
