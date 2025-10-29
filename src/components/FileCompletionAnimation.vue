@@ -105,7 +105,7 @@ function startAnimation() {
   highlightedLines.value = [];
   currentHighlightIndex.value = 0;
   
-  // Step 1: Matrix-style code scanning effect (3 seconds)
+  // Step 1: Matrix-style code scanning effect (1.5 seconds - faster!)
   animationStep.value = 1;
   startMatrixScanning();
   
@@ -128,7 +128,7 @@ function startAnimation() {
           });
         }
       }
-  }, 3000);
+  }, 1500);
 }
 
 function startMatrixScanning() {
@@ -143,8 +143,8 @@ function startMatrixScanning() {
     scanned: false
   }));
   
-  const scanDuration = 3000; // 3 seconds
-  const scanInterval = 50; // Update every 50ms for fast scanning
+  const scanDuration = 1500; // 1.5 seconds - faster!
+  const scanInterval = 25; // Update every 25ms for much faster scanning
   const totalSteps = scanDuration / scanInterval;
   
   let currentStep = 0;
@@ -185,20 +185,36 @@ function startMatrixScanning() {
 function scanLine(lineElement) {
   if (!lineElement) return;
   
-  // Add matrix-style scanning effect
-  lineElement.style.textShadow = '0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 60px #00ff00';
-  lineElement.style.color = '#00ff00';
-  lineElement.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+  // Get theme from document
+  const theme = document.documentElement.getAttribute('data-theme');
+  
+  // Define theme-specific colors
+  const themeColors = {
+    'matrix': { color: '#00ff95', shadow: '#00ff95', bg: 'rgba(0, 255, 149, 0.1)' },
+    'cyberpunk': { color: '#ff2bd6', shadow: '#ff2bd6', bg: 'rgba(255, 43, 214, 0.1)' },
+    'psychedelic': { color: '#f472b6', shadow: '#f472b6', bg: 'rgba(244, 114, 182, 0.1)' },
+    'black-red': { color: '#ff2d2d', shadow: '#ff2d2d', bg: 'rgba(255, 45, 45, 0.1)' },
+    'black-white': { color: '#ffffff', shadow: '#ffffff', bg: 'rgba(255, 255, 255, 0.1)' },
+    'white': { color: '#7c3aed', shadow: '#7c3aed', bg: 'rgba(124, 58, 237, 0.1)' },
+    'default': { color: '#7c3aed', shadow: '#7c3aed', bg: 'rgba(124, 58, 237, 0.1)' }
+  };
+  
+  const colors = themeColors[theme] || themeColors['default'];
+  
+  // Add scanning effect with theme colors
+  lineElement.style.textShadow = `0 0 20px ${colors.shadow}, 0 0 40px ${colors.shadow}, 0 0 60px ${colors.shadow}`;
+  lineElement.style.color = colors.color;
+  lineElement.style.backgroundColor = colors.bg;
   lineElement.style.transition = 'all 0.1s ease';
   
   // Add glitch effect
   setTimeout(() => {
-    lineElement.style.textShadow = '2px 0 0 #ff0000, -2px 0 0 #00ff00';
-  }, 50);
+    lineElement.style.textShadow = `2px 0 0 ${colors.shadow}, -2px 0 0 ${colors.shadow}`;
+  }, 25);
   
   setTimeout(() => {
-    lineElement.style.textShadow = '0 0 20px #00ff00, 0 0 40px #00ff00';
-  }, 100);
+    lineElement.style.textShadow = `0 0 20px ${colors.shadow}, 0 0 40px ${colors.shadow}`;
+  }, 50);
 }
 
 function clearLineScan(lineElement) {
@@ -362,7 +378,7 @@ onUnmounted(() => {
     var(--keyword) 50%, 
     transparent 100%
   );
-  animation: scanMove 3s ease-in-out;
+  animation: scanMove 1.5s ease-in-out;
   margin: 0 auto 20px;
 }
 
