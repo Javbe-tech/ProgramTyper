@@ -14,7 +14,7 @@ const properties = [
     name: "123 Main Street (Hot Property Alert)",
     image: '/home1.png',
     cost: 15000,
-    wattage: 150,
+    wattage: 300,
     blurb: 'A fixer-upper bursting with "character" and questionable odors. As-is; bring tools and optimism.',
     details: `🔥 Hot Property Alert! 🔥 Your Dream "Opportunity" Awaits!
 Address: 123 Main Street, Anytown, USA
@@ -47,7 +47,7 @@ Schedule your showing today! (Wear sturdy shoes and bring a flashlight!)`
     name: 'Apt 7B, Urban Solitude Tower',
     image: '/home2.png',
     cost: 100000,
-    wattage: 400,
+    wattage: 900,
     blurb: 'Your personal freedom pod. Minimalist efficiency and maximum solitude in the city core.',
     details: `🏢 Your Personal Freedom Pod Awaits! (With a Bathroom!) 🏢
 Address: Apt 7B, Urban Solitude Tower, Bustleburg, USA
@@ -80,7 +80,7 @@ Ready to embrace the unburdened life? Discover the liberating power of a studio 
     name: '456 Suburban Dream Lane',
     image: '/home3.png',
     cost: 750000,
-    wattage: 1200,
+    wattage: 2500,
     blurb: 'Open-concept conformity with HOA-approved lawn and mandatory bake sales.',
     details: `🏡 Be Warned: Extreme Conformity Ahead! Your Future Prison (A.K.A. "Family Home") Awaits! 🏡
 Address: 456 Suburban Dream Lane, Perfectville, USA
@@ -112,7 +112,7 @@ If you're ready to embrace the glorious monotony of suburban family life, then t
     name: 'Penthouse Loft, The Zenith',
     image: '/home4.png',
     cost: 5000000,
-    wattage: 3500,
+    wattage: 7000,
     blurb: 'Industrial-chic excess with panoramic views and curated existential dread.',
     details: `💰 Warning: May Cause Excessive Envy & Existential Dread in Less Fortunate Acquaintances 💰
 Address: Penthouse Loft, The Zenith, Downtown Metropolis, USA
@@ -145,7 +145,7 @@ If you're ready to achieve peak materialism and enjoy the fleeting satisfaction 
     name: 'The "Alpha Nerd" Estate',
     image: '/home5.png',
     cost: 40000000,
-    wattage: 10000,
+    wattage: 18000,
     blurb: 'Zero-gravity meditation meets quantum labs in a dystopian wellness palace.',
     details: `🚀 Prepare for Launch! Your Space-Aged Silicon Sanctuary Awaits! (No Peasants Allowed) 🚀
 Address: The "Alpha Nerd" Estate, Hyperloop Hills, Innovator's Valley, CA
@@ -181,7 +181,7 @@ If your net worth has more zeros than your social calendar has actual dates, the
     name: 'The "Soul Crusher" Tower',
     image: '/home6.png',
     cost: 300000000,
-    wattage: 30000,
+    wattage: 50000,
     blurb: 'Open-plan misery optimized for shareholder value and helicopter access.',
     details: `🏛️ The "Soul Crusher" Tower: Where Dreams Go to Die (Profitably!) 🏛️
 Address: The Apex of Avarice, 100 Corporate Overlord Plaza, Megalopolis, USA
@@ -217,7 +217,7 @@ If you're ready to solidify your corporate empire and provide a fittingly soul-c
     name: 'The "Omni-Vault"',
     image: '/home7.png',
     cost: 2500000000,
-    wattage: 100000,
+    wattage: 150000,
     blurb: 'Subterranean citadel for total data domination and maximum dread.',
     details: `🔒 Behold the "Omni-Vault": Your Digital Overlord's Headquarters! 🔒
 Address: Core of the Nexus, Undisclosed Global Coordinates (Don't worry, your algorithm knows where it is.)

@@ -53,7 +53,7 @@ const miningRigState = reactive({
   },
   // Wattage system
   currentWattage: 0,
-  maxWattage: 100,
+  maxWattage: 250,
   // Real estate progression (purchase flags in order; fortress unlocked after 6)
   realEstate: {
     parentsBasement: false,

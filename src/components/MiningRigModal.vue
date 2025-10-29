@@ -25,7 +25,7 @@ const hardwareDefinitions = {
     image: '/images/Doorbells.png',
     baseCost: 50,
     coinsPerSecond: 0.3,
-    wattage: 4,
+    wattage: 3,
     unlockRequirement: { hardware: 'calculator', quantity: 8 }
   },
   macbooks: {
@@ -33,7 +33,7 @@ const hardwareDefinitions = {
     image: '/images/3 Solar powered MacBooks.png',
     baseCost: 200,
     coinsPerSecond: 1.2,
-    wattage: 10,
+    wattage: 7,
     unlockRequirement: { hardware: 'smartDoorbells', quantity: 10 }
   },
   cellphone: {
@@ -41,7 +41,7 @@ const hardwareDefinitions = {
     image: '/images/Phones.png',
     baseCost: 500,
     coinsPerSecond: 2.5,
-    wattage: 20,
+    wattage: 12,
     unlockRequirement: { hardware: 'macbooks', quantity: 8 }
   },
   kitchenAppliance: {
@@ -49,7 +49,7 @@ const hardwareDefinitions = {
     image: '/images/A Toaster, Coffee Maker, Microwave and 2009 smart Plasma TV assisted with Solar Panel.png',
     baseCost: 1500,
     coinsPerSecond: 8,
-    wattage: 50,
+    wattage: 28,
     unlockRequirement: { hardware: 'cellphone', quantity: 12 }
   },
   smartFridge: {
@@ -57,7 +57,7 @@ const hardwareDefinitions = {
     image: '/images/Fridge.png',
     baseCost: 5000,
     coinsPerSecond: 25,
-    wattage: 120,
+    wattage: 65,
     unlockRequirement: { hardware: 'kitchenAppliance', quantity: 10 }
   },
   gpuRig: {
@@ -65,7 +65,7 @@ const hardwareDefinitions = {
     image: '/images/Gpus.png',
     baseCost: 20000,
     coinsPerSecond: 100,
-    wattage: 300,
+    wattage: 160,
     unlockRequirement: { hardware: 'smartFridge', quantity: 8 }
   },
   aiChatGPU: {
@@ -73,7 +73,7 @@ const hardwareDefinitions = {
     image: '/images/AI Slop Custom ChatGPU.png',
     baseCost: 100000,
     coinsPerSecond: 500,
-    wattage: 1000,
+    wattage: 500,
     unlockRequirement: { hardware: 'gpuRig', quantity: 6 }
   },
   serverRack: {
@@ -81,7 +81,7 @@ const hardwareDefinitions = {
     image: '/images/SeverRig.png',
     baseCost: 500000,
     coinsPerSecond: 2500,
-    wattage: 4000,
+    wattage: 2000,
     unlockRequirement: { hardware: 'aiChatGPU', quantity: 5 }
   }
 };
