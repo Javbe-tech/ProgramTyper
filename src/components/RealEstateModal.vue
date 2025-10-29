@@ -321,20 +321,42 @@ function closeDetails() { selectedIndex.value = -1; }
             <h3>{{ selected.name }}</h3>
             <button class="close-btn" @click="closeDetails">×</button>
           </div>
-          <img :src="selected.image" :alt="selected.name" />
-          <div class="details-body">
-            <pre class="details-text">{{ selected.details }}</pre>
+
+          <!-- Banner image -->
+          <div class="details-hero">
+            <img :src="selected.image" :alt="selected.name" />
           </div>
-          <div class="details-actions">
-            <div class="meta">
-              <span class="price">{{ selected.cost.toLocaleString() }} 💰</span>
-              <span class="power">+{{ selected.wattage }}W</span>
+
+          <!-- Two-column real-estate layout -->
+          <div class="details-content">
+            <div class="details-main">
+              <div class="summary-row">
+                <div class="summary-item">
+                  <div class="summary-label">Price</div>
+                  <div class="summary-value">{{ selected.cost.toLocaleString() }} 💰</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Wattage Gain</div>
+                  <div class="summary-value">+{{ selected.wattage }}W</div>
+                </div>
+              </div>
+              <div class="details-text-rich">
+                <pre>{{ selected.details }}</pre>
+              </div>
             </div>
-            <button 
-              :disabled="!canBuyProperty(selectedIndex) || purchasedMap[selected.key]"
-              @click="buy(selectedIndex)">
-              {{ purchasedMap[selected.key] ? 'Owned' : (canBuyProperty(selectedIndex) ? 'Buy Property' : 'Locked') }}
-            </button>
+            <aside class="details-aside">
+              <div class="aside-card">
+                <div class="aside-price">{{ selected.cost.toLocaleString() }} 💰</div>
+                <div class="aside-sub">Adds +{{ selected.wattage }}W capacity</div>
+                <button 
+                  class="aside-buy"
+                  :disabled="!canBuyProperty(selectedIndex) || purchasedMap[selected.key]"
+                  @click="buy(selectedIndex)">
+                  {{ purchasedMap[selected.key] ? 'Owned' : (canBuyProperty(selectedIndex) ? 'Buy Property' : 'Locked') }}
+                </button>
+                <div class="aside-note">Purchases are permanent and unlock in order.</div>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
@@ -362,11 +384,24 @@ function closeDetails() { selectedIndex.value = -1; }
 .re-actions button:disabled { background: #444; color: #bbb; cursor: not-allowed; }
 
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
-.re-details { width: 90%; max-width: 900px; max-height: 85%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+.re-details { width: 90%; max-width: 1100px; max-height: 88%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
 .details-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--menu-bar-bg); border-bottom: 1px solid var(--border-color); }
-.re-details img { width: 100%; max-height: 260px; object-fit: contain; background: var(--bg-color); }
-.details-body { padding: 12px 16px; overflow: auto; }
-.details-text { white-space: pre-wrap; color: var(--font-color); font-family: inherit; }
-.details-actions { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); }
+.details-hero { width: 100%; height: 260px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
+.details-hero img { width: 100%; height: 100%; object-fit: cover; }
+.details-content { display: grid; grid-template-columns: 1.8fr 1fr; gap: 16px; padding: 16px; overflow: auto; }
+.details-main { min-width: 0; }
+.summary-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+.summary-item { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; }
+.summary-label { color: var(--gray); font-size: 0.8rem; margin-bottom: 4px; }
+.summary-value { color: var(--font-color); font-weight: 700; }
+.details-text-rich { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; }
+.details-text-rich pre { white-space: pre-wrap; color: var(--font-color); font-family: inherit; line-height: 1.5; }
+.details-aside { min-width: 260px; }
+.aside-card { background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; position: sticky; top: 8px; }
+.aside-price { color: var(--font-color); font-weight: 800; font-size: 1.2rem; }
+.aside-sub { color: var(--gray); margin: 6px 0 12px; }
+.aside-buy { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: var(--keyword); color: #fff; font-weight: bold; font-size: 1rem; }
+.aside-buy:disabled { background: #444; color: #bbb; cursor: not-allowed; }
+.aside-note { color: var(--gray); font-size: 0.8rem; margin-top: 10px; }
 </style>
 
