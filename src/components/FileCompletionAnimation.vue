@@ -105,30 +105,32 @@ function startAnimation() {
   highlightedLines.value = [];
   currentHighlightIndex.value = 0;
   
-  // Step 1: Matrix-style code scanning effect (1.5 seconds - faster!)
-  animationStep.value = 1;
-  startMatrixScanning();
+  // Step 1: Show completion popup first
+  animationStep.value = 2;
   
-  // Step 2: Show completion popup
+  // Step 2: Start the background scanning effect after showing the popup
   setTimeout(() => {
-    animationStep.value = 2;
-      // Re-apply matrix glow on the newly active editor content if matrix theme is active
-      const theme = document.documentElement.getAttribute('data-theme');
-      if (theme === 'matrix') {
-        const editorElement = document.querySelector('#editor-container');
-        const root = document.querySelector('#app') || document.body;
-        if (root) {
-          root.style.textShadow = '0 0 6px #00ff00, 0 0 12px #00ff00';
-        }
-        if (editorElement) {
-          editorElement.querySelectorAll('.code-line').forEach(el => {
-            el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
-            el.style.color = '#aaffaa';
-            el.style.backgroundColor = 'rgba(0,255,0,0.04)';
-          });
-        }
+    startMatrixScanning();
+  }, 300);
+  
+  // Re-apply matrix glow on the newly active editor content if matrix theme is active
+  setTimeout(() => {
+    const theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'matrix') {
+      const editorElement = document.querySelector('#editor-container');
+      const root = document.querySelector('#app') || document.body;
+      if (root) {
+        root.style.textShadow = '0 0 6px #00ff00, 0 0 12px #00ff00';
       }
-  }, 1500);
+      if (editorElement) {
+        editorElement.querySelectorAll('.code-line').forEach(el => {
+          el.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
+          el.style.color = '#aaffaa';
+          el.style.backgroundColor = 'rgba(0,255,0,0.04)';
+        });
+      }
+    }
+  }, 500);
 }
 
 function startMatrixScanning() {
@@ -282,16 +284,15 @@ onUnmounted(() => {
 
 <template>
   <div v-if="show" class="file-completion-overlay">
-    <!-- Matrix scanning animation -->
-    <div v-if="animationStep === 1" class="matrix-scan-overlay">
-      <div class="scan-indicator">
-        <div class="scan-line"></div>
-        <div class="scan-text">SCANNING CODE...</div>
-      </div>
-    </div>
-    
     <!-- Completion popup -->
     <div v-if="animationStep === 2" class="completion-popup" @click="closePopup">
+      <!-- Matrix scanning animation in background -->
+      <div v-if="animationStep === 2" class="matrix-scan-overlay" style="opacity: 0.5; z-index: -1;">
+        <div class="scan-indicator">
+          <div class="scan-line"></div>
+          <div class="scan-text">SCANNING CODE...</div>
+        </div>
+      </div>
       <div class="completion-content" @click.stop>
         <pre class="ascii-art">{{ currentMessage }}</pre>
         
@@ -357,12 +358,12 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 0;
 }
 
 .scan-indicator {
@@ -411,6 +412,11 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  z-index: 10;
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 24px;
 }
 
 .ascii-art {
