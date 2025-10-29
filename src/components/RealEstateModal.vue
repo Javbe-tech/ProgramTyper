@@ -373,7 +373,7 @@ const monthlyPayment = computed(() => {
                 <div class="aside-note">Purchases are permanent and unlock in order.</div>
 
                 <div class="mortgage">
-                  <button class="mortgage-toggle" @click="showMortgage = !showMortgage">Ridiculous Mortgage Calculator</button>
+                  <button class="mortgage-toggle aside-buy locked-look" @click="showMortgage = !showMortgage">Mortgage Options</button>
                   <div v-if="showMortgage" class="mortgage-body">
                     <div class="mort-row"><label>Down Payment %</label><input type="number" v-model.number="mortDownPct" min="0" max="99" /></div>
                     <div class="mort-row"><label>Annual Rate %</label><input type="number" v-model.number="mortRateAnnual" min="1" step="0.1" /></div>
@@ -412,7 +412,7 @@ const monthlyPayment = computed(() => {
 
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
 .re-details { width: 90%; max-width: 1100px; max-height: 88%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-.details-header { position: absolute; inset: 0 auto auto 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); border-bottom: none; z-index: 2; }
+.details-header { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0.25) 100%); border: 1px solid var(--border-color); border-radius: 10px; z-index: 2; }
 .details-hero { position: relative; width: 100%; height: 520px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
 .details-hero::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 140px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); pointer-events: none; z-index: 1; }
 .details-hero img { width: 100%; height: 100%; object-fit: cover; }
@@ -431,6 +431,7 @@ const monthlyPayment = computed(() => {
 .aside-buy { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: var(--keyword); color: #fff; font-weight: bold; font-size: 1rem; }
 .aside-buy:disabled { background: #444; color: #bbb; cursor: not-allowed; }
 .aside-note { color: var(--gray); font-size: 0.8rem; margin-top: 10px; }
+.locked-look { background: #444 !important; color: #bbb !important; border: none; }
 .mortgage { margin-top: 14px; }
 .mortgage-toggle { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--font-color); cursor: pointer; font-weight: 600; }
 .mortgage-body { margin-top: 10px; display: grid; gap: 8px; }
