@@ -279,6 +279,10 @@ function addCoinAnimation(coinsEarned, x, y) {
 function handleKeyPressed(keyData) {
   // Only correct key presses earn coins
   if (keyData.isCorrect) {
+    // Disable typing earnings while overlays/modals are open
+    if (showMiningRig.value || (typeof showRealEstate !== 'undefined' && showRealEstate.value) || showNewFileModal.value || showSettingsModal.value || showHelpModal.value || showRemoveAdsModal.value) {
+      return;
+    }
     const level = miningRigState.upgrades.wordEfficiencyLevel || 0;
     const coinsEarned = miningRigState.coinsPerWord + 0.5 * level;
     miningRigState.currentColdCoins += coinsEarned;

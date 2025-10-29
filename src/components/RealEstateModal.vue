@@ -333,12 +333,13 @@ const monthlyPayment = computed(() => {
       <!-- Details Drawer -->
       <div v-if="selected" class="re-details-overlay" @click="closeDetails">
         <div class="re-details" @click.stop>
+          <!-- Header attached to card -->
           <div class="details-header">
             <h3>{{ selected.name }}</h3>
             <button class="close-btn" @click="closeDetails">×</button>
           </div>
 
-          <!-- Banner image -->
+          <!-- Banner image attached directly under header -->
           <div class="details-hero">
             <img :src="selected.image" :alt="selected.name" />
           </div>
@@ -412,9 +413,8 @@ const monthlyPayment = computed(() => {
 
 .re-details-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10020; }
 .re-details { width: 90%; max-width: 1100px; max-height: 88%; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
-.details-header { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0.25) 100%); border: 1px solid var(--border-color); border-radius: 10px; z-index: 2; }
-.details-hero { position: relative; width: 100%; height: 520px; overflow: hidden; }
-.details-hero::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 140px; background: linear-gradient(180deg, var(--menu-bar-bg) 0%, rgba(0,0,0,0) 100%); pointer-events: none; z-index: 1; }
+.details-header { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--menu-bar-bg); border-bottom: 1px solid var(--border-color); z-index: 1; }
+.details-hero { position: relative; width: 100%; height: 380px; overflow: hidden; border-bottom: 1px solid var(--border-color); }
 .details-hero img { width: 100%; height: 100%; object-fit: cover; }
 .details-content { display: grid; grid-template-columns: 1.8fr 1fr; gap: 16px; padding: 16px; overflow: auto; margin-top: -1px; border-top: 1px solid var(--border-color); }
 .details-main { min-width: 0; }
