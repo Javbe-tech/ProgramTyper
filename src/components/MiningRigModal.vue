@@ -812,8 +812,8 @@ function resetGame() {
   padding: 10px;
 }
 .estate-thumb img {
-  width: 60px;
-  height: 60px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
   border-radius: 6px;
   background: var(--bg-color);
