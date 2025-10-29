@@ -301,8 +301,8 @@ function getCollectionImages(hardwareType) {
   const images = [];
   const definition = hardwareDefinitions[hardwareType];
   
-  // Show first image when owned >= 1, then +1 image for every 5 additional units
-  const count = owned > 0 ? 1 + Math.floor((owned - 1) / 5) : 0;
+  // One image per owned unit (1:1 mapping)
+  const count = Math.max(0, Math.floor(owned));
   for (let i = 0; i < count; i++) {
     images.push({
       id: i,

@@ -253,6 +253,8 @@ function updateMiningRigCoinsPerSecond() {
   console.log(`Total passive income: ${total} × ${passiveMultiplier} = ${miningRigState.coinsPerSecond} coins/sec`);
   console.log(`Previous coins/sec: ${oldCoinsPerSecond}, New coins/sec: ${miningRigState.coinsPerSecond}`);
   console.log('=== END UPDATE ===');
+  // Persist immediately when coins/second changes due to purchases/sales/upgrades
+  saveMiningRigState();
 }
 
 // Visual feedback for coin earning
