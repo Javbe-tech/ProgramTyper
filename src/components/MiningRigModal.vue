@@ -412,7 +412,7 @@ function resetGame() {
         <div class="header-buttons">
           <button @click="$emit('open-real-estate')" class="reset-btn" title="Real Estate">🏠 Real Estate</button>
           <button @click="$emit('reboot')" class="reset-btn" title="Reboot (Prestige)">🌀 Reboot</button>
-          <button @click="resetGame" class="reset-btn" title="Reset Game">🔄 Reset</button>
+          
           <button @click="closeModal" class="close-btn">×</button>
         </div>
       </div>

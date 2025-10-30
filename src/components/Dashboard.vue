@@ -168,6 +168,19 @@ function resetStats() {
   }
 }
 
+function resetWholeAccount() {
+  if (!confirm('This will permanently erase ALL Mining Rig progress and Typing Stats. This cannot be undone. Continue?')) return;
+  try {
+    const user = authService.getUser();
+    localStorage.removeItem('miningRigGameState');
+    if (user && user.id) localStorage.removeItem(`miningRigGameState_${user.id}`);
+    userStatsService.resetStats();
+    alert('Account reset complete. Please refresh the page.');
+  } catch (e) {
+    alert('Failed to reset account: ' + e);
+  }
+}
+
 // Handle login
 async function handleLogin() {
   try {
@@ -357,6 +370,7 @@ function toggleDashboard() {
           <div class="dashboard-actions">
             <button @click="refreshStats" class="action-btn">🔄 Refresh</button>
             <button @click="resetStats" class="action-btn danger">🗑️ Reset Stats</button>
+            <button @click="resetWholeAccount" class="action-btn danger">🧨 Reset Whole Account</button>
           </div>
         </div>
       </div>

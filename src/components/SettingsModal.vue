@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { settingsService } from '../services/settingsService.js';
 import { authService } from '../services/authService.js';
+import { userStatsService } from '../services/userStatsService.js';
 
 const emit = defineEmits(['close', 'open-pro-upgrade']);
 
@@ -104,6 +105,21 @@ function resetToDefaults() {
   }
   
   settings.value = { ...settingsService.defaultSettings };
+}
+
+function resetWholeAccount() {
+  if (!confirm('This will permanently erase ALL Mining Rig progress and Typing Stats. This cannot be undone. Continue?')) return;
+  try {
+    // Clear mining rig state (guest and user-specific)
+    const user = authService.getUser();
+    localStorage.removeItem('miningRigGameState');
+    if (user && user.id) localStorage.removeItem(`miningRigGameState_${user.id}`);
+    // Reset typing stats via service
+    userStatsService.resetStats();
+    alert('Account reset complete. Please refresh the page.');
+  } catch (e) {
+    alert('Failed to reset account: ' + e);
+  }
 }
 
 onMounted(() => {
@@ -302,7 +318,8 @@ onMounted(() => {
       <div class="settings-footer">
         <button v-if="checkProAccess()" @click="resetToDefaults" class="reset-btn">Reset to Defaults</button>
         <button v-if="checkProAccess()" @click="saveSettings" class="save-btn">Save Settings</button>
-        <button v-else @click="closeModal" class="close-modal-btn">Close</button>
+        <button @click="resetWholeAccount" class="reset-btn" style="border-color:#ff4444;color:#ff4444">Reset Whole Account</button>
+        <button v-if="!checkProAccess()" @click="closeModal" class="close-modal-btn">Close</button>
       </div>
     </div>
   </div>

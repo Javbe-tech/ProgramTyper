@@ -12,6 +12,7 @@ import RemoveAdsModal from './components/RemoveAdsModal.vue';
 import HelpModal from './components/HelpModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
 import MiningRigModal from './components/MiningRigModal.vue';
+import PrestigeTree from './components/PrestigeTree.vue';
 import RealEstateModal from './components/RealEstateModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
@@ -29,6 +30,7 @@ const fileChallengeRegeneration = reactive({}); // Track challenge regeneration 
 const challengeRegenerationTimer = ref(null);
 const showMatrixEffect = ref(false); // Matrix effect state
 const matrixText = ref(''); // Matrix effect text
+const showPrestigeTree = ref(false);
 // Mining Rig Game State
 const miningRigState = reactive({
   currentColdCoins: 0,
@@ -67,6 +69,7 @@ const miningRigState = reactive({
   totalCoinsMinedAllTime: 0,
   prestigeLevel: 0,
   prestigeTokens: 0,
+  prestigeTree: {},
   // Real estate progression (purchase flags in order; fortress unlocked after 6)
   realEstate: {
     parentsBasement: false,
@@ -239,6 +242,7 @@ function loadMiningRigState() {
       if (typeof miningRigState.totalCoinsMinedAllTime !== 'number') miningRigState.totalCoinsMinedAllTime = 0;
       if (typeof miningRigState.prestigeLevel !== 'number') miningRigState.prestigeLevel = 0;
       if (typeof miningRigState.prestigeTokens !== 'number') miningRigState.prestigeTokens = 0;
+      if (!miningRigState.prestigeTree) miningRigState.prestigeTree = {};
       // Ensure unlocked flags exist
       if (!miningRigState.unlocked) {
         miningRigState.unlocked = {
@@ -1027,6 +1031,7 @@ function rebootPrestige() {
   scheduleNextSurge();
   updateMiningRigCoinsPerSecond();
   saveMiningRigState();
+  showPrestigeTree.value = true;
 }
 function handleLogout() {
   // Clear pro status and ads when logging out
@@ -1797,6 +1802,7 @@ onUnmounted(() => {
       @close="showRealEstate = false"
       @purchased="updateMiningRigCoinsPerSecond"
     />
+    <PrestigeTree v-if="showPrestigeTree" :show="showPrestigeTree" :game-state="miningRigState" @close="showPrestigeTree = false" />
     
     <!-- Welcome Modal -->
     <WelcomeModal @close="handleWelcomeClose" />
