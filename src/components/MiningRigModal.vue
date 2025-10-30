@@ -350,6 +350,8 @@ const totalCoinsPerWord = computed(() => {
   if ((hw.serverRack || 0) >= 100) typingBuff *= 1.20;
   // Bandwidth multiplier
   const cps = gameState.coinsPerSecond || 0;
+  // Decentralized Keystroke Logging: +0.1 base per 1000 cps passive
+  const extraBase = 0.1 * Math.floor(cps / 1000);
   const bandwidthLevel = Math.min(10, Math.max(0, gameState.upgrades.networkBandwidthLevel || 0));
   const bandwidthMultiplier = 1 + (cps / 1000000) * (bandwidthLevel / 10);
   // Software patches multiplier
@@ -372,7 +374,7 @@ const totalCoinsPerWord = computed(() => {
   const estate = gameState.totalRealEstateBonus || 1.0;
   const prestigeBonus = 1 + (gameState.prestigeLevel || 0) * 0.01;
   const typingBuffActive = gameState.activeBuff && gameState.activeBuff.type === 'typing' ? 777 : 1;
-  const total = (base * typingMultiplier) * typingBuff * bandwidthMultiplier * estate * softwarePatchBonus * networkSecurityBonus * prestigeBonus * typingBuffActive;
+  const total = ((base + extraBase) * typingMultiplier) * typingBuff * bandwidthMultiplier * estate * softwarePatchBonus * networkSecurityBonus * prestigeBonus * typingBuffActive;
   return total.toFixed(2);
 });
 
