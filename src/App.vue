@@ -63,6 +63,10 @@ const miningRigState = reactive({
   activeBuff: null, // { type: 'bull'|'typing'|'hardware', untilMs:number, target?:string, mult?:number }
   nextSurgeMs: 0,
   perHardwareBoosts: {}, // { key: multiplier }
+  // Phase 5: Prestige
+  totalCoinsMinedAllTime: 0,
+  prestigeLevel: 0,
+  prestigeTokens: 0,
   // Real estate progression (purchase flags in order; fortress unlocked after 6)
   realEstate: {
     parentsBasement: false,
@@ -118,6 +122,7 @@ function startMiningRigTimer() {
     if (incomePerSecond > 0 && dtSeconds > 0) {
       const incomeToAdd = incomePerSecond * dtSeconds;
       miningRigState.currentColdCoins += incomeToAdd;
+      miningRigState.totalCoinsMinedAllTime += incomeToAdd;
     }
 
     // Phase 4: handle market surge scheduling/expiry
@@ -210,6 +215,7 @@ function loadMiningRigState() {
       if (typeof miningRigState.upgrades.ergonomicKeyboardLevel !== 'number') miningRigState.upgrades.ergonomicKeyboardLevel = 0;
       if (typeof miningRigState.upgrades.softwarePatchLevel !== 'number') miningRigState.upgrades.softwarePatchLevel = 0;
       if (typeof miningRigState.upgrades.networkSecurityLevel !== 'number') miningRigState.upgrades.networkSecurityLevel = 0;
+      if (typeof miningRigState.upgrades.networkBandwidthLevel !== 'number') miningRigState.upgrades.networkBandwidthLevel = 0;
       if (typeof miningRigState.networkEfficiency !== 'number') miningRigState.networkEfficiency = 1.0;
       if (typeof miningRigState.totalRealEstateBonus !== 'number') miningRigState.totalRealEstateBonus = 1.0;
       // Recalculate real estate bonus based on owned properties (defensive)
@@ -228,6 +234,9 @@ function loadMiningRigState() {
         Object.keys(bonuses).forEach(k => { if (flags[k]) product *= bonuses[k]; });
         miningRigState.totalRealEstateBonus = product;
       } catch {}
+      if (typeof miningRigState.totalCoinsMinedAllTime !== 'number') miningRigState.totalCoinsMinedAllTime = 0;
+      if (typeof miningRigState.prestigeLevel !== 'number') miningRigState.prestigeLevel = 0;
+      if (typeof miningRigState.prestigeTokens !== 'number') miningRigState.prestigeTokens = 0;
       // Ensure unlocked flags exist
       if (!miningRigState.unlocked) {
         miningRigState.unlocked = {
@@ -369,13 +378,15 @@ function updateMiningRigCoinsPerSecond() {
     miningRigState.networkEfficiency = eff;
   }
   const oldCoinsPerSecond = miningRigState.coinsPerSecond;
+  const prestigeBonus = 1 + (miningRigState.prestigeLevel || 0) * 0.01;
   miningRigState.coinsPerSecond = total 
     * passiveMultiplier 
     * softwarePatchBonus 
     * (miningRigState.activeBuff?.type === 'bull' ? 7 : 1)
     * networkSecurityBonus 
     * miningRigState.networkEfficiency 
-    * (miningRigState.totalRealEstateBonus || 1.0);
+    * (miningRigState.totalRealEstateBonus || 1.0)
+    * prestigeBonus;
   
   console.log(`Total passive income: ${total} × sp(${softwarePatchBonus.toFixed(3)}) × ns(${networkSecurityBonus.toFixed(3)}) × eff(${miningRigState.networkEfficiency}) × estate(${miningRigState.totalRealEstateBonus}) = ${miningRigState.coinsPerSecond} coins/sec`);
   console.log(`Previous coins/sec: ${oldCoinsPerSecond}, New coins/sec: ${miningRigState.coinsPerSecond}`);
@@ -491,8 +502,10 @@ function handleKeyPressed(keyData) {
     const extraBase = 0.1 * Math.floor((miningRigState.coinsPerSecond || 0) / 1000);
     const bandwidthLevel = Math.min(10, Math.max(0, miningRigState.upgrades.networkBandwidthLevel || 0));
     const bandwidthMultiplier = 1 + ((miningRigState.coinsPerSecond || 0) / 1000000) * (bandwidthLevel / 10);
-    const coinsEarned = (base + extraBase) * typingMultiplier * typingBuff * bandwidthMultiplier * (miningRigState.totalRealEstateBonus || 1.0) * softwarePatchBonus * networkSecurityBonus * (miningRigState.activeBuff?.type === 'typing' ? 777 : 1);
+    const prestigeBonus = 1 + (miningRigState.prestigeLevel || 0) * 0.01;
+    const coinsEarned = (base + extraBase) * typingMultiplier * typingBuff * bandwidthMultiplier * (miningRigState.totalRealEstateBonus || 1.0) * softwarePatchBonus * networkSecurityBonus * prestigeBonus * (miningRigState.activeBuff?.type === 'typing' ? 777 : 1);
     miningRigState.currentColdCoins += coinsEarned;
+    miningRigState.totalCoinsMinedAllTime += coinsEarned;
     
     console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);
     saveMiningRigState();
@@ -950,6 +963,69 @@ function resetMiningRigGame() {
   console.log('Mining Rig game reset!');
 }
 
+// Phase 5: Prestige reboot
+function computePrestigeLevelFromTotal(total) {
+  return Math.floor(Math.cbrt((total || 0) / 1_000_000_000_000));
+}
+function rebootPrestige() {
+  const currentLevel = miningRigState.prestigeLevel || 0;
+  const newLevel = computePrestigeLevelFromTotal(miningRigState.totalCoinsMinedAllTime || 0);
+  const gained = Math.max(0, newLevel - currentLevel);
+  if (!confirm(`Reboot? You will earn ${gained} prestige levels (from ${currentLevel} → ${newLevel}). This resets coins, hardware, and non-permanent upgrades.`)) return;
+  // Award tokens equal to newly earned levels
+  if (gained > 0) miningRigState.prestigeTokens = (miningRigState.prestigeTokens || 0) + gained;
+  miningRigState.prestigeLevel = newLevel;
+  // Reset run state
+  miningRigState.currentColdCoins = 0;
+  miningRigState.coinsPerSecond = 0;
+  miningRigState.coinsPerWord = 1;
+  miningRigState.hardware = {
+    calculator: 0,
+    smartDoorbells: 0,
+    macbooks: 0,
+    cellphone: 0,
+    kitchenAppliance: 0,
+    smartFridge: 0,
+    gpuRig: 0,
+    aiChatGPU: 0,
+    serverRack: 0
+  };
+  miningRigState.upgrades = {
+    wordEfficiencyLevel: 0,
+    ergonomicKeyboardLevel: 0,
+    softwarePatchLevel: miningRigState.upgrades.softwarePatchLevel || 0, // keep patches (optional; adjust if not desired)
+    networkSecurityLevel: miningRigState.upgrades.networkSecurityLevel || 0,
+    networkBandwidthLevel: miningRigState.upgrades.networkBandwidthLevel || 0
+  };
+  miningRigState.currentWattage = 0;
+  miningRigState.maxWattage = 250;
+  miningRigState.networkEfficiency = 1.0;
+  miningRigState.totalRealEstateBonus = 1.0;
+  miningRigState.realEstate = {
+    parentsBasement: false,
+    studioApartment: false,
+    suburbanHouse: false,
+    downtownLoft: false,
+    techMansion: false,
+    corporateOffice: false,
+    dataFortress: false
+  };
+  miningRigState.unlocked = {
+    calculator: true,
+    smartDoorbells: false,
+    macbooks: false,
+    cellphone: false,
+    kitchenAppliance: false,
+    smartFridge: false,
+    gpuRig: false,
+    aiChatGPU: false,
+    serverRack: false
+  };
+  clearActiveBuff();
+  scheduleNextSurge();
+  updateMiningRigCoinsPerSecond();
+  saveMiningRigState();
+}
 function handleLogout() {
   // Clear pro status and ads when logging out
   localStorage.removeItem('pt_pro_user');
@@ -1708,6 +1784,7 @@ onUnmounted(() => {
       @open-real-estate="showRealEstate = true"
       @update-game-state="updateMiningRigCoinsPerSecond"
       @reset-game="resetMiningRigGame"
+      @reboot="rebootPrestige"
     />
 
     <!-- Real Estate Modal -->
