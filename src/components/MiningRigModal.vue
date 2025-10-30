@@ -224,7 +224,7 @@ function getUpgradeDescription(upgradeType) {
   }
   if (upgradeType === 'networkSecurity') {
     const l = gameState.upgrades.networkSecurityLevel || 0;
-    return `Security tiers: ${l}/15 (scales with reputation)`;
+    return `Security tiers: ${l}/15. Each tier multiplies total income by (1 + coeff × reputation), coeff grows per tier.`;
   }
   return upgradesDefinitions[upgradeType]?.description || '';
 }
@@ -330,6 +330,21 @@ const visibleHardware = computed(() => {
     return unlockedHardware.value[key] && (gameState.hardware[key] || 0) > 0;
   });
 });
+
+// Explain calculator engine bonus per unit for UI
+function getCalculatorBonusPerUnitLocal() {
+  const counts = gameState.hardware || {};
+  const calcOwned = counts.calculator || 0;
+  const nonCalcOwned = Object.entries(counts).filter(([k]) => k !== 'calculator').reduce((s,[,v])=>s+(v||0),0);
+  let bonus = 0.1 * nonCalcOwned;
+  if (calcOwned >= 50) bonus *= 5;
+  if (calcOwned >= 100) bonus *= 10;
+  if (calcOwned >= 150) bonus *= 20;
+  if (calcOwned >= 200) bonus *= 20;
+  if (calcOwned >= 300) bonus *= 20;
+  if (calcOwned >= 400) bonus *= 20;
+  return bonus;
+}
 
 // Calculate income per hardware type
 function getHardwareIncome(hardwareType) {
@@ -489,6 +504,9 @@ function resetGame() {
                   >
                     Upgrades: {{ getTierUnlocked(key) }}/14
                   </div>
+                  <div v-else class="row-tiers" :title="'Base 0.05 + engine bonus per calculator'">
+                    Bonus +{{ getCalculatorBonusPerUnitLocal().toFixed(2) }}/unit
+                  </div>
                 </div>
               </div>
               
@@ -609,7 +627,7 @@ function resetGame() {
 .mining-header h2 {
   color: var(--font-color);
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.6rem;
   text-shadow: 0 0 10px var(--keyword);
 }
 
@@ -825,6 +843,8 @@ function resetGame() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .upgrade-section {
@@ -847,7 +867,7 @@ function resetGame() {
   flex-direction: column;
   gap: 15px;
 }
-.upgrade-items.scrollable { flex: 1; overflow-y: auto; }
+.upgrade-items.scrollable { flex: 1; min-height: 0; max-height: 60vh; overflow-y: auto; }
 
 .upgrade-item {
   padding: 20px;
