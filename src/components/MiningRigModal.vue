@@ -220,11 +220,21 @@ function getUpgradeDescription(upgradeType) {
   }
   if (upgradeType === 'networkBandwidth') {
     const l = gameState.upgrades.networkBandwidthLevel || 0;
-    return `Unlocks ${((l/10)*100).toFixed(0)}% of bandwidth potential`;
+    const unlockedPct = ((l / 10) * 100).toFixed(0);
+    const potential = 1 + ((gameState.coinsPerSecond || 0) / 1_000_000);
+    const effective = 1 + ((gameState.coinsPerSecond || 0) / 1_000_000) * (l / 10);
+    return `Bandwidth: unlocks ${unlockedPct}% of bonus. Potential ×${potential.toFixed(3)} → Active ×${effective.toFixed(3)}`;
   }
   if (upgradeType === 'networkSecurity') {
     const l = gameState.upgrades.networkSecurityLevel || 0;
-    return `Security tiers: ${l}/15. Each tier multiplies total income by (1 + coeff × reputation), coeff grows per tier.`;
+    const reputation = gameState.reputation || 0;
+    const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
+    let bonus = 1.0;
+    for (let i = 0; i < Math.min(l, nsCoeffs.length); i++) {
+      bonus *= (1 + nsCoeffs[i] * reputation);
+    }
+    const nextCoeff = nsCoeffs[Math.min(l, nsCoeffs.length - 1)];
+    return `Security: level ${l}/15. Reputation ${reputation}. Current bonus ×${bonus.toFixed(3)}. Next level adds ×(1 + ${nextCoeff}×reputation).`;
   }
   return upgradesDefinitions[upgradeType]?.description || '';
 }
@@ -500,11 +510,11 @@ function resetGame() {
                   <div 
                     v-if="key !== 'calculator'" 
                     class="row-tiers" 
-                    :title="getTierTooltip(key)"
+                    :title="'Each unlocked tier DOUBLES this hardware. Thresholds: ' + getTierTooltip(key)"
                   >
                     Upgrades: {{ getTierUnlocked(key) }}/14
                   </div>
-                  <div v-else class="row-tiers" :title="'Base 0.05 + engine bonus per calculator'">
+                  <div v-else class="row-tiers" :title="'Each Calculator: 0.05 base + engine bonus shown here'">
                     Bonus +{{ getCalculatorBonusPerUnitLocal().toFixed(2) }}/unit
                   </div>
                 </div>
