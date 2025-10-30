@@ -13,6 +13,7 @@ import HelpModal from './components/HelpModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
 import MiningRigModal from './components/MiningRigModal.vue';
 import PrestigeTree from './components/PrestigeTree.vue';
+import RebootConfirm from './components/RebootConfirm.vue';
 import RealEstateModal from './components/RealEstateModal.vue';
 import { processUserInput, generateCodeForFile, generateTypingLine } from './codeGenerator.js';
 import { authService } from './services/authService.js';
@@ -31,6 +32,7 @@ const challengeRegenerationTimer = ref(null);
 const showMatrixEffect = ref(false); // Matrix effect state
 const matrixText = ref(''); // Matrix effect text
 const showPrestigeTree = ref(false);
+const showRebootConfirm = ref(false);
 // Mining Rig Game State
 const miningRigState = reactive({
   currentColdCoins: 0,
@@ -977,7 +979,6 @@ function rebootPrestige() {
   const currentLevel = miningRigState.prestigeLevel || 0;
   const newLevel = computePrestigeLevelFromTotal(miningRigState.totalCoinsMinedAllTime || 0);
   const gained = Math.max(0, newLevel - currentLevel);
-  if (!confirm(`Reboot? You will earn ${gained} prestige levels (from ${currentLevel} → ${newLevel}). This resets coins, hardware, and non-permanent upgrades.`)) return;
   // Award tokens equal to newly earned levels
   if (gained > 0) miningRigState.prestigeTokens = (miningRigState.prestigeTokens || 0) + gained;
   miningRigState.prestigeLevel = newLevel;
@@ -1791,7 +1792,7 @@ onUnmounted(() => {
       @open-real-estate="showRealEstate = true"
       @update-game-state="updateMiningRigCoinsPerSecond"
       @reset-game="resetMiningRigGame"
-      @reboot="rebootPrestige"
+      @reboot="showRebootConfirm = true"
     />
 
     <!-- Real Estate Modal -->
@@ -1803,6 +1804,7 @@ onUnmounted(() => {
       @purchased="updateMiningRigCoinsPerSecond"
     />
     <PrestigeTree v-if="showPrestigeTree" :show="showPrestigeTree" :game-state="miningRigState" @close="showPrestigeTree = false" />
+    <RebootConfirm v-if="showRebootConfirm" :show="showRebootConfirm" :game-state="miningRigState" @close="showRebootConfirm = false" @confirm="showRebootConfirm=false; rebootPrestige();" />
     
     <!-- Welcome Modal -->
     <WelcomeModal @close="handleWelcomeClose" />
