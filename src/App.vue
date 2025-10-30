@@ -96,6 +96,7 @@ let miningRigTimer = null;
 let lastTickMs = 0;
 let lastSavedMs = 0;
 const SAVE_INTERVAL_MS = 10000; // throttle saves to every 10s
+const currentTimeMs = ref(Date.now());
 
 function startMiningRigTimer() {
   // Stop any existing timer first
@@ -104,7 +105,7 @@ function startMiningRigTimer() {
     miningRigTimer = null;
   }
 
-  lastTickMs = performance.now();
+  lastTickMs = Date.now();
   lastSavedMs = lastTickMs;
 
   if (!import.meta.env.DEV) {
@@ -114,7 +115,8 @@ function startMiningRigTimer() {
 
   // Smaller interval with delta-time prevents drift and keeps UI responsive
   miningRigTimer = setInterval(() => {
-    const now = performance.now();
+    const now = Date.now();
+    currentTimeMs.value = now;
     const dtSeconds = Math.max(0, (now - lastTickMs) / 1000);
     lastTickMs = now;
 
@@ -397,7 +399,7 @@ function updateMiningRigCoinsPerSecond() {
 
 // === Phase 4: Market Surges ===
 function scheduleNextSurge() {
-  const now = performance.now();
+  const now = Date.now();
   // 300–900 seconds from now
   const delay = (300 + Math.random() * 600) * 1000;
   miningRigState.nextSurgeMs = now + delay;
@@ -408,7 +410,7 @@ function clearActiveBuff() {
 }
 function triggerSurge() {
   const roll = Math.random();
-  const now = performance.now();
+  const now = Date.now();
   if (roll < 0.40) {
     // Bull Market: x7 passive income for 77s
     miningRigState.activeBuff = { type: 'bull', untilMs: now + 77000 };
@@ -1816,7 +1818,7 @@ onUnmounted(() => {
       </div>
     </div>
     
-    <button v-if="performance.now && miningRigState.nextSurgeMs && performance.now() > miningRigState.nextSurgeMs" class="surge-clicker" @click="triggerSurge">⚡ Market Surge</button>
+    <button v-if="miningRigState.nextSurgeMs && currentTimeMs > miningRigState.nextSurgeMs" class="surge-clicker" @click="triggerSurge">⚡ Market Surge</button>
 
     <!-- Matrix Effect Overlay -->
     <div v-if="showMatrixEffect" class="matrix-overlay">
