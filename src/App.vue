@@ -59,6 +59,10 @@ const miningRigState = reactive({
   networkEfficiency: 1.0,
   totalRealEstateBonus: 1.0,
   reputation: 0, // Phase 3: increases with achievements
+  // Phase 4: market surges and per-hardware boosts
+  activeBuff: null, // { type: 'bull'|'typing'|'hardware', untilMs:number, target?:string, mult?:number }
+  nextSurgeMs: 0,
+  perHardwareBoosts: {}, // { key: multiplier }
   // Real estate progression (purchase flags in order; fortress unlocked after 6)
   realEstate: {
     parentsBasement: false,
@@ -114,6 +118,14 @@ function startMiningRigTimer() {
     if (incomePerSecond > 0 && dtSeconds > 0) {
       const incomeToAdd = incomePerSecond * dtSeconds;
       miningRigState.currentColdCoins += incomeToAdd;
+    }
+
+    // Phase 4: handle market surge scheduling/expiry
+    if (!miningRigState.nextSurgeMs || now > miningRigState.nextSurgeMs) {
+      scheduleNextSurge();
+    }
+    if (miningRigState.activeBuff && now > miningRigState.activeBuff.untilMs) {
+      clearActiveBuff();
     }
 
     // Throttle persistence to reduce main-thread work
@@ -320,11 +332,13 @@ function updateMiningRigCoinsPerSecond() {
     if (hardwareType === 'calculator') {
       perUnit += getCalculatorBonusPerUnit(counts);
     }
+    // Phase 4: apply per-hardware temporary boosts
+    const boost = (miningRigState.perHardwareBoosts && miningRigState.perHardwareBoosts[hardwareType]) || 1.0;
     let typeMult = synergyMult[hardwareType] || 1;
     if (hardwareType !== 'calculator') {
       typeMult *= getTierMultiplier(hardwareType, quantity);
     }
-    const contribution = quantity * perUnit * typeMult;
+    const contribution = quantity * perUnit * typeMult * boost;
     total += contribution;
     console.log(`${hardwareType}: ${quantity} × ${perUnit} × mult(${typeMult}) = ${contribution} coins/sec`);
   }
@@ -358,6 +372,7 @@ function updateMiningRigCoinsPerSecond() {
   miningRigState.coinsPerSecond = total 
     * passiveMultiplier 
     * softwarePatchBonus 
+    * (miningRigState.activeBuff?.type === 'bull' ? 7 : 1)
     * networkSecurityBonus 
     * miningRigState.networkEfficiency 
     * (miningRigState.totalRealEstateBonus || 1.0);
@@ -367,6 +382,45 @@ function updateMiningRigCoinsPerSecond() {
   console.log('=== END UPDATE ===');
   // Persist immediately when coins/second changes due to purchases/sales/upgrades
   saveMiningRigState();
+}
+
+// === Phase 4: Market Surges ===
+function scheduleNextSurge() {
+  const now = performance.now();
+  // 300–900 seconds from now
+  const delay = (300 + Math.random() * 600) * 1000;
+  miningRigState.nextSurgeMs = now + delay;
+}
+function clearActiveBuff() {
+  miningRigState.activeBuff = null;
+  miningRigState.perHardwareBoosts = {};
+}
+function triggerSurge() {
+  const roll = Math.random();
+  const now = performance.now();
+  if (roll < 0.40) {
+    // Bull Market: x7 passive income for 77s
+    miningRigState.activeBuff = { type: 'bull', untilMs: now + 77000 };
+  } else if (roll < 0.80) {
+    // Sudden Windfall: 15 minutes of passive income instantly
+    miningRigState.currentColdCoins += miningRigState.coinsPerSecond * 900;
+    clearActiveBuff();
+  } else if (roll < 0.83) {
+    // Typing Frenzy: x777 typing for 13s
+    miningRigState.activeBuff = { type: 'typing', untilMs: now + 13000 };
+  } else if (roll < 0.91) {
+    // Hardware Special: boost one random hardware for 30s
+    const keys = Object.keys(miningRigState.hardware);
+    const target = keys[Math.floor(Math.random() * keys.length)];
+    miningRigState.perHardwareBoosts = { [target]: 5.0 };
+    miningRigState.activeBuff = { type: 'hardware', target, untilMs: now + 30000 };
+  } else {
+    // No buff this time; reschedule sooner
+    miningRigState.nextSurgeMs = now + 60000;
+    return;
+  }
+  // Next surge after current ends
+  miningRigState.nextSurgeMs = now + 600000; // 10 minutes placeholder
 }
 
 // Visual feedback for coin earning
@@ -426,7 +480,18 @@ function handleKeyPressed(keyData) {
     for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
       networkSecurityBonus *= (1 + nsCoeffs[i] * reputation);
     }
-    const coinsEarned = base * typingMultiplier * (miningRigState.totalRealEstateBonus || 1.0) * softwarePatchBonus * networkSecurityBonus;
+    // Phase 4 typing unlocks
+    const hw = miningRigState.hardware;
+    let typingBuff = 1.0;
+    if ((hw.gpuRig || 0) >= 1) typingBuff *= 1.5; // AI Predictive Text
+    if ((hw.smartFridge || 0) >= 50) typingBuff *= 1.05; // Haptic Feedback Loop
+    if ((hw.aiChatGPU || 0) >= 10) typingBuff *= 1.10; // Sub-Vocal Processing
+    if ((hw.serverRack || 0) >= 100) typingBuff *= 1.20; // Direct Neural Interface
+    // Decentralized Keystroke Logging: +0.1 base per 1000 cps passive
+    const extraBase = 0.1 * Math.floor((miningRigState.coinsPerSecond || 0) / 1000);
+    const bandwidthLevel = Math.min(10, Math.max(0, miningRigState.upgrades.networkBandwidthLevel || 0));
+    const bandwidthMultiplier = 1 + ((miningRigState.coinsPerSecond || 0) / 1000000) * (bandwidthLevel / 10);
+    const coinsEarned = (base + extraBase) * typingMultiplier * typingBuff * bandwidthMultiplier * (miningRigState.totalRealEstateBonus || 1.0) * softwarePatchBonus * networkSecurityBonus * (miningRigState.activeBuff?.type === 'typing' ? 777 : 1);
     miningRigState.currentColdCoins += coinsEarned;
     
     console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);
@@ -1674,6 +1739,8 @@ onUnmounted(() => {
       </div>
     </div>
     
+    <button v-if="performance.now && miningRigState.nextSurgeMs && performance.now() > miningRigState.nextSurgeMs" class="surge-clicker" @click="triggerSurge">⚡ Market Surge</button>
+
     <!-- Matrix Effect Overlay -->
     <div v-if="showMatrixEffect" class="matrix-overlay">
       <div class="matrix-text">
@@ -1760,6 +1827,22 @@ onUnmounted(() => {
   animation: coinFloat 2s ease-out forwards;
   pointer-events: none;
 }
+
+/* Phase 4: Market Surge clickable */
+.surge-clicker {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  background: var(--keyword);
+  color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  z-index: 12000;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+.surge-clicker:hover { background: #6d28d9; }
 
 @keyframes coinFloat {
   0% {

@@ -152,6 +152,13 @@ const upgradesDefinitions = {
     baseCost: 5000,
     costGrowth: 1.5,
     maxLevel: 15
+  },
+  networkBandwidth: {
+    name: 'Network Bandwidth',
+    description: 'Typing income increases with passive income (10 tiers)',
+    baseCost: 5000,
+    costGrowth: 1.4,
+    maxLevel: 10
   }
 };
 
@@ -187,6 +194,7 @@ function getUpgradeLevel(upgradeType) {
   if (upgradeType === 'ergonomicKeyboard') return gameState.upgrades.ergonomicKeyboardLevel || 0;
   if (upgradeType === 'softwarePatch') return gameState.upgrades.softwarePatchLevel || 0;
   if (upgradeType === 'networkSecurity') return gameState.upgrades.networkSecurityLevel || 0;
+  if (upgradeType === 'networkBandwidth') return gameState.upgrades.networkBandwidthLevel || 0;
   return 0;
 }
 
@@ -209,6 +217,10 @@ function getUpgradeDescription(upgradeType) {
     const seg1 = Math.min(l,40), seg2 = Math.min(Math.max(l-40,0),40), seg3 = Math.min(Math.max(l-80,0),40);
     const mult = (Math.pow(1.01,seg1)*Math.pow(1.02,seg2)*Math.pow(1.03,seg3)).toFixed(2);
     return `Global income ×${mult}`;
+  }
+  if (upgradeType === 'networkBandwidth') {
+    const l = gameState.upgrades.networkBandwidthLevel || 0;
+    return `Unlocks ${((l/10)*100).toFixed(0)}% of bandwidth potential`;
   }
   if (upgradeType === 'networkSecurity') {
     const l = gameState.upgrades.networkSecurityLevel || 0;
@@ -293,6 +305,8 @@ function purchaseUpgrade(upgradeType) {
     gameState.upgrades.softwarePatchLevel = Math.min(120, (gameState.upgrades.softwarePatchLevel || 0) + 1);
   } else if (upgradeType === 'networkSecurity') {
     gameState.upgrades.networkSecurityLevel = Math.min(15, (gameState.upgrades.networkSecurityLevel || 0) + 1);
+  } else if (upgradeType === 'networkBandwidth') {
+    gameState.upgrades.networkBandwidthLevel = Math.min(10, (gameState.upgrades.networkBandwidthLevel || 0) + 1);
   }
   emit('update-game-state');
 }
