@@ -862,6 +862,8 @@ function resetGame() {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  position: relative;
+  z-index: 2;
 }
 
 /* Right Sidebar - Upgrade Store */
@@ -875,6 +877,8 @@ function resetGame() {
   gap: 12px;
   height: 100%;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .upgrade-section {
@@ -1068,8 +1072,9 @@ function resetGame() {
 .tier-hover { position: relative; }
 .tiers-tooltip {
   position: absolute;
-  top: 110%;
-  left: 0;
+  top: 0;
+  right: 110%;
+  left: auto;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
