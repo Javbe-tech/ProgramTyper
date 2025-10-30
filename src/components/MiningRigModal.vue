@@ -231,7 +231,7 @@ function getUpgradeDescription(upgradeType) {
     const unlockedPct = ((l / 10) * 100).toFixed(0);
     const potential = 1 + ((gameState.coinsPerSecond || 0) / 1_000_000);
     const effective = 1 + ((gameState.coinsPerSecond || 0) / 1_000_000) * (l / 10);
-    return `Network Bandwidth boosts TYPING based on your passive income. Potential typing boost = 1 + (Passive cps / 1,000,000). You currently unlock ${unlockedPct}% of that: ×${effective.toFixed(3)}.`;
+    return `Network Bandwidth boosts typing. The more passive income you have, the more it helps. Max possible typing boost right now: ×${potential.toFixed(3)}. Your Bandwidth level unlocks ${unlockedPct}% of that → active: ×${effective.toFixed(3)}.`;
   }
   if (upgradeType === 'networkSecurity') {
     const l = gameState.upgrades.networkSecurityLevel || 0;
@@ -339,7 +339,37 @@ const totalCoinsPerWord = computed(() => {
   const base = gameState.coinsPerWord + 0.5 * level;
   const kbLevel = Math.min(100, gameState.upgrades.ergonomicKeyboardLevel || 0);
   const typingMultiplier = Math.pow(1.07, kbLevel);
-  return (base * typingMultiplier).toFixed(2);
+  // Hardware unlock typing buffs
+  const hw = gameState.hardware || {};
+  let typingBuff = 1.0;
+  if ((hw.gpuRig || 0) >= 1) typingBuff *= 1.5;
+  if ((hw.smartFridge || 0) >= 50) typingBuff *= 1.05;
+  if ((hw.aiChatGPU || 0) >= 10) typingBuff *= 1.10;
+  if ((hw.serverRack || 0) >= 100) typingBuff *= 1.20;
+  // Bandwidth multiplier
+  const cps = gameState.coinsPerSecond || 0;
+  const bandwidthLevel = Math.min(10, Math.max(0, gameState.upgrades.networkBandwidthLevel || 0));
+  const bandwidthMultiplier = 1 + (cps / 1000000) * (bandwidthLevel / 10);
+  // Software patches multiplier
+  const sp = Math.max(0, Math.floor(gameState.upgrades.softwarePatchLevel || 0));
+  const sp1 = Math.min(sp, 40);
+  const sp2 = Math.min(Math.max(sp - 40, 0), 40);
+  const sp3 = Math.min(Math.max(sp - 80, 0), 40);
+  const softwarePatchBonus = Math.pow(1.01, sp1) * Math.pow(1.02, sp2) * Math.pow(1.03, sp3);
+  // Network security multiplier (same as App)
+  const nsLevel = Math.max(0, Math.floor(gameState.upgrades.networkSecurityLevel || 0));
+  const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
+  const reputation = gameState.reputation || 0;
+  let networkSecurityBonus = 1.0;
+  for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
+    networkSecurityBonus *= (1 + nsCoeffs[i] * reputation);
+  }
+  // Real estate and prestige
+  const estate = gameState.totalRealEstateBonus || 1.0;
+  const prestigeBonus = 1 + (gameState.prestigeLevel || 0) * 0.01;
+  const typingBuffActive = gameState.activeBuff && gameState.activeBuff.type === 'typing' ? 777 : 1;
+  const total = (base * typingMultiplier) * typingBuff * bandwidthMultiplier * estate * softwarePatchBonus * networkSecurityBonus * prestigeBonus * typingBuffActive;
+  return total.toFixed(2);
 });
 
 // Filter hardware that should be shown in collection (unlocked and owned > 0)

@@ -370,7 +370,9 @@ function updateMiningRigCoinsPerSecond() {
   const softwarePatchBonus = Math.pow(1.01, sp1) * Math.pow(1.02, sp2) * Math.pow(1.03, sp3);
   // Network Security multiplier: product_i (1 + coeff[i]*reputation) for purchased levels
   const nsLevel = Math.max(0, Math.floor(miningRigState.upgrades.networkSecurityLevel || 0));
-  const reputation = miningRigState.reputation || 0;
+  // Derive reputation from lifetime coins until achievements arrive
+  miningRigState.reputation = Math.floor((miningRigState.totalCoinsMinedAllTime || 0) / 10000000); // +1 per 10M coins
+  const reputation = miningRigState.reputation;
   const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
   let networkSecurityBonus = 1.0;
   for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
@@ -406,8 +408,8 @@ function updateMiningRigCoinsPerSecond() {
 // === Phase 4: Market Surges ===
 function scheduleNextSurge() {
   const now = Date.now();
-  // 300–900 seconds from now
-  const delay = (300 + Math.random() * 600) * 1000;
+  // 30–120 seconds from now (was 300–900)
+  const delay = (30 + Math.random() * 90) * 1000;
   miningRigState.nextSurgeMs = now + delay;
 }
 function clearActiveBuff() {
@@ -1919,7 +1921,7 @@ onUnmounted(() => {
 .surge-clicker {
   position: fixed;
   right: 24px;
-  top: 24px;
+  bottom: 24px;
   background: var(--keyword);
   color: var(--bg-primary);
   border: 2px solid var(--border-color);
