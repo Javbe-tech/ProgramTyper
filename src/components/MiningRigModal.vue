@@ -32,6 +32,21 @@ const currentEstate = computed(() => {
   return null;
 });
 
+// Phase 2: Per-hardware tiered upgrades (14 thresholds for T2–T9)
+const tierThresholds = [1,5,25,50,100,150,200,250,300,350,400,450,500,550];
+function getTierUnlocked(hardwareType) {
+  if (hardwareType === 'calculator') return 0; // handled by calculator engine
+  const owned = gameState.hardware[hardwareType] || 0;
+  let unlocked = 0;
+  for (const t of tierThresholds) if (owned >= t) unlocked++;
+  return unlocked;
+}
+function getTierTooltip(hardwareType) {
+  if (hardwareType === 'calculator') return 'Calculator uses its own scaling engine.';
+  const owned = gameState.hardware[hardwareType] || 0;
+  return tierThresholds.map(t => `${owned >= t ? '✓' : '○'} ${t}` ).join('  ');
+}
+
 // Hardware definitions with image paths - ordered by progression
 const hardwareDefinitions = {
   calculator: {
@@ -447,6 +462,13 @@ function resetGame() {
                   </div>
                   <div class="row-wattage">
                     {{ getHardwareWattage(key) }}W
+                  </div>
+                  <div 
+                    v-if="key !== 'calculator'" 
+                    class="row-tiers" 
+                    :title="getTierTooltip(key)"
+                  >
+                    Upgrades: {{ getTierUnlocked(key) }}/14
                   </div>
                 </div>
               </div>
@@ -962,6 +984,17 @@ function resetGame() {
   padding: 8px 15px;
   border-radius: 20px;
   border: 1px solid var(--parameter);
+}
+
+.row-tiers {
+  color: var(--font-color);
+  font-size: 0.9rem;
+  font-weight: bold;
+  background: var(--bg-color);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  cursor: help;
 }
 
 .collection-images {
