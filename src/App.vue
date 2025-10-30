@@ -1007,10 +1007,11 @@ function rebootPrestige() {
   miningRigState.upgrades = {
     wordEfficiencyLevel: 0,
     ergonomicKeyboardLevel: 0,
-    softwarePatchLevel: miningRigState.upgrades.softwarePatchLevel || 0, // keep patches (optional; adjust if not desired)
-    networkSecurityLevel: miningRigState.upgrades.networkSecurityLevel || 0,
-    networkBandwidthLevel: miningRigState.upgrades.networkBandwidthLevel || 0
+    softwarePatchLevel: 0,
+    networkSecurityLevel: 0,
+    networkBandwidthLevel: 0
   };
+  miningRigState.reputation = 0;
   miningRigState.currentWattage = 0;
   miningRigState.maxWattage = 250;
   miningRigState.networkEfficiency = 1.0;
