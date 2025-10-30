@@ -47,6 +47,14 @@ function getTierTooltip(hardwareType) {
   return tierThresholds.map(t => `${owned >= t ? '✓' : '○'} ${t}` ).join('  ');
 }
 
+function getNextTierThreshold(hardwareType) {
+  const owned = gameState.hardware[hardwareType] || 0;
+  for (const t of tierThresholds) {
+    if (owned < t) return t;
+  }
+  return 'Max';
+}
+
 // Hardware definitions with image paths - ordered by progression
 const hardwareDefinitions = {
   calculator: {
@@ -509,10 +517,16 @@ function resetGame() {
                   </div>
                   <div 
                     v-if="key !== 'calculator'" 
-                    class="row-tiers" 
-                    :title="'Each unlocked tier DOUBLES this hardware. Thresholds: ' + getTierTooltip(key)"
+                    class="row-tiers tier-hover"
                   >
                     Upgrades: {{ getTierUnlocked(key) }}/14
+                    <div class="tiers-tooltip">
+                      <div class="tooltip-title">Tiered Upgrades</div>
+                      <div class="tooltip-line">Each unlocked tier DOUBLES this hardware's income.</div>
+                      <div class="tooltip-line">Unlocked: {{ getTierUnlocked(key) }} / 14</div>
+                      <div class="tooltip-line">Thresholds: {{ getTierTooltip(key) }}</div>
+                      <div class="tooltip-line">Next tier at: {{ getNextTierThreshold(key) }} owned</div>
+                    </div>
                   </div>
                   <div v-else class="row-tiers" :title="'Each Calculator: 0.05 base + engine bonus shown here'">
                     Bonus +{{ getCalculatorBonusPerUnitLocal().toFixed(2) }}/unit
@@ -1045,6 +1059,25 @@ function resetGame() {
   border: 1px solid var(--border-color);
   cursor: help;
 }
+.tier-hover { position: relative; }
+.tiers-tooltip {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 3;
+  min-width: 260px;
+}
+.tier-hover:hover .tiers-tooltip { opacity: 1; pointer-events: auto; }
+.tiers-tooltip .tooltip-title { color: var(--font-color); font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+.tiers-tooltip .tooltip-line { color: var(--gray); font-size: 0.85rem; margin: 2px 0; }
 
 .collection-images {
   display: flex;
