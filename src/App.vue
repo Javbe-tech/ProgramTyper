@@ -54,6 +54,9 @@ const miningRigState = reactive({
   // Wattage system
   currentWattage: 0,
   maxWattage: 250,
+  // Soft-cap efficiency and real-estate bonus
+  networkEfficiency: 1.0,
+  totalRealEstateBonus: 1.0,
   // Real estate progression (purchase flags in order; fortress unlocked after 6)
   realEstate: {
     parentsBasement: false,
@@ -192,6 +195,24 @@ function loadMiningRigState() {
       if (typeof miningRigState.upgrades.wordEfficiencyLevel !== 'number') miningRigState.upgrades.wordEfficiencyLevel = 0;
       if (typeof miningRigState.upgrades.passiveBoostLevel !== 'number') miningRigState.upgrades.passiveBoostLevel = 0;
       if (typeof miningRigState.upgrades.ergonomicKeyboardLevel !== 'number') miningRigState.upgrades.ergonomicKeyboardLevel = 0;
+      if (typeof miningRigState.networkEfficiency !== 'number') miningRigState.networkEfficiency = 1.0;
+      if (typeof miningRigState.totalRealEstateBonus !== 'number') miningRigState.totalRealEstateBonus = 1.0;
+      // Recalculate real estate bonus based on owned properties (defensive)
+      try {
+        const flags = miningRigState.realEstate || {};
+        const bonuses = {
+          parentsBasement: 1.05,
+          studioApartment: 1.10,
+          suburbanHouse: 1.15,
+          downtownLoft: 1.20,
+          techMansion: 1.25,
+          corporateOffice: 1.30,
+          dataFortress: 1.50
+        };
+        let product = 1.0;
+        Object.keys(bonuses).forEach(k => { if (flags[k]) product *= bonuses[k]; });
+        miningRigState.totalRealEstateBonus = product;
+      } catch {}
       // Ensure unlocked flags exist
       if (!miningRigState.unlocked) {
         miningRigState.unlocked = {
@@ -245,12 +266,21 @@ function updateMiningRigCoinsPerSecond() {
     }
   }
   
-  // Passive multiplier is 1.25 ^ level
+  // Passive multiplier is 1.25 ^ level (will be removed in Phase 3)
   const passiveMultiplier = Math.pow(1.25, miningRigState.upgrades.passiveBoostLevel || 0);
+  // Recalculate network efficiency (soft-cap)
+  if (miningRigState.currentWattage <= miningRigState.maxWattage) {
+    miningRigState.networkEfficiency = 1.0;
+  } else {
+    const wattageOverload = miningRigState.currentWattage - miningRigState.maxWattage;
+    let eff = 1.0 - (0.005 * wattageOverload);
+    if (eff < 0.1) eff = 0.1;
+    miningRigState.networkEfficiency = eff;
+  }
   const oldCoinsPerSecond = miningRigState.coinsPerSecond;
-  miningRigState.coinsPerSecond = total * passiveMultiplier;
+  miningRigState.coinsPerSecond = total * passiveMultiplier * miningRigState.networkEfficiency * (miningRigState.totalRealEstateBonus || 1.0);
   
-  console.log(`Total passive income: ${total} × ${passiveMultiplier} = ${miningRigState.coinsPerSecond} coins/sec`);
+  console.log(`Total passive income: ${total} × ${passiveMultiplier} × eff(${miningRigState.networkEfficiency}) × estate(${miningRigState.totalRealEstateBonus}) = ${miningRigState.coinsPerSecond} coins/sec`);
   console.log(`Previous coins/sec: ${oldCoinsPerSecond}, New coins/sec: ${miningRigState.coinsPerSecond}`);
   console.log('=== END UPDATE ===');
   // Persist immediately when coins/second changes due to purchases/sales/upgrades
@@ -301,7 +331,7 @@ function handleKeyPressed(keyData) {
     const base = miningRigState.coinsPerWord + 0.5 * level;
     const kbLevel = Math.min(100, miningRigState.upgrades.ergonomicKeyboardLevel || 0);
     const typingMultiplier = Math.pow(1.07, kbLevel); // ~+7%/level, compounding up to 100
-    const coinsEarned = base * typingMultiplier;
+    const coinsEarned = base * typingMultiplier * (miningRigState.totalRealEstateBonus || 1.0);
     miningRigState.currentColdCoins += coinsEarned;
     
     console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);

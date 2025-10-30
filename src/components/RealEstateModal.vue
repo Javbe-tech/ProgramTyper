@@ -15,6 +15,7 @@ const properties = [
     image: '/home1.png',
     cost: 15000,
     wattage: 300,
+    globalIncomeBonus: 1.05,
     blurb: 'A fixer-upper bursting with "character" and questionable odors. As-is; bring tools and optimism.',
     details: `🔥 Hot Property Alert! 🔥 Your Dream "Opportunity" Awaits!
 Address: 123 Main Street, Anytown, USA
@@ -48,6 +49,7 @@ Schedule your showing today! (Wear sturdy shoes and bring a flashlight!)`
     image: '/home2.png',
     cost: 100000,
     wattage: 900,
+    globalIncomeBonus: 1.10,
     blurb: 'Your personal freedom pod. Minimalist efficiency and maximum solitude in the city core.',
     details: `🏢 Your Personal Freedom Pod Awaits! (With a Bathroom!) 🏢
 Address: Apt 7B, Urban Solitude Tower, Bustleburg, USA
@@ -81,6 +83,7 @@ Ready to embrace the unburdened life? Discover the liberating power of a studio 
     image: '/home3.png',
     cost: 750000,
     wattage: 2500,
+    globalIncomeBonus: 1.15,
     blurb: 'Open-concept conformity with HOA-approved lawn and mandatory bake sales.',
     details: `🏡 Be Warned: Extreme Conformity Ahead! Your Future Prison (A.K.A. "Family Home") Awaits! 🏡
 Address: 456 Suburban Dream Lane, Perfectville, USA
@@ -113,6 +116,7 @@ If you're ready to embrace the glorious monotony of suburban family life, then t
     image: '/home4.png',
     cost: 5000000,
     wattage: 7000,
+    globalIncomeBonus: 1.20,
     blurb: 'Industrial-chic excess with panoramic views and curated existential dread.',
     details: `💰 Warning: May Cause Excessive Envy & Existential Dread in Less Fortunate Acquaintances 💰
 Address: Penthouse Loft, The Zenith, Downtown Metropolis, USA
@@ -146,6 +150,7 @@ If you're ready to achieve peak materialism and enjoy the fleeting satisfaction 
     image: '/home5.png',
     cost: 40000000,
     wattage: 18000,
+    globalIncomeBonus: 1.25,
     blurb: 'Zero-gravity meditation meets quantum labs in a dystopian wellness palace.',
     details: `🚀 Prepare for Launch! Your Space-Aged Silicon Sanctuary Awaits! (No Peasants Allowed) 🚀
 Address: The "Alpha Nerd" Estate, Hyperloop Hills, Innovator's Valley, CA
@@ -182,6 +187,7 @@ If your net worth has more zeros than your social calendar has actual dates, the
     image: '/home6.png',
     cost: 300000000,
     wattage: 50000,
+    globalIncomeBonus: 1.30,
     blurb: 'Open-plan misery optimized for shareholder value and helicopter access.',
     details: `🏛️ The "Soul Crusher" Tower: Where Dreams Go to Die (Profitably!) 🏛️
 Address: The Apex of Avarice, 100 Corporate Overlord Plaza, Megalopolis, USA
@@ -218,6 +224,7 @@ If you're ready to solidify your corporate empire and provide a fittingly soul-c
     image: '/home7.png',
     cost: 2500000000,
     wattage: 150000,
+    globalIncomeBonus: 1.50,
     blurb: 'Subterranean citadel for total data domination and maximum dread.',
     details: `🔒 Behold the "Omni-Vault": Your Digital Overlord's Headquarters! 🔒
 Address: Core of the Nexus, Undisclosed Global Coordinates (Don't worry, your algorithm knows where it is.)
@@ -274,6 +281,13 @@ function buy(idx) {
   props.gameState.currentColdCoins -= prop.cost;
   props.gameState.maxWattage += prop.wattage;
   props.gameState.realEstate[prop.key] = true;
+  // Apply global income bonus multiplicatively
+  if (typeof props.gameState.totalRealEstateBonus !== 'number') {
+    props.gameState.totalRealEstateBonus = 1.0;
+  }
+  if (prop.globalIncomeBonus) {
+    props.gameState.totalRealEstateBonus *= prop.globalIncomeBonus;
+  }
   emit('purchased');
 }
 

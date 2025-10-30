@@ -224,10 +224,6 @@ function purchaseHardware(hardwareType) {
   const def = hardwareDefinitions[hardwareType];
   const watt = def.wattage || 0;
   if (gameState.currentColdCoins < cost) return;
-  if (gameState.currentWattage + watt > gameState.maxWattage) {
-    alert('Not enough power capacity. Buy Real Estate to increase max wattage.');
-    return;
-  }
   gameState.currentColdCoins -= cost;
   gameState.hardware[hardwareType]++;
   gameState.currentWattage += watt;
