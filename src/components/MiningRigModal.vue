@@ -224,14 +224,14 @@ function getUpgradeDescription(upgradeType) {
     const l = gameState.upgrades.softwarePatchLevel || 0;
     const seg1 = Math.min(l,40), seg2 = Math.min(Math.max(l-40,0),40), seg3 = Math.min(Math.max(l-80,0),40);
     const mult = (Math.pow(1.01,seg1)*Math.pow(1.02,seg2)*Math.pow(1.03,seg3)).toFixed(2);
-    return `Global income ×${mult}`;
+    return `Software Patches boost ALL income. Your current patches give ×${mult} to both passive and typing income.`;
   }
   if (upgradeType === 'networkBandwidth') {
     const l = gameState.upgrades.networkBandwidthLevel || 0;
     const unlockedPct = ((l / 10) * 100).toFixed(0);
     const potential = 1 + ((gameState.coinsPerSecond || 0) / 1_000_000);
     const effective = 1 + ((gameState.coinsPerSecond || 0) / 1_000_000) * (l / 10);
-    return `Bandwidth: unlocks ${unlockedPct}% of bonus. Potential ×${potential.toFixed(3)} → Active ×${effective.toFixed(3)}`;
+    return `Network Bandwidth boosts TYPING based on your passive income. Potential typing boost = 1 + (Passive cps / 1,000,000). You currently unlock ${unlockedPct}% of that: ×${effective.toFixed(3)}.`;
   }
   if (upgradeType === 'networkSecurity') {
     const l = gameState.upgrades.networkSecurityLevel || 0;
@@ -242,7 +242,7 @@ function getUpgradeDescription(upgradeType) {
       bonus *= (1 + nsCoeffs[i] * reputation);
     }
     const nextCoeff = nsCoeffs[Math.min(l, nsCoeffs.length - 1)];
-    return `Security: level ${l}/15. Reputation ${reputation}. Current bonus ×${bonus.toFixed(3)}. Next level adds ×(1 + ${nextCoeff}×reputation).`;
+    return `Network Security increases ALL income using your Reputation (earned from achievements, coming soon). Current bonus: ×${bonus.toFixed(3)} at reputation ${reputation}. Next level adds another ×(1 + ${nextCoeff} × reputation).`;
   }
   return upgradesDefinitions[upgradeType]?.description || '';
 }
@@ -528,8 +528,14 @@ function resetGame() {
                       <div class="tooltip-line">Next tier at: {{ getNextTierThreshold(key) }} owned</div>
                     </div>
                   </div>
-                  <div v-else class="row-tiers" :title="'Each Calculator: 0.05 base + engine bonus shown here'">
+                  <div v-else class="row-tiers tier-hover">
                     Bonus +{{ getCalculatorBonusPerUnitLocal().toFixed(2) }}/unit
+                    <div class="tiers-tooltip">
+                      <div class="tooltip-title">Calculator Bonus</div>
+                      <div class="tooltip-line">Each Calculator earns 0.05 base coins/sec.</div>
+                      <div class="tooltip-line">Plus +0.1 coins/sec for every non-Calculator device you own.</div>
+                      <div class="tooltip-line">Milestones at 50/100/150/200/300/400 Calculators greatly boost this bonus.</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1072,7 +1078,7 @@ function resetGame() {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
-  z-index: 3;
+  z-index: 10020;
   min-width: 260px;
 }
 .tier-hover:hover .tiers-tooltip { opacity: 1; pointer-events: auto; }
@@ -1112,7 +1118,7 @@ function resetGame() {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease;
-  z-index: 3;
+  z-index: 10020;
   min-width: 180px;
 }
 .collection-image:hover .image-tooltip {
