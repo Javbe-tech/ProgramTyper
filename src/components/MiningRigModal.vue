@@ -235,14 +235,16 @@ function getUpgradeDescription(upgradeType) {
   }
   if (upgradeType === 'networkSecurity') {
     const l = gameState.upgrades.networkSecurityLevel || 0;
-    const reputation = gameState.reputation || 0;
+    const reputation = Math.floor(Math.log10(Math.max(0, gameState.totalCoinsMinedAllTime || 0) + 1));
     const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
     let bonus = 1.0;
     for (let i = 0; i < Math.min(l, nsCoeffs.length); i++) {
-      bonus *= (1 + nsCoeffs[i] * reputation);
+      const repFactor = Math.min(reputation, 10) / 10;
+      bonus *= (1 + nsCoeffs[i] * repFactor);
     }
+    bonus = Math.min(bonus, 10);
     const nextCoeff = nsCoeffs[Math.min(l, nsCoeffs.length - 1)];
-    return `Network Security increases ALL income using your Reputation (earned from achievements, coming soon). Current bonus: ×${bonus.toFixed(3)} at reputation ${reputation}. Next level adds another ×(1 + ${nextCoeff} × reputation).`;
+    return `Network Security boosts ALL income. Reputation grows slowly with lifetime coins. Current ×${bonus.toFixed(2)} at reputation ${reputation}. Next level adds about ×(1 + ${(nextCoeff).toFixed(3)} × (rep/10)).`;
   }
   return upgradesDefinitions[upgradeType]?.description || '';
 }
@@ -359,11 +361,13 @@ const totalCoinsPerWord = computed(() => {
   // Network security multiplier (same as App)
   const nsLevel = Math.max(0, Math.floor(gameState.upgrades.networkSecurityLevel || 0));
   const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
-  const reputation = gameState.reputation || 0;
+  const reputation = Math.floor(Math.log10(Math.max(0, gameState.totalCoinsMinedAllTime || 0) + 1));
   let networkSecurityBonus = 1.0;
   for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
-    networkSecurityBonus *= (1 + nsCoeffs[i] * reputation);
+    const repFactor = Math.min(reputation, 10) / 10;
+    networkSecurityBonus *= (1 + nsCoeffs[i] * repFactor);
   }
+  networkSecurityBonus = Math.min(networkSecurityBonus, 10);
   // Real estate and prestige
   const estate = gameState.totalRealEstateBonus || 1.0;
   const prestigeBonus = 1 + (gameState.prestigeLevel || 0) * 0.01;

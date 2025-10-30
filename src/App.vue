@@ -370,14 +370,19 @@ function updateMiningRigCoinsPerSecond() {
   const softwarePatchBonus = Math.pow(1.01, sp1) * Math.pow(1.02, sp2) * Math.pow(1.03, sp3);
   // Network Security multiplier: product_i (1 + coeff[i]*reputation) for purchased levels
   const nsLevel = Math.max(0, Math.floor(miningRigState.upgrades.networkSecurityLevel || 0));
-  // Derive reputation from lifetime coins until achievements arrive
-  miningRigState.reputation = Math.floor((miningRigState.totalCoinsMinedAllTime || 0) / 10000000); // +1 per 10M coins
+  // Derive reputation from lifetime coins using logarithmic scaling to avoid runaway growth
+  const totalAllTime = Math.max(0, miningRigState.totalCoinsMinedAllTime || 0);
+  miningRigState.reputation = Math.floor(Math.log10(totalAllTime + 1)); // 0,1,2,... (gentle growth)
   const reputation = miningRigState.reputation;
   const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
   let networkSecurityBonus = 1.0;
   for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
-    networkSecurityBonus *= (1 + nsCoeffs[i] * reputation);
+    // Reputation influence is modest: divide by 10 and cap reputation effect to 10
+    const repFactor = Math.min(reputation, 10) / 10;
+    networkSecurityBonus *= (1 + nsCoeffs[i] * repFactor);
   }
+  // Hard cap to prevent runaway multipliers
+  networkSecurityBonus = Math.min(networkSecurityBonus, 10);
   // Recalculate network efficiency (soft-cap)
   if (miningRigState.currentWattage <= miningRigState.maxWattage) {
     miningRigState.networkEfficiency = 1.0;
