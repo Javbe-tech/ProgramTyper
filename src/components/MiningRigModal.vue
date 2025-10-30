@@ -403,6 +403,10 @@ function resetGame() {
               <span class="stat-label">Power Usage:</span>
               <span class="stat-value">{{ gameState.currentWattage }}/{{ gameState.maxWattage }}W</span>
             </div>
+            <div class="stat-item" :title="gameState.networkEfficiency < 1 ? 'Over capacity: income reduced' : 'At peak efficiency'">
+              <span class="stat-label">Efficiency:</span>
+              <span class="stat-value" :style="{ color: gameState.networkEfficiency < 1 ? '#ff4444' : 'var(--keyword)' }">{{ Math.round((gameState.networkEfficiency || 1)*100) }}%</span>
+            </div>
           </div>
         </div>
         <div class="header-buttons">

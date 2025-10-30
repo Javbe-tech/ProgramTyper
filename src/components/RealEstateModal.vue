@@ -330,6 +330,7 @@ const monthlyPayment = computed(() => {
                 <span class="price">{{ p.cost.toLocaleString() }} 💰</span>
                 <span class="power">+{{ p.wattage }}W</span>
               </div>
+              <div class="bonus" v-if="p.globalIncomeBonus">Global Bonus: ×{{ p.globalIncomeBonus.toFixed(2) }}</div>
             </div>
             <div class="re-actions">
               <button class="details-btn" @click="openDetails(i)">Details</button>
@@ -379,6 +380,7 @@ const monthlyPayment = computed(() => {
               <div class="aside-card">
                 <div class="aside-price">{{ selected.cost.toLocaleString() }} 💰</div>
                 <div class="aside-sub">Adds +{{ selected.wattage }}W capacity</div>
+                <div class="aside-sub" v-if="selected.globalIncomeBonus">Global Income: ×{{ selected.globalIncomeBonus.toFixed(2) }}</div>
                 <button 
                   class="aside-buy"
                   :disabled="!canBuyProperty(selectedIndex) || purchasedMap[selected.key]"
@@ -420,6 +422,7 @@ const monthlyPayment = computed(() => {
 .re-info h3 { margin: 0 0 6px 0; color: var(--font-color); font-size: 1rem; }
 .blurb { color: var(--gray); font-size: 0.85rem; min-height: 44px; }
 .meta { display: flex; justify-content: space-between; color: var(--font-color); margin-top: 8px; font-weight: bold; }
+.bonus { color: var(--completed-green); font-size: 0.85rem; margin-top: 6px; font-weight: 700; }
 .re-actions { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .re-actions .details-btn { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: var(--bg-color); color: var(--font-color); font-weight: 600; }
 .re-actions .purchase-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: var(--keyword); color: #fff; font-weight: bold; font-size: 1rem; }
