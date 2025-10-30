@@ -117,19 +117,26 @@ const upgradesDefinitions = {
     costGrowth: 1.20,
     maxLevel: 100
   },
-  passiveBoost: {
-    name: 'Passive Boost',
-    description: '+25% total passive income per level (multiplicative)',
-    baseCost: 1000,
-    costGrowth: 1.80,
-    maxLevel: 100
-  },
   ergonomicKeyboard: {
     name: 'Ergonomic Keyboard',
     description: 'Typing multiplier',
     baseCost: 200,
     costGrowth: 1.22,
     maxLevel: 100
+  },
+  softwarePatch: {
+    name: 'Software Patch',
+    description: 'Global income boost (stacking, 120 patches)',
+    baseCost: 1000,
+    costGrowth: 1.25,
+    maxLevel: 120
+  },
+  networkSecurity: {
+    name: 'Network Security',
+    description: 'Meta-scaling: stronger with reputation (15 tiers)',
+    baseCost: 5000,
+    costGrowth: 1.5,
+    maxLevel: 15
   }
 };
 
@@ -162,8 +169,9 @@ function calculateUpgradeCost(upgradeType) {
 // Get current upgrade level
 function getUpgradeLevel(upgradeType) {
   if (upgradeType === 'wordEfficiency') return gameState.upgrades.wordEfficiencyLevel || 0;
-  if (upgradeType === 'passiveBoost') return gameState.upgrades.passiveBoostLevel || 0;
   if (upgradeType === 'ergonomicKeyboard') return gameState.upgrades.ergonomicKeyboardLevel || 0;
+  if (upgradeType === 'softwarePatch') return gameState.upgrades.softwarePatchLevel || 0;
+  if (upgradeType === 'networkSecurity') return gameState.upgrades.networkSecurityLevel || 0;
   return 0;
 }
 
@@ -179,9 +187,17 @@ function getUpgradeDescription(upgradeType) {
     return `Adds +${bonus} coins per correct key`;
   }
   if (upgradeType === 'passiveBoost') {
-    const level = gameState.upgrades.passiveBoostLevel || 0;
-    const mult = Math.pow(1.25, level).toFixed(2);
-    return `Passive income ×${mult}`;
+    return '';
+  }
+  if (upgradeType === 'softwarePatch') {
+    const l = gameState.upgrades.softwarePatchLevel || 0;
+    const seg1 = Math.min(l,40), seg2 = Math.min(Math.max(l-40,0),40), seg3 = Math.min(Math.max(l-80,0),40);
+    const mult = (Math.pow(1.01,seg1)*Math.pow(1.02,seg2)*Math.pow(1.03,seg3)).toFixed(2);
+    return `Global income ×${mult}`;
+  }
+  if (upgradeType === 'networkSecurity') {
+    const l = gameState.upgrades.networkSecurityLevel || 0;
+    return `Security tiers: ${l}/15 (scales with reputation)`;
   }
   return upgradesDefinitions[upgradeType]?.description || '';
 }
@@ -256,10 +272,12 @@ function purchaseUpgrade(upgradeType) {
   gameState.currentColdCoins -= cost;
   if (upgradeType === 'wordEfficiency') {
     gameState.upgrades.wordEfficiencyLevel = (gameState.upgrades.wordEfficiencyLevel || 0) + 1;
-  } else if (upgradeType === 'passiveBoost') {
-    gameState.upgrades.passiveBoostLevel = (gameState.upgrades.passiveBoostLevel || 0) + 1;
   } else if (upgradeType === 'ergonomicKeyboard') {
     gameState.upgrades.ergonomicKeyboardLevel = (gameState.upgrades.ergonomicKeyboardLevel || 0) + 1;
+  } else if (upgradeType === 'softwarePatch') {
+    gameState.upgrades.softwarePatchLevel = Math.min(120, (gameState.upgrades.softwarePatchLevel || 0) + 1);
+  } else if (upgradeType === 'networkSecurity') {
+    gameState.upgrades.networkSecurityLevel = Math.min(15, (gameState.upgrades.networkSecurityLevel || 0) + 1);
   }
   emit('update-game-state');
 }

@@ -48,8 +48,9 @@ const miningRigState = reactive({
   upgrades: {
     // New upgrade model: levels instead of multipliers
     wordEfficiencyLevel: 0, // +0.5 coins per correct key per level
-    passiveBoostLevel: 0,    // +25% multiplicative per level
-    ergonomicKeyboardLevel: 0 // typing multiplier, modest per-level boost
+    ergonomicKeyboardLevel: 0, // typing multiplier, modest per-level boost
+    softwarePatchLevel: 0, // Phase 3: 0..120
+    networkSecurityLevel: 0 // Phase 3: 0..15 purchased
   },
   // Wattage system
   currentWattage: 0,
@@ -57,6 +58,7 @@ const miningRigState = reactive({
   // Soft-cap efficiency and real-estate bonus
   networkEfficiency: 1.0,
   totalRealEstateBonus: 1.0,
+  reputation: 0, // Phase 3: increases with achievements
   // Real estate progression (purchase flags in order; fortress unlocked after 6)
   realEstate: {
     parentsBasement: false,
@@ -193,8 +195,9 @@ function loadMiningRigState() {
       }
       // Backfill new upgrades with defaults if missing
       if (typeof miningRigState.upgrades.wordEfficiencyLevel !== 'number') miningRigState.upgrades.wordEfficiencyLevel = 0;
-      if (typeof miningRigState.upgrades.passiveBoostLevel !== 'number') miningRigState.upgrades.passiveBoostLevel = 0;
       if (typeof miningRigState.upgrades.ergonomicKeyboardLevel !== 'number') miningRigState.upgrades.ergonomicKeyboardLevel = 0;
+      if (typeof miningRigState.upgrades.softwarePatchLevel !== 'number') miningRigState.upgrades.softwarePatchLevel = 0;
+      if (typeof miningRigState.upgrades.networkSecurityLevel !== 'number') miningRigState.upgrades.networkSecurityLevel = 0;
       if (typeof miningRigState.networkEfficiency !== 'number') miningRigState.networkEfficiency = 1.0;
       if (typeof miningRigState.totalRealEstateBonus !== 'number') miningRigState.totalRealEstateBonus = 1.0;
       // Recalculate real estate bonus based on owned properties (defensive)
@@ -255,19 +258,93 @@ function updateMiningRigCoinsPerSecond() {
     aiChatGPU: { coinsPerSecond: 500 },
     serverRack: { coinsPerSecond: 2500 }
   };
-  
-  let total = 0;
-  for (const [hardwareType, quantity] of Object.entries(miningRigState.hardware)) {
-    const definition = hardwareDefinitions[hardwareType];
-    if (definition && quantity > 0) {
-      const contribution = quantity * definition.coinsPerSecond;
-      total += contribution;
-      console.log(`${hardwareType}: ${quantity} × ${definition.coinsPerSecond} = ${contribution} coins/sec`);
+
+  // === Phase 2: Tiered hardware multipliers, calculator engine, and synergies ===
+  const tierThresholds = [1,5,25,50,100,150,200,250,300,350,400,450,500,550];
+  const hardwareKeys = ['smartDoorbells','macbooks','cellphone','kitchenAppliance','smartFridge','gpuRig','aiChatGPU','serverRack'];
+  function getTierMultiplier(key, owned) {
+    if (key === 'calculator') return 1.0; // handled separately
+    let unlocked = 0;
+    for (const t of tierThresholds) { if (owned >= t) unlocked++; }
+    // each unlocked tier doubles that hardware's output
+    return Math.pow(2, unlocked);
+  }
+  // Calculator scaling engine
+  function getCalculatorBonusPerUnit(hardwareCounts) {
+    const calcOwned = hardwareCounts.calculator || 0;
+    const nonCalcOwned = Object.entries(hardwareCounts)
+      .filter(([k]) => k !== 'calculator')
+      .reduce((s, [,v]) => s + (v||0), 0);
+    let bonus = 0.1 * nonCalcOwned; // base bonus per calculator
+    // multiplicative milestones
+    if (calcOwned >= 50) bonus *= 5;
+    if (calcOwned >= 100) bonus *= 10;
+    if (calcOwned >= 150) bonus *= 20;
+    if (calcOwned >= 200) bonus *= 20;
+    if (calcOwned >= 300) bonus *= 20;
+    if (calcOwned >= 400) bonus *= 20;
+    return bonus; // coins/sec added to EACH calculator
+  }
+  // Synergies
+  const synergies = [
+    { lower: 'smartDoorbells', higher: 'macbooks' },
+    { lower: 'cellphone', higher: 'kitchenAppliance' },
+    { lower: 'smartFridge', higher: 'gpuRig' },
+    { lower: 'aiChatGPU', higher: 'serverRack' },
+    { lower: 'macbooks', higher: 'gpuRig' },
+    { lower: 'calculator', higher: 'serverRack' },
+    { lower: 'smartDoorbells', higher: 'aiChatGPU' },
+    { lower: 'kitchenAppliance', higher: 'serverRack' }
+  ];
+  function getSynergyMultipliers(hardwareCounts) {
+    const mult = { calculator: 1, smartDoorbells: 1, macbooks: 1, cellphone: 1, kitchenAppliance: 1, smartFridge: 1, gpuRig: 1, aiChatGPU: 1, serverRack: 1 };
+    for (const s of synergies) {
+      const lowerOwned = hardwareCounts[s.lower] || 0;
+      const higherOwned = hardwareCounts[s.higher] || 0;
+      if (lowerOwned >= 15 && higherOwned >= 15) {
+        mult[s.higher] *= (1 + 0.05 * lowerOwned); // +5% per lower unit
+        mult[s.lower] *= (1 + 0.001 * higherOwned); // +0.1% per higher unit
+      }
     }
+    return mult;
   }
   
-  // Passive multiplier is 1.25 ^ level (will be removed in Phase 3)
-  const passiveMultiplier = Math.pow(1.25, miningRigState.upgrades.passiveBoostLevel || 0);
+  // Compute base contributions with phase 2 multipliers
+  const counts = miningRigState.hardware;
+  const synergyMult = getSynergyMultipliers(counts);
+  let total = 0;
+  for (const [hardwareType, quantity] of Object.entries(counts)) {
+    const definition = hardwareDefinitions[hardwareType];
+    if (!definition || quantity <= 0) continue;
+    let perUnit = definition.coinsPerSecond;
+    if (hardwareType === 'calculator') {
+      perUnit += getCalculatorBonusPerUnit(counts);
+    }
+    let typeMult = synergyMult[hardwareType] || 1;
+    if (hardwareType !== 'calculator') {
+      typeMult *= getTierMultiplier(hardwareType, quantity);
+    }
+    const contribution = quantity * perUnit * typeMult;
+    total += contribution;
+    console.log(`${hardwareType}: ${quantity} × ${perUnit} × mult(${typeMult}) = ${contribution} coins/sec`);
+  }
+  
+  // Phase 3: passive boost removed -> set to 1
+  const passiveMultiplier = 1;
+  // Software Patch multiplier (1..120): first 40 ×1.01, next 40 ×1.02, final 40 ×1.03 (multiplying)
+  const sp = Math.max(0, Math.floor(miningRigState.upgrades.softwarePatchLevel || 0));
+  const sp1 = Math.min(sp, 40);
+  const sp2 = Math.min(Math.max(sp - 40, 0), 40);
+  const sp3 = Math.min(Math.max(sp - 80, 0), 40);
+  const softwarePatchBonus = Math.pow(1.01, sp1) * Math.pow(1.02, sp2) * Math.pow(1.03, sp3);
+  // Network Security multiplier: product_i (1 + coeff[i]*reputation) for purchased levels
+  const nsLevel = Math.max(0, Math.floor(miningRigState.upgrades.networkSecurityLevel || 0));
+  const reputation = miningRigState.reputation || 0;
+  const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
+  let networkSecurityBonus = 1.0;
+  for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
+    networkSecurityBonus *= (1 + nsCoeffs[i] * reputation);
+  }
   // Recalculate network efficiency (soft-cap)
   if (miningRigState.currentWattage <= miningRigState.maxWattage) {
     miningRigState.networkEfficiency = 1.0;
@@ -278,9 +355,14 @@ function updateMiningRigCoinsPerSecond() {
     miningRigState.networkEfficiency = eff;
   }
   const oldCoinsPerSecond = miningRigState.coinsPerSecond;
-  miningRigState.coinsPerSecond = total * passiveMultiplier * miningRigState.networkEfficiency * (miningRigState.totalRealEstateBonus || 1.0);
+  miningRigState.coinsPerSecond = total 
+    * passiveMultiplier 
+    * softwarePatchBonus 
+    * networkSecurityBonus 
+    * miningRigState.networkEfficiency 
+    * (miningRigState.totalRealEstateBonus || 1.0);
   
-  console.log(`Total passive income: ${total} × ${passiveMultiplier} × eff(${miningRigState.networkEfficiency}) × estate(${miningRigState.totalRealEstateBonus}) = ${miningRigState.coinsPerSecond} coins/sec`);
+  console.log(`Total passive income: ${total} × sp(${softwarePatchBonus.toFixed(3)}) × ns(${networkSecurityBonus.toFixed(3)}) × eff(${miningRigState.networkEfficiency}) × estate(${miningRigState.totalRealEstateBonus}) = ${miningRigState.coinsPerSecond} coins/sec`);
   console.log(`Previous coins/sec: ${oldCoinsPerSecond}, New coins/sec: ${miningRigState.coinsPerSecond}`);
   console.log('=== END UPDATE ===');
   // Persist immediately when coins/second changes due to purchases/sales/upgrades
@@ -331,7 +413,20 @@ function handleKeyPressed(keyData) {
     const base = miningRigState.coinsPerWord + 0.5 * level;
     const kbLevel = Math.min(100, miningRigState.upgrades.ergonomicKeyboardLevel || 0);
     const typingMultiplier = Math.pow(1.07, kbLevel); // ~+7%/level, compounding up to 100
-    const coinsEarned = base * typingMultiplier * (miningRigState.totalRealEstateBonus || 1.0);
+    // Apply software patches and network security to typing as well
+    const sp = Math.max(0, Math.floor(miningRigState.upgrades.softwarePatchLevel || 0));
+    const sp1 = Math.min(sp, 40);
+    const sp2 = Math.min(Math.max(sp - 40, 0), 40);
+    const sp3 = Math.min(Math.max(sp - 80, 0), 40);
+    const softwarePatchBonus = Math.pow(1.01, sp1) * Math.pow(1.02, sp2) * Math.pow(1.03, sp3);
+    const nsLevel = Math.max(0, Math.floor(miningRigState.upgrades.networkSecurityLevel || 0));
+    const reputation = miningRigState.reputation || 0;
+    const nsCoeffs = [0.10,0.125,0.15,0.175,0.20,0.225,0.25,0.275,0.30,0.325,0.35,0.375,0.40,0.425,0.45];
+    let networkSecurityBonus = 1.0;
+    for (let i = 0; i < Math.min(nsLevel, nsCoeffs.length); i++) {
+      networkSecurityBonus *= (1 + nsCoeffs[i] * reputation);
+    }
+    const coinsEarned = base * typingMultiplier * (miningRigState.totalRealEstateBonus || 1.0) * softwarePatchBonus * networkSecurityBonus;
     miningRigState.currentColdCoins += coinsEarned;
     
     console.log(`Key press earned ${coinsEarned} coins, calling saveMiningRigState`);
